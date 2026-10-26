@@ -1,0 +1,76 @@
+# Factory A: a mid-size knit dyeing factory with a biological ETP.
+#
+# Every number here is illustrative. Values marked "source" come from published
+# figures; values marked "assumed" are engineering estimates that a real site
+# survey would replace. Rates are m3/h unless the key says otherwise.
+
+id: factory-a
+name: Knit dyeing factory A
+timezone: Asia/Dhaka
+timestep_minutes: 5
+
+production:
+  # source: 1,500 m3/day is the per-factory figure used in published Dhaka
+  # pollution scenarios; reported textile ETPs range 1,250 to 4,800 m3/day.
+  daily_wastewater_m3: 1500
+  batch_hours: 4
+  # assumed: two busy shifts and a lighter night shift; multipliers average 1.0.
+  shift_profile:
+    - {start_hour: 6, end_hour: 22, multiplier: 1.15}
+    - {start_hour: 22, end_hour: 6, multiplier: 0.70}
+  noise_rel: 0.06            # assumed: batch-to-batch variation in water use
+  shades:
+    # assumed: darker shades use more salt, more rinses and carry more organic load.
+    # source for the BOD range: inlet BOD up to 1,160 mg/L reported for Bangladeshi textile ETPs.
+    light:  {probability: 0.35, volume_factor: 0.90, bod_mg_l: 450, conductivity_us_cm: 3500}
+    medium: {probability: 0.40, volume_factor: 1.00, bod_mg_l: 650, conductivity_us_cm: 6000}
+    dark:   {probability: 0.25, volume_factor: 1.15, bod_mg_l: 900, conductivity_us_cm: 9000}
+  raw_ph: {mean: 11.0, sd: 0.25}   # assumed: reactive dyeing effluent is strongly alkaline (typical 9 to 12)
+
+water:
+  process_loss_fraction: 0.10      # assumed: evaporation, steam, water leaving in fabric
+  sludge_water_fraction: 0.015     # assumed: water leaving with dewatered sludge
+  reuse_fraction: 0.15             # assumed: share of treated water returned to the fresh water tank
+  groundwater: {ph: 7.1, conductivity_us_cm: 650}   # assumed
+
+etp:
+  design_capacity_m3_day: 1800     # assumed: about 20% headroom over average flow
+  pump_max_m3_h: 95                # assumed
+  equalization:
+    volume_m3: 700                 # assumed: about 11 hours of average flow
+    setpoint_fraction: 0.40
+    control_time_constant_h: 4     # how fast the inflow pump works the level back to setpoint
+  aeration_basin_volume_m3: 1000   # assumed: about 16 hours hydraulic retention
+  clarifier_volume_m3: 150         # assumed
+  # Treatment interval for a batch: the production window shifted by the range
+  # of time its wastewater spends in the equalization tank and treatment train.
+  residence_min_h: 12              # assumed
+  residence_max_h: 36              # assumed
+  treated_ph: {mean: 7.4, sd: 0.15}            # assumed: after neutralization
+  conductivity_removal_fraction: 0.05          # assumed: biological treatment removes little dissolved salt
+
+power:
+  standby_kw: 4                    # assumed: lighting and controls when the ETP is off
+  base_kw: 22                      # assumed: mixers, clarifier drive, dosing
+  pump_kw_per_m3_h: 0.12           # assumed
+  # assumed: about 1.1 kg O2 per kg BOD removed, about 1.5 kg O2 per kWh field
+  # aeration efficiency, so roughly 0.75 kW per kg BOD per hour.
+  aeration_kw_per_kg_bod_h: 0.75
+  aeration_response_h: 1.5         # how quickly blowers follow load
+
+discharge_limits:
+  bod_mg_l: 30                     # source: ECR 2023 textile effluent limit
+  ph_min: 6.0                      # assumed, to confirm against ECR 2023
+  ph_max: 9.0                      # assumed, to confirm against ECR 2023
+
+sensors:
+  # assumed measurement noise
+  flow_noise_rel: 0.02
+  power_noise_rel: 0.03
+  ph_noise_abs: 0.05
+  conductivity_noise_rel: 0.02
+  tank_level_noise_abs: 0.01       # fraction of tank volume
+  tank_level_resolution_minutes: 15
+
+lab:
+  interval_days: 7                 # assumed: weekly grab samples of treated effluent
