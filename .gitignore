@@ -2,6 +2,7 @@
 *.pdf
 docs/reference/
 tellwater-handoff.md
+worklog.md
 
 # Secrets
 .env
