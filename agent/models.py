@@ -46,6 +46,19 @@ class ModelEndpoint:
             os.environ.get("MUSE_SPARK_MODEL", "muse-spark-1.3"),
         )
 
+    @classmethod
+    def muse_spark_open(cls) -> "ModelEndpoint":
+        load_env()
+        key = os.environ.get("BASETEN_API_KEY")
+        if not key:
+            raise RuntimeError("BASETEN_API_KEY is not set in .env")
+        return cls(
+            "muse-spark-open",
+            os.environ.get("BASETEN_BASE_URL", "https://inference.baseten.co/v1"),
+            key,
+            os.environ.get("MUSE_SPARK_OPEN_MODEL", "meta-models/muse-spark-open-1026"),
+        )
+
 
 @dataclass
 class Reply:

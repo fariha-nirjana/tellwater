@@ -1,9 +1,10 @@
-"""Day 1 API smoke test: a text call, an image read with localization, and a
-tool call. Run with: .venv/bin/python -m agent.smoke"""
+"""API smoke test: a text call, an image read with localization, and a tool
+call. Run with: .venv/bin/python -m agent.smoke [--open]"""
 
 from __future__ import annotations
 
 import json
+import sys
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -32,7 +33,8 @@ def _test_page() -> Image.Image:
 
 
 def main() -> None:
-    client = ModelClient(ModelEndpoint.muse_spark())
+    endpoint = ModelEndpoint.muse_spark_open() if "--open" in sys.argv else ModelEndpoint.muse_spark()
+    client = ModelClient(endpoint)
     print(f"model: {client.endpoint.model} at {client.endpoint.base_url}\n")
 
     r = client.chat([{"role": "user", "content": "Reply with exactly: OK"}])
