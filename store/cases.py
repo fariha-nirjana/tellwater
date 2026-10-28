@@ -40,14 +40,17 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def save_case(case: Case, label: Label, root: Path = CASES, factory_name: str = "factory") -> Path:
+def save_case(case: Case, label: Label, root: Path = CASES, factory_name: str | None = None) -> Path:
+    from sim.config import config_name
+
+    factory_name = factory_name or config_name(case.factory_id)
     folder = root / case.scenario.id
     docs_dir = folder / "docs"
     hidden = folder / "hidden"
     hidden.mkdir(parents=True, exist_ok=True)
     render_case_documents(case, docs_dir)
 
-    case.signals.to_csv(folder / "signals.csv.gz", index_label="time")
+    case.signals.to_csv(folder / "signals.csv.gz", index_label="time", compression={"method": "gzip", "mtime": 0})
     (folder / "case.json").write_text(json.dumps({
         "case_id": case.scenario.id,
         "factory_id": case.factory_id,
@@ -74,7 +77,7 @@ def save_case(case: Case, label: Label, root: Path = CASES, factory_name: str = 
                      "meta": json.loads(json.dumps(d.meta, default=str))})
     (folder / "documents.json").write_text(json.dumps(public, indent=2))
 
-    case.truth.to_csv(hidden / "truth.csv.gz", index_label="time")
+    case.truth.to_csv(hidden / "truth.csv.gz", index_label="time", compression={"method": "gzip", "mtime": 0})
     (hidden / "label.json").write_text(json.dumps(asdict(label), indent=2, default=str))
     (hidden / "documents_full.json").write_text(json.dumps(full, indent=2, default=str))
     sc = case.scenario
@@ -92,6 +95,7 @@ class Bundle:
 
     case_id: str
     folder: Path
+    factory_config: str
     cfg: FactoryConfig
     signals: pd.DataFrame
     batches: list[dict]
@@ -113,6 +117,7 @@ def load_bundle(folder: Path) -> Bundle:
     return Bundle(
         case_id=meta["case_id"],
         folder=folder,
+        factory_config=meta["factory_config"],
         cfg=cfg,
         signals=signals,
         batches=batches,

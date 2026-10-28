@@ -278,7 +278,8 @@ def _drift_breach(case: Case, cfg: FactoryConfig, fault) -> str | None:
     if sig == "S3":
         from core.physics import power_vs_load
         from sim.baseline import power_model
+        from sim.config import config_name
 
-        r = power_vs_load(case.signals, *w, power_model(), cfg)
+        r = power_vs_load(case.signals, *w, power_model(config_name(cfg.id)), cfg)
         return sig if r and (r["share_below_band"] > 0.3 or r["share_above_band"] > 0.3) else None
     return None

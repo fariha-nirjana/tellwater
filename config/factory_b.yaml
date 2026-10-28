@@ -1,0 +1,67 @@
+# Factory B: a larger knit composite with a bigger reuse loop and a shorter
+# equalization buffer. Used only in the held-out test set, so results show
+# whether the investigator generalises beyond the factory it was tuned on.
+#
+# Every number here is illustrative. "assumed" values are engineering
+# estimates that a real site survey would replace.
+
+id: factory-b
+name: Knit composite factory B
+timezone: Asia/Dhaka
+timestep_minutes: 5
+
+production:
+  daily_wastewater_m3: 2600        # assumed: within the 1,250 to 4,800 m3/day range reported for Bangladeshi textile ETPs
+  batch_hours: 3                   # assumed: shorter batches, more machines
+  shift_profile:
+    - {start_hour: 8, end_hour: 20, multiplier: 1.25}
+    - {start_hour: 20, end_hour: 8, multiplier: 0.75}
+  noise_rel: 0.08
+  shades:
+    light:  {probability: 0.30, volume_factor: 0.85, bod_mg_l: 380, conductivity_us_cm: 3000}
+    medium: {probability: 0.45, volume_factor: 1.00, bod_mg_l: 600, conductivity_us_cm: 5500}
+    dark:   {probability: 0.25, volume_factor: 1.20, bod_mg_l: 1000, conductivity_us_cm: 9500}
+  raw_ph: {mean: 10.7, sd: 0.3}
+
+water:
+  process_loss_fraction: 0.12
+  sludge_water_fraction: 0.02
+  reuse_fraction: 0.30             # assumed: a larger reuse plant
+  groundwater: {ph: 7.0, conductivity_us_cm: 520}
+
+etp:
+  design_capacity_m3_day: 3200
+  pump_max_m3_h: 170
+  equalization:
+    volume_m3: 900                 # assumed: about 8 hours of average flow
+    setpoint_fraction: 0.35
+    control_time_constant_h: 3
+  aeration_basin_volume_m3: 1500
+  clarifier_volume_m3: 220
+  residence_min_h: 10
+  residence_max_h: 30
+  treated_ph: {mean: 7.6, sd: 0.15}
+  conductivity_removal_fraction: 0.04
+
+power:
+  standby_kw: 6
+  base_kw: 34
+  pump_kw_per_m3_h: 0.10
+  aeration_kw_per_kg_bod_h: 0.70
+  aeration_response_h: 1.2
+
+discharge_limits:
+  bod_mg_l: 30                     # source: ECR 2023 textile effluent limit
+  ph_min: 6.0
+  ph_max: 9.0
+
+sensors:
+  flow_noise_rel: 0.025
+  power_noise_rel: 0.03
+  ph_noise_abs: 0.06
+  conductivity_noise_rel: 0.02
+  tank_level_noise_abs: 0.012
+  tank_level_resolution_minutes: 15
+
+lab:
+  interval_days: 7
