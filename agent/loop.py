@@ -65,10 +65,10 @@ def _image(path: Path) -> Image.Image:
     return img.resize((int(img.size[0] * scale), int(img.size[1] * scale))) if scale < 1 else img
 
 
-def _chat(client: ModelClient, messages: list, retries: int = 4):
+def _chat(client: ModelClient, messages: list, specs: list = TOOL_SPECS, retries: int = 4):
     for attempt in range(retries):
         try:
-            return client.chat(messages, tools=TOOL_SPECS)
+            return client.chat(messages, tools=specs)
         except (APIConnectionError, APITimeoutError, RateLimitError) as exc:
             if attempt == retries - 1:
                 raise
@@ -80,20 +80,23 @@ def _chat(client: ModelClient, messages: list, retries: int = 4):
 
 
 def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | None = None, *, budget: int = 16,
-                max_turns: int = 40, on_step: Callable[[dict], None] | None = None) -> Trace:
+                max_turns: int = 40, on_step: Callable[[dict], None] | None = None,
+                tools: CaseTools | None = None, messages: list[dict] | None = None, specs: list = TOOL_SPECS,
+                steps: list | None = None) -> Trace:
+    """Run the loop. C3 passes its own pre-filled tools, opening messages and finishing-only specs."""
     if power_model is None:
         from sim.baseline import power_model as baseline_model
 
         power_model = baseline_model(bundle.factory_config)
-    tools = CaseTools(bundle, power_model, budget=budget)
-    trace = Trace(bundle.case_id, client.endpoint.model)
-    messages: list[dict] = [{"role": "system", "content": SYSTEM},
+    tools = tools or CaseTools(bundle, power_model, budget=budget)
+    trace = Trace(bundle.case_id, client.endpoint.model, steps=list(steps or []))
+    messages = messages or [{"role": "system", "content": SYSTEM},
                             {"role": "user", "content": START.format(case_id=bundle.case_id)}]
     nudges = fixes = 0
     started = time.perf_counter()
     try:
         for _ in range(max_turns):
-            reply = _chat(client, messages)
+            reply = _chat(client, messages, specs)
             trace.turns += 1
             u = reply.usage
             trace.prompt_tokens += u.get("prompt_tokens") or 0

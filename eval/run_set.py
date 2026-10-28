@@ -6,6 +6,8 @@
 
 Conditions:
   C1  rules on structured signals
+  C2  C1 plus a fixed document extraction (Muse Spark reads each document once)
+  C3  Muse Spark with the complete evidence bundle, no tools
   C4  investigator with tools, Muse Spark (Meta Model API)
   C5  investigator with tools, Muse Spark Open (Fireworks; --host baseten for Baseten)
 
@@ -21,9 +23,11 @@ import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+from agent import bundle_pass
 from agent.loop import investigate
+from agent.loop import PRICES
 from agent.models import ModelClient, ModelEndpoint
-from eval import c1_rules
+from eval import c1_rules, c2_extract
 from eval.caseset import GENERATED
 from eval.metrics import request_text, score
 from sim.baseline import power_model
@@ -62,8 +66,20 @@ def run_c1(folder: Path) -> dict:
     return {"status": r["status"], "final": None, "detail": r}
 
 
-def run_agent(folder: Path, endpoint: ModelEndpoint) -> dict:
-    trace = investigate(load_bundle(folder), ModelClient(endpoint))
+def run_c2(folder: Path, endpoint: ModelEndpoint) -> dict:
+    bundle = load_bundle(folder)
+    c1 = run_c1(folder)
+    extracted = c2_extract.extract(bundle, ModelClient(endpoint))
+    r = c2_extract.assess(bundle, c1["detail"], extracted, power_model(bundle.factory_config))
+    u = extracted["usage"]
+    price = PRICES[endpoint.model]
+    cost = round((u["prompt_tokens"] * price[0] + u["completion_tokens"] * price[2]) / 1e6, 4)
+    return {"status": r["status"], "final": None, "detail": {"c1": c1["detail"], **r}, "extracted": extracted, "cost": cost}
+
+
+def run_agent(folder: Path, endpoint: ModelEndpoint, condition: str = "C4") -> dict:
+    run = bundle_pass.assess if condition == "C3" else investigate
+    trace = run(load_bundle(folder), ModelClient(endpoint))
     return {"status": trace.status, "final": trace.final, "trace": json.loads(trace.to_json()),
             "cost": trace.cost_usd, "seconds": trace.seconds, "checks": trace.checks_used, "valid": trace.valid,
             "error": trace.error}
@@ -72,7 +88,7 @@ def run_agent(folder: Path, endpoint: ModelEndpoint) -> dict:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("set")
-    p.add_argument("condition", choices=["C1", "C4", "C5"])
+    p.add_argument("condition", choices=["C1", "C2", "C3", "C4", "C5"])
     p.add_argument("--workers", type=int, default=6)
     p.add_argument("--limit", type=int)
     p.add_argument("--fresh", action="store_true")
@@ -83,7 +99,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     folders = _case_dirs(a.set)[: a.limit]
     endpoint = None
-    if a.condition == "C4":
+    if a.condition in ("C2", "C3", "C4"):
         endpoint = ModelEndpoint.muse_spark()
     elif a.condition == "C5":
         endpoint = ModelEndpoint.muse_spark_open_fireworks() if a.host == "fireworks" else ModelEndpoint.muse_spark_open()
@@ -92,7 +108,12 @@ def main() -> None:
         path = out_dir / f"{folder.name}.json"
         if path.exists() and not a.fresh:
             return json.loads(path.read_text())
-        result = run_c1(folder) if a.condition == "C1" else run_agent(folder, endpoint)
+        if a.condition == "C1":
+            result = run_c1(folder)
+        elif a.condition == "C2":
+            result = run_c2(folder, endpoint)
+        else:
+            result = run_agent(folder, endpoint, a.condition)
         result["case_id"] = folder.name
         path.write_text(json.dumps(result, indent=2, default=str))
         return result
