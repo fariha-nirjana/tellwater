@@ -59,6 +59,20 @@ class ModelEndpoint:
             os.environ.get("MUSE_SPARK_OPEN_MODEL", "meta-models/muse-spark-open-1026"),
         )
 
+    @classmethod
+    def muse_spark_open_fireworks(cls) -> "ModelEndpoint":
+        """The same open weights on Fireworks; it handles image turns that time out on Baseten."""
+        load_env()
+        key = os.environ.get("FIREWORKS_API_KEY")
+        if not key:
+            raise RuntimeError("FIREWORKS_API_KEY is not set in .env")
+        return cls(
+            "muse-spark-open",
+            os.environ.get("FIREWORKS_BASE_URL", "https://api.fireworks.ai/inference/v1"),
+            key,
+            os.environ.get("FIREWORKS_MODEL", "accounts/fireworks/models/muse-spark-open"),
+        )
+
 
 @dataclass
 class Reply:
@@ -70,7 +84,8 @@ class Reply:
 class ModelClient:
     def __init__(self, endpoint: ModelEndpoint):
         self.endpoint = endpoint
-        self._client = OpenAI(base_url=endpoint.base_url, api_key=endpoint.api_key)
+        # a stalled call fails after 4 minutes instead of hanging a whole batch
+        self._client = OpenAI(base_url=endpoint.base_url, api_key=endpoint.api_key, timeout=240, max_retries=2)
 
     def chat(self, messages: list[dict], tools: list[dict] | None = None, **kw) -> Reply:
         start = time.perf_counter()

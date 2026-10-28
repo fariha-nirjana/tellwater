@@ -27,6 +27,7 @@ from store.cases import Bundle
 PRICES = {
     "muse-spark-1.3": (1.25, 4.25),
     "muse-spark-1.3-contributor": (0.10, 0.20),
+    "accounts/fireworks/models/muse-spark-open": (1.25, 4.25),
 }
 MAX_IMAGE_SIDE = 1600
 MAX_NUDGES = 3

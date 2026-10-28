@@ -7,7 +7,7 @@
 Conditions:
   C1  rules on structured signals
   C4  investigator with tools, Muse Spark (Meta Model API)
-  C5  investigator with tools, Muse Spark Open (Baseten)
+  C5  investigator with tools, Muse Spark Open (Fireworks; --host baseten for Baseten)
 
 Results go to eval/runs/<set>/<condition>/: one trace per case, plus
 summary.json. Runs already present are reused, so an interrupted run can
@@ -76,6 +76,7 @@ def main() -> None:
     p.add_argument("--workers", type=int, default=6)
     p.add_argument("--limit", type=int)
     p.add_argument("--fresh", action="store_true")
+    p.add_argument("--host", choices=["fireworks", "baseten"], default="fireworks", help="C5 only")
     a = p.parse_args()
 
     out_dir = RUNS / a.set / a.condition
@@ -85,7 +86,7 @@ def main() -> None:
     if a.condition == "C4":
         endpoint = ModelEndpoint.muse_spark()
     elif a.condition == "C5":
-        endpoint = ModelEndpoint.muse_spark_open()
+        endpoint = ModelEndpoint.muse_spark_open_fireworks() if a.host == "fireworks" else ModelEndpoint.muse_spark_open()
 
     def one(folder: Path) -> dict:
         path = out_dir / f"{folder.name}.json"
