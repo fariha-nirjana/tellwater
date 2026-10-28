@@ -83,6 +83,10 @@ def validate(final: dict | None, registry: dict, tool_results: list) -> list[str
         issues.append("a 'contradicts' assessment needs at least two separate pieces of key evidence")
     if not final.get("explanations"):
         issues.append("list the explanations you considered")
+    still_open = [e.get("label") or e.get("id") for e in final.get("explanations", []) if e.get("status") == "open"]
+    if status == "supports" and still_open:
+        issues.append(f"'supports' needs every other explanation contradicted, but these are still open: {'; '.join(still_open)}. "
+                      "Contradict them with evidence, or choose the status that fits what remains open")
 
     text = json.dumps({k: final.get(k) for k in ("summary", "scope_line", "limitations", "explanations")}).lower()
     for pattern in BANNED:

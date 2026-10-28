@@ -58,6 +58,8 @@ def request_text(final: dict | None) -> str:
     if final.get("kind") == "evidence_request":
         return " ".join(final.get("items", [])) + " " + final.get("reason", "")
     req = final.get("evidence_request") or {}
+    if isinstance(req, str):  # the model sometimes writes the request as plain text
+        return req
     return " ".join(req.get("items", [])) + " " + str(req.get("reason", ""))
 
 

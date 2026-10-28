@@ -76,7 +76,7 @@ def _chat(client: ModelClient, messages: list, retries: int = 4):
             time.sleep(2 ** attempt * 2)
 
 
-def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | None = None, *, budget: int = 12,
+def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | None = None, *, budget: int = 16,
                 max_turns: int = 40, on_step: Callable[[dict], None] | None = None) -> Trace:
     if power_model is None:
         from sim.baseline import power_model as baseline_model

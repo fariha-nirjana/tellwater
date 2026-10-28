@@ -55,11 +55,26 @@ class ToolError(Exception):
     pass
 
 
+def _longest_flat_run(w: pd.Series) -> tuple[pd.Timestamp, pd.Timestamp] | None:
+    """Start and end of the longest stretch of readings identical to the one before."""
+    same = (w.diff().abs() < 1e-9).to_numpy()
+    best, start, span = 0, None, None
+    for i, s in enumerate(same):
+        if s and start is None:
+            start = i - 1
+        if (not s or i == len(same) - 1) and start is not None:
+            end = i if s else i - 1
+            if end - start > best:
+                best, span = end - start, (w.index[start], w.index[end])
+            start = None
+    return span
+
+
 @dataclass
 class CaseTools:
     bundle: Bundle
     power_model: PowerModel
-    budget: int = 12
+    budget: int = 16
     registry: dict = field(default_factory=dict)
     calls: list = field(default_factory=list)
     final: dict | None = None
@@ -187,6 +202,10 @@ class CaseTools:
         flags = []
         if len(w) >= 12 and float(w.std()) < 1e-6:
             flags.append("readings do not change at all (flat)")
+        else:
+            run = _longest_flat_run(w)
+            if run and (run[1] - run[0]) >= pd.Timedelta(hours=1):
+                flags.append(f"readings do not change at all from {_fmt(run[0])} to {_fmt(run[1])} (flat stretch)")
         # a spike stands out from its own neighbours, not just from the window
         local = w.rolling(7, center=True, min_periods=3).median()
         jitter = float((w - local).abs().median()) or 1e-9
@@ -196,6 +215,11 @@ class CaseTools:
         out.update({"mean": _r(w.mean(), digits), "min": _r(w.min(), digits), "max": _r(w.max(), digits),
                     "std": _r(w.std(), digits), "resolution_minutes": step_min,
                     "series": [[t.strftime("%m-%d %H:%M"), _r(v, digits)] for t, v in series.items()], "flags": flags})
+        rest = self.bundle.signals[signal].drop(w.index, errors="ignore").dropna()
+        if len(rest) >= 36:
+            out["outside_this_window"] = {"median": _r(rest.median(), digits), "p10": _r(rest.quantile(0.1), digits),
+                                          "p90": _r(rest.quantile(0.9), digits),
+                                          "note": "the same signal over the rest of the case data, for comparison"}
         self._register(eid, "signal", {"signal": signal, "start": _fmt(s), "end": _fmt(e), "mean": out["mean"], "min": out["min"], "max": out["max"]})
         return out
 
@@ -206,8 +230,15 @@ class CaseTools:
         out = {"evidence_id": eid, **wb,
                "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). "
                        "Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). "
-                       "Tank balance: wastewater arriving vs ETP inflow + storage change; unaccounted water left the tank another way. "
+                       "Tank balance: wastewater arriving (estimated from intake) vs ETP inflow + storage change; "
+                       "unaccounted water left the tank another way, or was intake water that never became wastewater. "
                        "null means a required signal is under 80% coverage."}
+        needs = {"etp": ("S2", "S4a"), "boundary": ("S1", "S2", "S4a"), "tank": ("S1", "S2", "T1")}
+        missing = {k: [f"{sig} {wb['coverage'].get(sig, 0):.0%}" for sig in sigs if wb["coverage"].get(sig, 0) < 0.8]
+                   for k, sigs in needs.items() if wb.get(k) is None}
+        if missing:
+            out["not_assessable"] = {k: f"cannot be computed: coverage {', '.join(v)}; what this balance would show is unknown, not fine"
+                                     for k, v in missing.items() if v}
         self._register(eid, "calculation", {"etp": wb["etp"], "boundary": wb["boundary"]})
         return out
 
