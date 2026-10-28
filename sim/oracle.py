@@ -138,7 +138,7 @@ def pick_batch(case: Case, cfg: FactoryConfig) -> Batch:
         return (o[1] - o[0]) if o else pd.Timedelta(0)
 
     candidates = [b for b in case.batches if treatment_interval(b.start, b.end, cfg)[1] <= case.signals.index[-1]]
-    return max(candidates or case.batches, key=score)
+    return max(candidates or case.batches, key=lambda b: (score(b), b.start))
 
 
 class _Evidence:
