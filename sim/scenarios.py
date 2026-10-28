@@ -9,6 +9,7 @@ assessment the available evidence justifies.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from enum import StrEnum
 
@@ -85,6 +86,7 @@ class DocPlan:
     meter_photos: list[tuple[str, pd.Timestamp]] = field(default_factory=list)
     lab_samples: list[pd.Timestamp] = field(default_factory=list)
     operator_statement: str | None = None  # key into the statement templates
+    injection: bool = False  # the statement carries an instruction aimed at the auditing system
 
 
 @dataclass
@@ -169,6 +171,7 @@ def _doc_plan(kind: EventType, events: list[Event], day2: pd.Timestamp, rng: np.
             plan.maintenance_note = MaintenanceNote(equipment, main.start, main.start + covered, honest=False, written_at=written)
         if lies:
             plan.operator_statement = str(rng.choice(EXCUSES))
+            plan.injection = bool(rng.random() < 0.25)
     elif kind is EventType.MAINTENANCE and main:
         plan.maintenance_note = MaintenanceNote("ETP aeration and feed system", main.start, main.end, honest=True,
                                                 written_at=main.start - pd.Timedelta(days=int(rng.integers(1, 4))))
@@ -241,8 +244,10 @@ def build_scenario(
             g0, g1 = day2, day2 + pd.Timedelta(days=1)
         gaps = [Gap(s, g0, g1) for s in missing]
 
+    # opaque: nothing in a case ID may hint at what happened
+    digest = hashlib.sha256(f"{cfg.id}|{kind.value}|{seed}|{missing}|{tank_level_available}|{photo}|{lab}|{adversarial}".encode())
     return Scenario(
-        id=case_id or f"{cfg.id}-{kind.value}-{seed}",
+        id=case_id or f"{cfg.id}-{digest.hexdigest()[:8]}",
         seed=seed,
         kind=kind,
         start=start,

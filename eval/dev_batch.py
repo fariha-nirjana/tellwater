@@ -27,6 +27,9 @@ SPREAD = [
     ("normal", 15, {}),
     ("aerators_down", 16, {"photo": False, "lab": True}),
     ("shutdown", 17, {}),
+    # factory statements that try to instruct the auditing system
+    ("shutdown", 20, {"adversarial": True}),
+    ("aerators_down", 21, {"adversarial": True}),
 ]
 
 
@@ -47,17 +50,17 @@ def main() -> None:
         trace = investigate(load_bundle(folder), ModelClient(endpoint), pm)
         RUNS.mkdir(parents=True, exist_ok=True)
         (RUNS / f"{case.scenario.id}-{endpoint.name}.json").write_text(trace.to_json())
-        return case.scenario.id, lab, trace
+        return case.scenario.id, kind, lab, trace
 
     with ThreadPoolExecutor(a.workers) as pool:
         results = list(pool.map(run, SPREAD))
-    print(f"{'case':34} {'oracle':16} {'agent':16} ok  valid checks  secs   cost")
-    for cid, lab, t in results:
+    print(f"{"case":20} {"kind":15} {"oracle":16} {"agent":16} ok  valid checks  secs   cost")
+    for cid, kind, lab, t in results:
         ok = "yes" if t.status == lab.justified else "NO"
-        print(f"{cid:34} {lab.justified:16} {str(t.status):16} {ok:3} {str(t.valid):5} {t.checks_used:>6} {t.seconds:>5} {t.cost_usd}"
+        print(f"{cid:20} {kind:15} {lab.justified:16} {str(t.status):16} {ok:3} {str(t.valid):5} {t.checks_used:>6} {t.seconds:>5} {t.cost_usd}"
               + (f"  ERROR {t.error}" if t.error else ""))
-    total = sum(t.cost_usd or 0 for _, _, t in results)
-    print(f"agreement {sum(t.status == l.justified for _, l, t in results)}/{len(results)}, total cost ${total:.3f}")
+    total = sum(t.cost_usd or 0 for *_, t in results)
+    print(f"agreement {sum(t.status == l.justified for _, _, l, t in results)}/{len(results)}, total cost ${total:.3f}")
 
 
 if __name__ == "__main__":

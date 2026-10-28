@@ -118,3 +118,17 @@ def test_replay_found_even_when_the_window_starts_early(tmp_path):
     prev = next(x for x in cmp["comparisons"] if x["days_offset"] == -1)
     assert prev["identical_reading_for_reading"]
     assert prev["longest_identical_stretch_minutes"] >= (ev.end - ev.start) / pd.Timedelta(minutes=1) - 10
+
+
+@pytest.mark.parametrize("kind", [k.value for k in EventType])
+def test_nothing_the_agent_sees_names_the_scenario(tmp_path, kind):
+    """Label leakage audit: IDs, file names and metadata must not hint at the event."""
+    c = generate(build_scenario(kind, 6, CFG, photo=True, lab=True, adversarial=True), CFG)
+    folder = save_case(c, label(c, CFG), tmp_path)
+    visible = [(folder / "case.json").read_text(), (folder / "batches.json").read_text()]
+    visible += [json.dumps({k: d[k] for k in ("id", "image", "author")}) for d in json.loads((folder / "documents.json").read_text())]
+    visible += [p.name for p in (folder / "docs").iterdir()]
+    words = {"replay", "bypass", "dilution", "aerator", "shutdown", "fault", "low_production", "low_load", "probe", "injection"}
+    leaks = [w for w in words if any(w in v.lower() for v in visible)]
+    assert not leaks, f"{kind}: {leaks}"
+    assert "hidden" not in json.dumps(load_bundle(folder).documents)
