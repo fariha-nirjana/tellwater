@@ -13,7 +13,7 @@ const CALC_SIGNALS: Record<string, string[]> = {
   power_vs_load: ['S2', 'S3'],
 }
 const CALC_LABEL: Record<string, string> = {
-  water_balance: 'Water balance', power_vs_load: 'Power against load', reading_vs_feed: 'Photo reading against the feed', compare: 'Replay check',
+  water_balance: 'Water balance', power_vs_load: 'Power vs load', reading_vs_feed: 'Photo vs feed', compare: 'Replay check',
 }
 
 function stamp(s: string, year: number): Date {
@@ -61,3 +61,14 @@ export function wall(s: string): Date {
 
 export const hm = (d: Date) => d.toTimeString().slice(0, 5)
 export const dayHm = (d: Date) => `${d.getDate()} ${d.toLocaleString('en', { month: 'short' })} ${hm(d)}`
+
+/** A short name for a document from its ID. */
+export function docLabel(id: string) {
+  if (id.includes('photo-')) return `Meter photo ${id.match(/photo-(\w+?)-/)?.[1] ?? ''}`.trim()
+  if (id.includes('lab-')) return 'Lab report'
+  if (id.includes('logbook')) return 'Logbook'
+  if (id.includes('maintenance')) return 'Maintenance record'
+  if (id.includes('statement')) return 'Operator statement'
+  if (id.includes('submission')) return 'Factory submission'
+  return 'Document'
+}
