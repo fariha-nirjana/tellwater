@@ -46,15 +46,20 @@ SETS = {
 SCALE_HISTORY = {"scale_3": 0, "scale_14": 11, "scale_45": 42}
 for _name in SCALE_HISTORY:
     SETS[_name] = [("factory", 20_000, 20)]
+# Tuning sets with fixed kinds, for weaknesses the dev mix covers thinly. Never the test set.
+FIXED_KINDS = {"tune_replay": ["replay"] * 10 + ["normal"] * 4 + ["maintenance"] * 3 + ["sensor_fault"] * 3}
+SETS["tune_replay"] = [("factory", 30_000, 20)]
 
 
-def specs(factory: str, seed0: int, n: int) -> list[dict]:
+def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> list[dict]:
     rng = np.random.default_rng(seed0)
     kinds = list(KIND_WEIGHTS)
     weights = np.array([KIND_WEIGHTS[k] for k in kinds])
     out = []
     for i in range(n):
         kind = kinds[int(rng.choice(len(kinds), p=weights / weights.sum()))]
+        if fixed:
+            kind = EventType(fixed[i])
         missing: tuple[str, ...] = ()
         if rng.random() < 0.35:
             k = 1 if rng.random() < 0.7 else 2
@@ -77,7 +82,7 @@ def build(name: str) -> list[dict]:
     rows = []
     for factory, seed0, n in SETS[name]:
         cfg = load_factory(factory)
-        for spec in specs(factory, seed0, n):
+        for spec in specs(factory, seed0, n, FIXED_KINDS.get(name)):
             sc = build_scenario(spec["kind"], spec["seed"], cfg, missing=tuple(spec["missing"]),
                                 tank_level_available=spec["tank_level_available"], history_days=SCALE_HISTORY.get(name, 0))
             case = generate(sc, cfg)
