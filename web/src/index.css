@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+/* Iteration 02's palette and type, as Tailwind theme tokens */
+@theme {
+  --color-ink: #171735;
+  --color-indigo: #4945ff;
+  --color-indigo-soft: #f0efff;
+  --color-acid: #e5ff52;
+  --color-coral: #ff705b;
+  --color-paper: #f7f7f2;
+  --color-rule: #dcdde3;
+  --color-mute: #767181;
+  --font-sans: 'DM Sans', Arial, sans-serif;
+  --font-display: Manrope, 'DM Sans', Arial, sans-serif;
+  --font-serif: Georgia, serif;
+}
+
+@layer base {
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.045em;
+  }
+  button { cursor: pointer; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--color-coral); outline-offset: 4px; }
+}
+
+@layer components {
+  .micro { font: 600 10px/1.5 var(--font-sans); letter-spacing: 0.13em; text-transform: uppercase; }
+  .serif-em { font-family: var(--font-serif); font-weight: 400; font-style: italic; letter-spacing: -0.05em; }
+  .card { background: white; border: 1px solid var(--color-rule); border-radius: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

@@ -119,9 +119,11 @@ def case(key: str) -> dict:
 
 @app.get("/api/cases/{key}/signals")
 def signals(key: str, start: str | None = None, end: str | None = None, step: int = 5) -> dict:
-    """Readings at `step`-minute resolution; null where the record has no reading."""
+    """Readings at `step`-minute resolution; null where the record has no reading. Adds the power the
+    plant should draw for its inflow (S3_expected) and the half-width of the normal band around it."""
     bundle = _bundle(key)
-    s = bundle.signals
+    pm = power_model(bundle.factory_config)
+    s = bundle.signals.assign(S3_expected=pm.expected(bundle.signals["S2"], bundle.cfg.dt_h).where(bundle.signals["S2"].notna()))
     if start:
         s = s[s.index >= pd.Timestamp(start).tz_localize(bundle.cfg.timezone)]
     if end:
@@ -129,7 +131,8 @@ def signals(key: str, start: str | None = None, end: str | None = None, step: in
     if step > 5:
         s = s.resample(f"{step}min").mean()
     return {"times": [t.strftime("%Y-%m-%dT%H:%M") for t in s.index],
-            "series": {c: [None if pd.isna(v) else round(float(v), 3) for v in s[c]] for c in s.columns}}
+            "series": {c: [None if pd.isna(v) else round(float(v), 3) for v in s[c]] for c in s.columns},
+            "power_band_half_width_kw": round(pm.band_sd * pm.residual_sd_kw, 1)}
 
 
 @app.get("/api/cases/{key}/documents/{doc_id}/image")
