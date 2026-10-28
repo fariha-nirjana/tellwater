@@ -184,12 +184,13 @@ class CaseTools:
         hours = (e - s) / pd.Timedelta(hours=1)
         step_min = max(5, int(math.ceil(hours * 60 / MAX_POINTS / 5) * 5))
         series = w.resample(f"{step_min}min").mean().dropna()
-        med = float(w.median())
-        mad = float((w - med).abs().median()) or 1e-9
         flags = []
         if len(w) >= 12 and float(w.std()) < 1e-6:
             flags.append("readings do not change at all (flat)")
-        spikes = int(((w - med).abs() > 8 * mad).sum()) if mad > 1e-6 else 0
+        # a spike stands out from its own neighbours, not just from the window
+        local = w.rolling(7, center=True, min_periods=3).median()
+        jitter = float((w - local).abs().median()) or 1e-9
+        spikes = int(((w - local).abs() > 10 * jitter).sum()) if jitter > 1e-6 else 0
         if spikes >= 3 and spikes < 0.2 * len(w):
             flags.append(f"{spikes} isolated spikes far from the window's typical value")
         out.update({"mean": _r(w.mean(), digits), "min": _r(w.min(), digits), "max": _r(w.max(), digits),
@@ -205,6 +206,7 @@ class CaseTools:
         out = {"evidence_id": eid, **wb,
                "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). "
                        "Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). "
+                       "Tank balance: wastewater arriving vs ETP inflow + storage change; unaccounted water left the tank another way. "
                        "null means a required signal is under 80% coverage."}
         self._register(eid, "calculation", {"etp": wb["etp"], "boundary": wb["boundary"]})
         return out

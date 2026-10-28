@@ -22,12 +22,16 @@ def labelled(kind, seed, missing=(), tank=True, **kw):
         ("normal", ("S3",), True, {}, "normal", "insufficient", ["S3"]),
         ("low_production", (), True, {}, "low_production", "supports", None),
         ("shutdown", (), True, {}, "shutdown", "contradicts", None),
-        # outfall blind: the shutdown happened but cannot be shown
-        ("shutdown", ("S4a", "S4b"), True, {}, "shutdown", "insufficient", ["S4a"]),
+        # outfall blind, no tank log, no lab sample: the shutdown happened but cannot be shown
+        ("shutdown", ("S4a", "S4b"), False, {"lab": False}, "shutdown", "insufficient", ["S4a"]),
+        # outfall blind, but the tank balance and power still show water leaving another way
+        ("bypass", ("S4a", "S4b"), True, {"lab": False}, "bypass", "contradicts", None),
         # ETP inflow and outfall flow lost, but power and pH still tell it
         ("shutdown", ("S2", "S4a"), True, {}, "shutdown", "contradicts", None),
         ("bypass", (), True, {}, "bypass", "contradicts", None),
-        ("bypass", ("S4a", "S4b"), True, {}, "bypass", "insufficient", ["S4a"]),
+        ("bypass", ("S4a", "S4b"), False, {"lab": False}, "bypass", "insufficient", ["S4a"]),
+        # outfall blind and no tank log, but a lab sample caught raw effluent
+        ("bypass", ("S4a", "S4b"), False, {"lab": True}, "bypass", "contradicts", None),
         ("maintenance", (), True, {}, "maintenance", "supports", None),
         # without tank level, nothing shows the stored water was treated later
         ("maintenance", (), False, {}, "maintenance", "insufficient", ["T1"]),
@@ -87,3 +91,26 @@ def test_rules_baseline_misses_a_replayed_power_feed():
     batch = next(b for b in c.batches if b.id == lab.batch_id)
     assert lab.justified == "contradicts"
     assert c1_rules.assess(c, batch, CFG, power_model())["status"] == "supports"
+
+
+def test_drifting_meter_that_breaches_a_limit_needs_review():
+    for seed in range(200, 400):
+        sc = build_scenario("sensor_fault", seed, CFG)
+        p = sc.events[0].params
+        if p["signal"] == "S4b" and p["mode"] == "drift" and p["drift"] < 0:
+            break
+    c = generate(sc, CFG)
+    lab = label(c, CFG)
+    assert lab.justified == "review_required"
+    assert lab.evidence_request["items"] == ["calibration:S4b"]
+
+
+def test_tank_balance_finds_water_that_left_another_way():
+    from core.physics import water_balance
+
+    c, _ = labelled("bypass", 2, missing=("S4a", "S4b"))
+    ev = c.scenario.main_event
+    tank = water_balance(c.signals, ev.start, ev.end, CFG)["tank"]
+    true_bypassed = c.truth.loc[(c.truth.index >= ev.start) & (c.truth.index < ev.end), "bypass"].sum() * CFG.dt_h
+    assert not tank["within_tolerance"]
+    assert tank["unaccounted_m3"] == pytest.approx(true_bypassed, rel=0.25)

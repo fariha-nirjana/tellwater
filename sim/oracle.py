@@ -28,6 +28,11 @@ Rules, in priority order:
    - S2 + S4b: ETP inflow down while outfall pH shows raw wastewater
    - S3 + S4a (shutdown only): ETP at standby while the outfall kept flowing
    - T1 + S4b (shutdown only): tank full while outfall pH shows raw wastewater
+   - S2 + lab, S3 + lab: a lab sample of untreated effluent while the ETP
+     took less flow or ran down
+   - S1 + S2 + S3 + T1: the tank balance shows water leaving by another
+     route, and power confirms the ETP really took less (a low-reading
+     inflow meter alone would look the same)
 2. Aeration cut (aerators turned down, possibly hidden by a replayed feed):
    - "contradicts" with S2 + S3 + photo:S3, S2 + S3 + lab, S2 + photo:S3,
      S2 + lab, S3 + lab: low power or poor effluent confirmed by a physical
@@ -44,7 +49,12 @@ Rules, in priority order:
    stored wastewater was treated once the ETP restarted), established by
    T1 + S4a over the downtime and the catch-up after it.
 5. Otherwise (normal, low production, a sensor fault) -> "supports", with
-   S2 + S3 + S4a, S2 + S3 + S4b, or S3 + S4a + S4b.
+   S2 + S3 + S4a, S2 + S3 + S4b, or S3 + S4a + S4b. A stuck, flat or
+   spiking meter is recognisable and set aside. A meter that drifts is not
+   recognisable on its own: if its drift makes a check fail (pH outside the
+   discharge range, an ETP balance outside tolerance, power below load),
+   nothing can show whether the excursion was real, so the justified status
+   is "review_required", requesting a calibration record or a grab sample.
 """
 
 from __future__ import annotations
@@ -65,8 +75,9 @@ LAB_LAG_H = 12  # effluent quality lags the aeration cut through the basin
 STATUSES = ("supports", "contradicts", "insufficient", "review_required")
 
 COMBOS: dict[str, list[tuple[str, ...]]] = {
-    "shutdown": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b"), ("S3", "S4a"), ("T1", "S4b")],
-    "bypass": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b")],
+    "shutdown": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b"), ("S3", "S4a"), ("T1", "S4b"),
+                 ("S2", "lab"), ("S3", "lab"), ("S1", "S2", "S3", "T1")],
+    "bypass": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b"), ("S2", "lab"), ("S3", "lab"), ("S1", "S2", "S3", "T1")],
     "aeration": [("S2", "S3", "photo:S3"), ("S2", "S3", "lab"), ("S2", "photo:S3"), ("S2", "lab"), ("S3", "lab")],
     "aeration_review": [("S2", "S3"), ("S2", "replay:S3")],
     "dilution": [("S2", "S4a", "S4c"), ("S2", "S4a", "S4b")],
@@ -87,6 +98,15 @@ EVIDENCE_NAMES = {
     "lab": "lab test of the outfall effluent",
     "replay:S3": "ETP power record",
 }
+METER_NAMES = {"S1": "intake flow", "S2": "ETP inflow", "S3": "ETP power", "S4a": "outfall flow", "S4b": "outfall pH",
+               "S4c": "outfall conductivity"}
+
+
+def _evidence_name(item: str) -> str:
+    if item.startswith("calibration:"):
+        sig = item.split(":")[1]
+        return f"calibration record for the {METER_NAMES[sig]} meter, or a grab sample"
+    return EVIDENCE_NAMES[item]
 
 
 @dataclass
@@ -211,6 +231,13 @@ def label(case: Case, cfg: FactoryConfig, batch: Batch | None = None) -> Label:
         underlying = sc.kind.value if sc.kind is EventType.LOW_PRODUCTION or fault_in_ti else "normal"
         combos, win, positive = COMBOS["normal"], ti, "supports"
 
+    drift = _drift_breach(case, cfg, fault) if (fault_in_ti and not (harm or aeration or diluted or off)) else None
+    if drift:
+        return Label(sc.id, batch.id, (str(ti[0]), str(ti[1])), underlying, "review_required",
+                     (str(fault.start), str(fault.end)), ("drift", drift),
+                     {"type": _evidence_name(f"calibration:{drift}"), "items": [f"calibration:{drift}"],
+                      "interval": (str(fault.start), str(fault.end))})
+
     established, missing = ev.assess(combos, win)
     justified = positive if established else "insufficient"
     if not established and review_combos:
@@ -220,7 +247,7 @@ def label(case: Case, cfg: FactoryConfig, batch: Batch | None = None) -> Label:
 
     request = None
     if justified in ("insufficient", "review_required") and missing:
-        names = list(dict.fromkeys(EVIDENCE_NAMES[i] for i in missing))
+        names = list(dict.fromkeys(_evidence_name(i) for i in missing))
         request = {"type": " and ".join(names), "items": list(missing), "interval": (str(win[0]), str(win[1]))}
     return Label(
         case_id=sc.id,
@@ -232,3 +259,26 @@ def label(case: Case, cfg: FactoryConfig, batch: Batch | None = None) -> Label:
         established_by=established,
         evidence_request=request,
     )
+
+
+def _drift_breach(case: Case, cfg: FactoryConfig, fault) -> str | None:
+    """The drifting signal, if its drift makes one of the standard checks fail."""
+    if fault is None or fault.params["mode"] != "drift":
+        return None
+    sig, w = fault.params["signal"], (fault.start, fault.end)
+    lim = cfg.discharge_limits
+    if sig == "S4b":
+        ph = case.signals.loc[(case.signals.index >= w[0]) & (case.signals.index < w[1]), "S4b"]
+        return sig if ((ph < lim.ph_min) | (ph > lim.ph_max)).any() else None
+    if sig in ("S2", "S4a"):
+        from core.physics import water_balance
+
+        etp = water_balance(case.signals, *w, cfg)["etp"]
+        return sig if etp and not etp["within_tolerance"] else None
+    if sig == "S3":
+        from core.physics import power_vs_load
+        from sim.baseline import power_model
+
+        r = power_vs_load(case.signals, *w, power_model(), cfg)
+        return sig if r and (r["share_below_band"] > 0.3 or r["share_above_band"] > 0.3) else None
+    return None

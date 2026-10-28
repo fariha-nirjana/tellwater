@@ -31,6 +31,7 @@ MIN_COVERAGE = 0.8  # below this, a quantity over the window is not computed
 # assumed: combined meter and model uncertainty for the balances
 ETP_BALANCE_TOLERANCE = 0.08
 BOUNDARY_BALANCE_TOLERANCE = 0.08
+TANK_BALANCE_TOLERANCE = 0.10  # assumed: production losses vary more than meters
 # assumed: without tank level, storage could have moved this share of tank volume
 UNKNOWN_STORAGE_SHARE = 0.6
 
@@ -117,6 +118,28 @@ def water_balance(signals: pd.DataFrame, start, end, cfg: FactoryConfig) -> dict
         }
     else:
         result["boundary"] = None
+
+    # Equalization tank: what intake says reached the tank vs what the ETP took and the tank kept.
+    # Water missing from this balance left the tank by a route other than the ETP inflow meter.
+    if ok["S1"] and ok["S2"] and ok["T1"]:
+        intake = _volume(w, "S1", dt)
+        inflow = _volume(w, "S2", dt)
+        reuse = inflow * (1 - sludge) * reuse_share
+        arriving = (intake + reuse) * (1 - loss)
+        level = w["T1"].dropna()
+        storage = float((level.iloc[-1] - level.iloc[0]) * cfg.etp.equalization.volume_m3)
+        residual = arriving - inflow - storage
+        tolerance = TANK_BALANCE_TOLERANCE * max(arriving, 1.0)
+        result["tank"] = {
+            "wastewater_arriving_m3": round(arriving, 1),
+            "etp_inflow_m3": round(inflow, 1),
+            "storage_change_m3": round(storage, 1),
+            "unaccounted_m3": round(residual, 1),
+            "tolerance_m3": round(tolerance, 1),
+            "within_tolerance": bool(abs(residual) <= tolerance),
+        }
+    else:
+        result["tank"] = None
     return result
 
 

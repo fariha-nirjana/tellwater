@@ -192,7 +192,9 @@ def _doc_plan(kind: EventType, events: list[Event], day2: pd.Timestamp, rng: np.
     want_lab = rng.random() < 0.35 if lab is None else lab
     if want_lab:
         if main and kind in (EventType.AERATORS_DOWN, EventType.REPLAY):
-            t = main.start + _hours(rng.uniform(3, 8))
+            t = main.start + _hours(rng.uniform(3, 8))  # effluent quality lags the cut
+        elif main and lab:  # asked for explicitly: a grab sample taken during the event
+            t = main.start + (main.end - main.start) * float(rng.uniform(0.2, 0.8))
         else:
             t = day2 + pd.Timedelta(hours=float(rng.uniform(4, 10)))
         plan.lab_samples.append(t.round("5min"))
