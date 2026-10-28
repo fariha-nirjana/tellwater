@@ -33,6 +33,7 @@ READING_TOLERANCE = {"S1": (0.06, 2.0), "S2": (0.06, 2.0), "S3": (0.08, 2.0), "S
                      "S4b": (0.0, 0.15), "S4c": (0.05, 50.0), "T1": (0.0, 0.03)}
 MAX_POINTS = 36
 TERMINAL = {"request_evidence", "submit_assessment"}
+FREE = TERMINAL | {"update_hypotheses", "get_case_overview"}  # do not use up checks
 STATUSES = ("supports", "contradicts", "insufficient", "review_required")
 
 
@@ -62,6 +63,7 @@ class CaseTools:
     registry: dict = field(default_factory=dict)
     calls: list = field(default_factory=list)
     final: dict | None = None
+    ledger: list = field(default_factory=list)  # every update_hypotheses call, in order
 
     # ---- helpers
 
@@ -109,10 +111,12 @@ class CaseTools:
 
     def call(self, name: str, args: dict) -> dict:
         """Run a tool by name. Errors come back as results so the model can recover."""
-        if self.final is not None:
+        if self.final is not None and name != "submit_assessment":
             return {"error": "the investigation has already finished"}
-        used = sum(1 for c in self.calls if c["name"] not in TERMINAL)
-        if name not in TERMINAL and used >= self.budget:
+        args = dict(args or {})
+        why = args.pop("why", None)
+        used = self.checks_used
+        if name not in FREE and used >= self.budget:
             return {"error": f"tool budget of {self.budget} checks is spent; submit an assessment or an evidence request now"}
         fn = getattr(self, f"tool_{name}", None)
         if fn is None:
@@ -123,8 +127,12 @@ class CaseTools:
             result = {"error": str(exc)}
         except TypeError as exc:
             result = {"error": f"bad arguments: {exc}"}
-        self.calls.append({"name": name, "args": args, "result": result})
+        self.calls.append({"name": name, "args": args, "why": why, "result": result})
         return result
+
+    @property
+    def checks_used(self) -> int:
+        return sum(1 for c in self.calls if c["name"] not in FREE)
 
     # ---- tools
 
@@ -233,10 +241,24 @@ class CaseTools:
             a, b = a[ok], b[: len(ok)][ok]
             diff = np.abs(a - b)
             corr = float(np.corrcoef(a, b)[0, 1]) if a.std() > 1e-9 and b.std() > 1e-9 else None
+            # longest stretch where the two days match reading for reading
+            times = target.index[ok]
+            best, run_start, best_span = 0, None, None
+            for i, same in enumerate(diff < 1e-6):
+                if same and run_start is None:
+                    run_start = i
+                if (not same or i == len(diff) - 1) and run_start is not None:
+                    end_i = i if same else i - 1
+                    if end_i - run_start + 1 > best:
+                        best, best_span = end_i - run_start + 1, (times[run_start], times[end_i])
+                    run_start = None
+            identical_min = best * self.cfg.timestep_minutes
             comparisons.append({"window": f"{_fmt(s + offset)} to {_fmt(e + offset)}", "days_offset": days,
                                 "mean_here": _r(a.mean()), "mean_there": _r(b.mean()), "mean_abs_difference": _r(diff.mean(), 3),
-                                "max_abs_difference": _r(diff.max(), 3), "correlation": _r(corr, 3),
-                                "identical_reading_for_reading": bool(diff.max() < 1e-6)})
+                                "correlation": _r(corr, 3), "longest_identical_stretch_minutes": identical_min,
+                                "identical_stretch": [_fmt(best_span[0]), _fmt(best_span[1] + pd.Timedelta(minutes=self.cfg.timestep_minutes))]
+                                if best_span and identical_min >= 30 else None,
+                                "identical_reading_for_reading": bool(identical_min >= 60)})
         eid = f"calc:compare:{signal}@{_span_id(s, e)}"
         out = {"evidence_id": eid, "signal": signal, "comparisons": comparisons,
                "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."}
@@ -274,8 +296,22 @@ class CaseTools:
                    "feed_nearest": _r(nearest, 2), "feed_range_within_10_min": [_r(w.min(), 2), _r(w.max(), 2)],
                    "difference": _r(value - nearest, 2), "tolerance": _r(tol, 2), "consistent": bool(lo <= value <= hi),
                    "note": "Compared within 10 minutes either side, allowing for meter clocks that are a few minutes off."}
+            if signal == "S3":
+                out.update(self._expected_power_at(t, value))
         self._register(eid, "calculation", {k: v for k, v in out.items() if k != "note"})
         return out
+
+    def _expected_power_at(self, t: pd.Timestamp, value: float) -> dict:
+        """What ETP inflow at time t says power should be, independent of the power feed."""
+        warm = window(self.bundle.signals, t - pd.Timedelta(hours=4 * self.power_model.response_h), t + pd.Timedelta(minutes=5))
+        if warm["S2"].notna().mean() < 0.8:
+            return {"expected_from_inflow": None}
+        expected = float(self.power_model.expected(warm["S2"].interpolate(), self.cfg.dt_h).iloc[-1])
+        band = self.power_model.band_sd * self.power_model.residual_sd_kw
+        position = "below" if value < expected - band else "above" if value > expected + band else "within"
+        return {"expected_kw_from_inflow": _r(expected), "expected_band_half_width_kw": _r(band),
+                "reading_vs_expected_band": position,
+                "reading_as_share_of_expected": _r(value / expected, 2) if expected else None}
 
     def tool_get_lab_results(self) -> dict:
         labs = [d for d in self.bundle.documents if d["type"] == "lab_report"]
@@ -292,6 +328,17 @@ class CaseTools:
         self._register(eid, "factory_plan", {"batches": len(rows)})
         return {"evidence_id": eid, "note": "The factory's production plan (a factory record, not a measurement).",
                 "batches": rows}
+
+    def tool_update_hypotheses(self, explanations: list[dict]) -> dict:
+        if len(explanations) < 2:
+            raise ToolError("keep at least two competing explanations open until the evidence rules one out")
+        self.ledger.append(explanations)
+        cited = {i for e in explanations for i in e.get("supporting", []) + e.get("contradicting", [])}
+        unknown = sorted(c for c in cited if c not in self.registry)
+        out = {"recorded": True, "checks_used": self.checks_used, "checks_left": self.budget - self.checks_used}
+        if unknown:
+            out["warning"] = f"these IDs were not returned by any tool: {', '.join(unknown)}"
+        return out
 
     def tool_request_evidence(self, items: list[str], interval_start: str, interval_end: str, reason: str,
                               fallback: str | None = None) -> dict:
@@ -311,7 +358,12 @@ class CaseTools:
         return {"recorded": True}
 
 
-def _fn(name: str, description: str, properties: dict, required: list[str]) -> dict:
+_WHY = {"type": "string", "description": "One sentence: how this check separates the explanations still open"}
+
+
+def _fn(name: str, description: str, properties: dict, required: list[str], why: bool = True) -> dict:
+    if why:
+        properties, required = {**properties, "why": _WHY}, [*required, "why"]
     return {"type": "function", "function": {"name": name, "description": description,
             "parameters": {"type": "object", "properties": properties, "required": required}}}
 
@@ -347,11 +399,13 @@ TOOL_SPECS = [
     _fn("get_lab_results", "Accredited lab results for effluent grab samples in this case's period.", {}, []),
     _fn("get_production", "The factory's production plan (batches, shades, planned volumes) over a window.",
         {"start": _T, "end": _T}, ["start", "end"]),
+    _fn("update_hypotheses", "Record the current competing explanations and the evidence for and against each. Does not use up a check.",
+        {"explanations": {"type": "array", "items": _EXPLANATION}}, ["explanations"], why=False),
     _fn("request_evidence", "Finish with a specific evidence request when the available evidence cannot settle the case.",
         {"items": {"type": "array", "items": {"type": "string"}}, "interval_start": _T, "interval_end": _T,
          "reason": {"type": "string", "description": "How this evidence would separate the remaining explanations"},
          "fallback": {"type": "string", "description": "What to do if it does not exist, e.g. a surprise sampling visit"}},
-        ["items", "interval_start", "interval_end", "reason"]),
+        ["items", "interval_start", "interval_end", "reason"], why=False),
     _fn("submit_assessment", "Finish with a structured assessment.",
         {"status": {"type": "string", "enum": list(STATUSES)},
          "summary": {"type": "string", "description": "2 to 4 plain sentences; numbers only as they appear in tool results"},
@@ -363,5 +417,5 @@ TOOL_SPECS = [
          "unresolved": {"type": "array", "items": {"type": "string"}},
          "evidence_request": {"type": "object", "properties": {"items": {"type": "array", "items": {"type": "string"}},
                                                                "interval": {"type": "string"}, "reason": {"type": "string"}}}},
-        ["status", "summary", "explanations", "key_evidence", "scope_line", "limitations"]),
+        ["status", "summary", "explanations", "key_evidence", "scope_line", "limitations"], why=False),
 ]

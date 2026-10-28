@@ -88,7 +88,8 @@ def test_budget_and_errors_come_back_as_results(tmp_path):
     _, tools = saved(tmp_path, "normal")
     tools.budget = 2
     assert "error" in tools.call("get_signal_window", {"signal": "S9", "start": "2026-10-13T06:00", "end": "2026-10-13T08:00"})
-    tools.call("get_case_overview", {})
+    tools.call("get_case_overview", {})  # free: every investigation starts here
+    tools.call("get_lab_results", {})
     assert "budget" in tools.call("get_lab_results", {})["error"]
     assert tools.call("request_evidence", {"items": ["T1"], "interval_start": "2026-10-13T06:00",
                                            "interval_end": "2026-10-13T12:00", "reason": "x"}) == {"recorded": True}
@@ -99,3 +100,21 @@ def test_every_tool_has_a_spec_and_an_implementation():
     names = {s["function"]["name"] for s in TOOL_SPECS}
     assert all(hasattr(CaseTools, f"tool_{n}") for n in names)
     assert len(names) == len(TOOL_SPECS)
+
+
+def test_photo_reading_is_compared_with_what_inflow_requires(tmp_path):
+    c, tools = saved(tmp_path, "replay", photo=True)
+    photo = next(d for d in c.documents if d.type == "meter_photo" and d.content["signal"] == "S3")
+    t = pd.Timestamp(photo.meta["taken_at"])
+    r = tools.call("check_reading_against_feed", {"signal": "S3", "timestamp": iso(t), "value": photo.content["value"]})
+    assert r["reading_vs_expected_band"] == "below"
+
+
+def test_replay_found_even_when_the_window_starts_early(tmp_path):
+    c, tools = saved(tmp_path, "replay", photo=True)
+    ev = c.scenario.event(EventType.REPLAY)
+    early = ev.start - pd.Timedelta(hours=1)
+    cmp = tools.call("compare_similar_windows", {"signal": "S3", "start": iso(early), "end": iso(ev.end)})
+    prev = next(x for x in cmp["comparisons"] if x["days_offset"] == -1)
+    assert prev["identical_reading_for_reading"]
+    assert prev["longest_identical_stretch_minutes"] >= (ev.end - ev.start) / pd.Timedelta(minutes=1) - 10
