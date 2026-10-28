@@ -100,6 +100,7 @@ class Scenario:
     gaps: list[Gap] = field(default_factory=list)
     tank_level_available: bool = True
     docs: DocPlan = field(default_factory=DocPlan)
+    history_days: int = 0  # extra days of normal operation recorded before `start` (scale experiment)
 
     def event(self, kind: EventType) -> Event | None:
         return next((e for e in self.events if e.type is kind), None)
@@ -217,6 +218,7 @@ def build_scenario(
     lab: bool | None = None,
     adversarial: bool | None = None,
     case_id: str | None = None,
+    history_days: int = 0,
 ) -> Scenario:
     """Build a scenario with randomised timing and documents. The event falls
     on day 2.
@@ -225,7 +227,9 @@ def build_scenario(
     hours before it starts until six hours after it ends, or across the
     whole of day 2 when nothing happens). `photo`, `lab` and `adversarial`
     force whether a meter photo, a lab sample, or misleading factory
-    documents exist; left as None they are drawn at random.
+    documents exist; left as None they are drawn at random. `history_days`
+    adds that many days of normal operation, each with a logbook page,
+    before `start`; 0 leaves the case exactly as before.
     """
     kind = EventType(kind)
     rng = np.random.default_rng(seed)
@@ -245,7 +249,8 @@ def build_scenario(
         gaps = [Gap(s, g0, g1) for s in missing]
 
     # opaque: nothing in a case ID may hint at what happened
-    digest = hashlib.sha256(f"{cfg.id}|{kind.value}|{seed}|{missing}|{tank_level_available}|{photo}|{lab}|{adversarial}".encode())
+    key = f"{cfg.id}|{kind.value}|{seed}|{missing}|{tank_level_available}|{photo}|{lab}|{adversarial}"
+    digest = hashlib.sha256((key + (f"|h{history_days}" if history_days else "")).encode())
     return Scenario(
         id=case_id or f"{cfg.id}-{digest.hexdigest()[:8]}",
         seed=seed,
@@ -256,4 +261,5 @@ def build_scenario(
         gaps=gaps,
         tank_level_available=tank_level_available,
         docs=docs,
+        history_days=history_days,
     )

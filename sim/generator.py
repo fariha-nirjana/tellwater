@@ -97,8 +97,9 @@ def _batches(scenario: Scenario, index: pd.DatetimeIndex, cfg: FactoryConfig, rn
 
 def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
     rng = np.random.default_rng(scenario.seed)
-    n = scenario.days * cfg.steps_per_day
-    index = pd.date_range(scenario.start, periods=n, freq=f"{cfg.timestep_minutes}min")
+    n = (scenario.days + scenario.history_days) * cfg.steps_per_day
+    first = scenario.start - pd.Timedelta(days=scenario.history_days)
+    index = pd.date_range(first, periods=n, freq=f"{cfg.timestep_minutes}min")
     dt = cfg.dt_h
     prod, water, etp, power = cfg.production, cfg.water, cfg.etp, cfg.power
 

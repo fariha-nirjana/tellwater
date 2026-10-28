@@ -45,13 +45,16 @@ def _hm(t: pd.Timestamp) -> str:
     return t.strftime("%H:%M")
 
 
-def _logbook(case, cfg: FactoryConfig, rng: np.random.Generator) -> Document:
+def _logbook(case, cfg: FactoryConfig, rng: np.random.Generator, day: pd.Timestamp | None = None) -> Document:
+    """The event day's page, or with `day` a routine page from the history before the case window."""
     sc = case.scenario
     plan = sc.docs
-    day = (sc.start + pd.Timedelta(days=1)).normalize()
-    main = sc.main_event
+    routine = day is not None
+    day = day if routine else (sc.start + pd.Timedelta(days=1)).normalize()
+    main = None if routine else sc.main_event
     operator = str(rng.choice(OPERATORS))
-    truthful_page = plan.logbook == "honest"
+    truthful_page = routine or plan.logbook == "honest"
+    messy = plan.messy and not routine
     entries: list[dict] = []
 
     def add(t: pd.Timestamp, text: str, **kw):
@@ -68,7 +71,7 @@ def _logbook(case, cfg: FactoryConfig, rng: np.random.Generator) -> Document:
             state = "running normal"
         add(t, f"Shift {shift} start. ETP {state}. Outfall pH {ph:.1f}")
         lime = int(rng.choice([30, 35, 40, 45]))
-        if plan.messy and shift == "A":
+        if messy and shift == "A":
             add(t + pd.Timedelta(minutes=20), f"Lime dosed {lime - 10} kg", crossed_out=True)
         add(t + pd.Timedelta(minutes=25), f"Lime dosed {lime} kg")
 
@@ -77,11 +80,11 @@ def _logbook(case, cfg: FactoryConfig, rng: np.random.Generator) -> Document:
         wo = f" (WO-{note.start:%m%d}-{int(rng.integers(10, 99))})" if note else ""
         add(main.start, f"ETP stopped for planned maintenance{wo}. Tank taking inflow")
         add(main.end, "ETP restarted. Running normal")
-    elif plan.maintenance_note and not plan.maintenance_note.honest:
+    elif not routine and plan.maintenance_note and not plan.maintenance_note.honest:
         note = plan.maintenance_note
         add(note.start, f"{note.equipment} serviced. Other units running")
         add(note.end, f"{note.equipment} back in service")
-    if plan.messy:
+    if messy:
         t = day + pd.Timedelta(hours=float(rng.uniform(9, 12)))
         add(t.round("5min"), "Sludge removed from clarifier", late=True, written=_hm(t + pd.Timedelta(hours=8)))
 
@@ -224,4 +227,7 @@ def build_documents(case, cfg: FactoryConfig, rng: np.random.Generator) -> list[
         docs.append(_meter_photo(case, signal, t, k, rng))
     for t in plan.lab_samples:
         docs.append(_lab_report(case, cfg, t, rng))
+    first = case.scenario.start.normalize() - pd.Timedelta(days=case.scenario.history_days)
+    for k in range(case.scenario.history_days):
+        docs.append(_logbook(case, cfg, rng, day=first + pd.Timedelta(days=k)))
     return docs

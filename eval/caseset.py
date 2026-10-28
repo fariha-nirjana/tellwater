@@ -41,6 +41,11 @@ SETS = {
     "dev": [("factory", 10_000, 60)],
     "test": [("factory", 50_000, 60), ("factory_b", 60_000, 60)],
 }
+# Scale experiment: the same 20 scenarios with 3, 14 and 45 days of recorded data
+# (the extra days are normal operation before the case window, one logbook page each).
+SCALE_HISTORY = {"scale_3": 0, "scale_14": 11, "scale_45": 42}
+for _name in SCALE_HISTORY:
+    SETS[_name] = [("factory", 20_000, 20)]
 
 
 def specs(factory: str, seed0: int, n: int) -> list[dict]:
@@ -74,7 +79,7 @@ def build(name: str) -> list[dict]:
         cfg = load_factory(factory)
         for spec in specs(factory, seed0, n):
             sc = build_scenario(spec["kind"], spec["seed"], cfg, missing=tuple(spec["missing"]),
-                                tank_level_available=spec["tank_level_available"])
+                                tank_level_available=spec["tank_level_available"], history_days=SCALE_HISTORY.get(name, 0))
             case = generate(sc, cfg)
             folder = save_case(case, label(case, cfg), root, factory_name=factory)
             rows.append({"case_id": sc.id, **spec, "sha256": _hash_folder(folder)})
