@@ -1,35 +1,50 @@
 """The justified assessment for a case: what the evidence available to an
 investigator supports, which may be weaker than what actually happened.
 
-The oracle knows the ground truth (from the simulator) and which signals
-were recorded. For each kind of underlying situation it holds a list of
-evidence combinations, each of which would be enough to establish it. If
-any combination was recorded over the relevant window, the situation is
-established; if none was, the justified answer is "insufficient", with a
-request for whatever would complete the nearest combination.
+The oracle knows the ground truth (from the simulator) and which evidence
+exists. For each kind of underlying situation it holds evidence
+combinations, each enough to establish a finding. If any combination is
+available over the relevant window, the finding is established; if none is,
+the justified answer is "insufficient", with a request for whatever would
+complete the nearest combination.
 
-Every combination pairs at least two separate signals, so no single meter
-can establish a finding on its own: one odd reading is also what a sensor
+Evidence items are signals ("S2"), physical documents ("photo:S3" for a
+photo of the power meter, "lab" for a lab sample showing effluent over the
+BOD limit) and detectable tampering ("replay:S3"). A signal counts only
+where it recorded readings and was not faulty or replayed: an investigator
+is expected to recognise a stuck, drifting, spiking or replayed feed and
+set it aside. Factory-written documents never count: they are claims.
+
+Every combination pairs at least two separate items, so no single meter can
+establish a finding on its own: one odd reading is also what a sensor
 fault looks like.
 
-Rules, case by case:
+Rules, in priority order:
 
-Untreated discharge (shutdown, bypass) reached the outfall during the
-batch's treatment interval -> "contradicts", established by:
-  - S2 + S4a: outfall flow exceeds what the ETP treated
-  - S3 + S4b: ETP power down while outfall pH shows raw wastewater
-  - S2 + S4b: ETP inflow down while outfall pH shows raw wastewater
-  - S3 + S4a (shutdown only): ETP at standby while the outfall kept flowing
-  - T1 + S4b (shutdown only): tank full while outfall pH shows raw wastewater
-
-Planned maintenance with no discharge -> "supports" (the stored wastewater
-was treated once the ETP restarted), established by:
-  - T1 + S4a: tank level absorbed the flow and the outfall carried nothing
-    untreated, over the downtime and the catch-up after it
-
-Normal operation or low production -> "supports", established by:
-  - S2 + S3 + S4a: ETP took the flow, ran, and the outfall matches treated flow
-  - S2 + S3 + S4b: ETP took the flow, ran, and outfall pH was treated-range
+1. Untreated discharge (shutdown, bypass) reached the outfall during the
+   batch's treatment interval -> "contradicts", established by:
+   - S2 + S4a: outfall flow exceeds what the ETP treated
+   - S3 + S4b: ETP power down while outfall pH shows raw wastewater
+   - S2 + S4b: ETP inflow down while outfall pH shows raw wastewater
+   - S3 + S4a (shutdown only): ETP at standby while the outfall kept flowing
+   - T1 + S4b (shutdown only): tank full while outfall pH shows raw wastewater
+2. Aeration cut (aerators turned down, possibly hidden by a replayed feed):
+   - "contradicts" with S2 + S3 + photo:S3, S2 + S3 + lab, S2 + photo:S3,
+     S2 + lab, S3 + lab: low power or poor effluent confirmed by a physical
+     record the feed cannot fake
+   - "review_required" with S2 + S3 (power below load, but a power meter
+     fault would look the same) or S2 + replay:S3 (the power feed is a copy
+     of an earlier day: tampering, cause unconfirmed)
+3. Dilution (groundwater pumped to the outfall) -> "review_required": the
+   outfall measurement point was tampered with, but treatment itself is not
+   shown to have failed. Established by S2 + S4a + S4c (excess outfall flow
+   with a conductivity drop) or S2 + S4a + S4b (excess flow at treated pH,
+   so not raw wastewater).
+4. ETP stopped with no discharge (planned maintenance) -> "supports" (the
+   stored wastewater was treated once the ETP restarted), established by
+   T1 + S4a over the downtime and the catch-up after it.
+5. Otherwise (normal, low production, a sensor fault) -> "supports", with
+   S2 + S3 + S4a, S2 + S3 + S4b, or S3 + S4a + S4b.
 """
 
 from __future__ import annotations
@@ -45,14 +60,18 @@ from sim.scenarios import EventType
 
 UNTREATED_THRESHOLD_M3_H = 1.0
 MAINTENANCE_CATCH_UP_H = 6
+LAB_LAG_H = 12  # effluent quality lags the aeration cut through the basin
 
 STATUSES = ("supports", "contradicts", "insufficient", "review_required")
 
 COMBOS: dict[str, list[tuple[str, ...]]] = {
     "shutdown": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b"), ("S3", "S4a"), ("T1", "S4b")],
     "bypass": [("S2", "S4a"), ("S3", "S4b"), ("S2", "S4b")],
+    "aeration": [("S2", "S3", "photo:S3"), ("S2", "S3", "lab"), ("S2", "photo:S3"), ("S2", "lab"), ("S3", "lab")],
+    "aeration_review": [("S2", "S3"), ("S2", "replay:S3")],
+    "dilution": [("S2", "S4a", "S4c"), ("S2", "S4a", "S4b")],
     "maintenance": [("T1", "S4a")],
-    "normal": [("S2", "S3", "S4a"), ("S2", "S3", "S4b")],
+    "normal": [("S2", "S3", "S4a"), ("S2", "S3", "S4b"), ("S3", "S4a", "S4b")],
 }
 
 EVIDENCE_NAMES = {
@@ -63,6 +82,10 @@ EVIDENCE_NAMES = {
     "S4b": "outfall pH record",
     "S4c": "outfall conductivity record",
     "T1": "equalization tank level log",
+    "photo:S3": "photo of the ETP power meter",
+    "photo:S2": "photo of the ETP inflow meter",
+    "lab": "lab test of the outfall effluent",
+    "replay:S3": "ETP power record",
 }
 
 
@@ -78,7 +101,7 @@ class Label:
     evidence_request: dict | None
 
 
-def _runs_of(mask: pd.Series) -> tuple[pd.Timestamp, pd.Timestamp] | None:
+def _span(mask: pd.Series) -> tuple[pd.Timestamp, pd.Timestamp] | None:
     """First and last timestamps (end exclusive) where the mask holds."""
     hits = mask[mask]
     if hits.empty:
@@ -92,6 +115,15 @@ def _overlap(a: tuple, b: tuple) -> tuple | None:
     return (start, end) if start < end else None
 
 
+def usable_signals(case: Case) -> pd.DataFrame:
+    """Recorded signals with faulty and replayed stretches removed."""
+    s = case.signals.copy()
+    for ev in case.scenario.events:
+        if ev.type in (EventType.SENSOR_FAULT, EventType.REPLAY):
+            s.loc[(s.index >= ev.start) & (s.index < ev.end), ev.params["signal"]] = float("nan")
+    return s
+
+
 def pick_batch(case: Case, cfg: FactoryConfig) -> Batch:
     """The batch whose treatment interval overlaps the event most, or a day 2
     morning batch when nothing happened."""
@@ -99,7 +131,7 @@ def pick_batch(case: Case, cfg: FactoryConfig) -> Batch:
     if not events:
         day2 = case.scenario.start + pd.Timedelta(days=1)
         return next(b for b in case.batches if b.start >= day2)
-    ev = (events[0].start, events[0].end)
+    ev = (min(e.start for e in events), max(e.end for e in events))
 
     def score(b: Batch) -> pd.Timedelta:
         o = _overlap(treatment_interval(b.start, b.end, cfg), ev)
@@ -109,56 +141,93 @@ def pick_batch(case: Case, cfg: FactoryConfig) -> Batch:
     return max(candidates or case.batches, key=score)
 
 
-def _assess(case: Case, combos: list[tuple[str, ...]], win: tuple) -> tuple[tuple[str, ...] | None, tuple[str, ...]]:
-    """The first combination fully recorded over the window, else the
-    signals missing from the nearest one."""
-    best_missing: tuple[str, ...] | None = None
-    for combo in combos:
-        missing = tuple(s for s in combo if coverage(case.signals, s, *win) < MIN_COVERAGE)
-        if not missing:
-            return combo, ()
-        if best_missing is None or len(missing) < len(best_missing):
-            best_missing = missing
-    return None, best_missing or ()
+class _Evidence:
+    """Which evidence items are available over a window."""
+
+    def __init__(self, case: Case, cfg: FactoryConfig):
+        self.case, self.cfg = case, cfg
+        self.usable = usable_signals(case)
+
+    def available(self, item: str, win: tuple) -> bool:
+        if item.startswith("photo:"):
+            sig = item.split(":")[1]
+            return any(d.type == "meter_photo" and d.content["signal"] == sig and win[0] <= d.covers[0] < win[1]
+                       for d in self.case.documents)
+        if item == "lab":
+            limit = self.cfg.discharge_limits.bod_mg_l
+            end = win[1] + pd.Timedelta(hours=LAB_LAG_H)
+            return any(d.type == "lab_report" and d.content["bod_mg_l"] > limit and win[0] <= d.covers[0] < end
+                       for d in self.case.documents)
+        if item.startswith("replay:"):
+            sig = item.split(":")[1]
+            replay = self.case.scenario.event(EventType.REPLAY)
+            return bool(replay and replay.params["signal"] == sig and _overlap((replay.start, replay.end), win)
+                        and coverage(self.case.signals, sig, *win) >= MIN_COVERAGE)
+        return coverage(self.usable, item, *win) >= MIN_COVERAGE
+
+    def assess(self, combos: list[tuple[str, ...]], win: tuple):
+        """The first combination fully available, else the items missing from the nearest one."""
+        best: tuple[str, ...] | None = None
+        for combo in combos:
+            missing = tuple(i for i in combo if not self.available(i, win))
+            if not missing:
+                return combo, ()
+            if best is None or len(missing) < len(best):
+                best = missing
+        return None, best or ()
 
 
 def label(case: Case, cfg: FactoryConfig, batch: Batch | None = None) -> Label:
     batch = batch or pick_batch(case, cfg)
     ti = treatment_interval(batch.start, batch.end, cfg)
     truth = case.truth.loc[(case.truth.index >= ti[0]) & (case.truth.index < ti[1])]
-    kind = case.scenario.kind
+    sc = case.scenario
+    ev = _Evidence(case, cfg)
 
-    harm = _runs_of(truth["untreated"] > UNTREATED_THRESHOLD_M3_H)
-    off = _runs_of(~truth["etp_on"].astype(bool))
+    harm = _span(truth["untreated"] > UNTREATED_THRESHOLD_M3_H)
+    aeration = _span(truth["aeration_factor"] < 1.0)
+    diluted = _span(truth["dilution"] > UNTREATED_THRESHOLD_M3_H)
+    off = _span(~truth["etp_on"].astype(bool))
+    fault = sc.event(EventType.SENSOR_FAULT)
+    fault_in_ti = bool(fault and _overlap((fault.start, fault.end), ti))
 
+    review_combos: list[tuple[str, ...]] = []
     if harm:
-        underlying = kind.value
-        combos = COMBOS.get(kind.value, COMBOS["bypass"])
-        win, positive = harm, "contradicts"
+        underlying = sc.kind.value
+        combos, win, positive = COMBOS.get(sc.kind.value, COMBOS["bypass"]), harm, "contradicts"
+    elif aeration:
+        underlying = sc.kind.value
+        combos, win, positive = COMBOS["aeration"], aeration, "contradicts"
+        review_combos = COMBOS["aeration_review"]
+    elif diluted:
+        underlying = sc.kind.value
+        combos, win, positive = COMBOS["dilution"], diluted, "review_required"
     elif off:
-        underlying = kind.value if kind is EventType.MAINTENANCE else "etp_stopped"
+        underlying = sc.kind.value if sc.kind is EventType.MAINTENANCE else "etp_stopped"
         combos = COMBOS["maintenance"]
         win = (off[0], min(off[1] + pd.Timedelta(hours=MAINTENANCE_CATCH_UP_H), ti[1]))
         positive = "supports"
     else:
-        underlying = kind.value if kind is EventType.LOW_PRODUCTION else "normal"
-        combos = COMBOS["normal"]
-        win, positive = ti, "supports"
+        underlying = sc.kind.value if sc.kind is EventType.LOW_PRODUCTION or fault_in_ti else "normal"
+        combos, win, positive = COMBOS["normal"], ti, "supports"
 
-    established, missing = _assess(case, combos, win)
+    established, missing = ev.assess(combos, win)
+    justified = positive if established else "insufficient"
+    if not established and review_combos:
+        established, _ = ev.assess(review_combos, win)
+        if established:
+            justified = "review_required"
+
     request = None
-    if not established:
-        request = {
-            "type": " and ".join(EVIDENCE_NAMES[s] for s in missing),
-            "signals": list(missing),
-            "interval": (str(win[0]), str(win[1])),
-        }
+    if justified in ("insufficient", "review_required") and missing:
+        names = list(dict.fromkeys(EVIDENCE_NAMES[i] for i in missing))
+        request = {"type": " and ".join(names), "items": list(missing), "interval": (str(win[0]), str(win[1]))}
     return Label(
-        case_id=case.scenario.id,
+        case_id=sc.id,
         batch_id=batch.id,
         treatment_interval=(str(ti[0]), str(ti[1])),
         underlying=underlying,
-        justified=positive if established else "insufficient",
+        justified=justified,
         window=(str(win[0]), str(win[1])),
         established_by=established,
         evidence_request=request,

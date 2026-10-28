@@ -98,3 +98,48 @@ def test_treatment_interval_is_production_window_shifted_by_residence():
     e = s + pd.Timedelta(hours=4)
     ti = treatment_interval(s, e, CFG)
     assert ti == (s + pd.Timedelta(hours=CFG.etp.residence_min_h), e + pd.Timedelta(hours=CFG.etp.residence_max_h))
+
+
+def window_of(c, kind):
+    from sim.scenarios import EventType
+
+    ev = c.scenario.event(EventType(kind))
+    return (c.truth.index >= ev.start) & (c.truth.index < ev.end)
+
+
+def test_aeration_cut_lowers_power_and_raises_effluent_bod_with_a_lag():
+    c = case("aerators_down")
+    sel = window_of(c, "aerators_down")
+    before = c.truth.iloc[: CFG.steps_per_day]
+    assert c.truth.loc[sel, "S3"].mean() < 0.8 * before["S3"].mean()
+    assert c.truth["effluent_bod"].max() > 3 * CFG.discharge_limits.bod_mg_l
+    assert c.truth.loc[sel, "S2"].mean() == pytest.approx(before["S2"].mean(), rel=0.25)
+
+
+def test_replayed_feed_copies_the_previous_day_while_the_photo_shows_reality():
+    c = case("replay", photo=True)
+    sel = window_of(c, "replay")
+    shifted = c.signals["S3"].shift(CFG.steps_per_day)
+    assert np.allclose(c.signals.loc[sel, "S3"], shifted[sel])
+    photo = next(d for d in c.documents if d.type == "meter_photo" and d.content["signal"] == "S3")
+    t = pd.Timestamp(photo.meta["taken_at"])
+    assert photo.content["value"] == pytest.approx(c.truth.loc[t, "S3"], rel=0.05)
+    assert abs(photo.content["value"] - c.signals.loc[t, "S3"]) > 10
+
+
+def test_dilution_drops_conductivity_but_not_ph():
+    c = case("dilution")
+    sel = window_of(c, "dilution")
+    day1 = c.truth.iloc[: CFG.steps_per_day]
+    assert c.truth.loc[sel, "S4c"].mean() < 0.9 * day1["S4c"].mean()
+    assert c.truth.loc[sel, "S4b"].max() < CFG.discharge_limits.ph_max
+    assert c.truth["untreated"].sum() == 0
+
+
+def test_factory_claims_are_marked_and_misleading_ones_flagged():
+    honest = case("maintenance")
+    liar = case("aerators_down", adversarial=True)
+    assert all(d.truthful for d in honest.documents)
+    claims = [d for d in liar.documents if d.is_claim]
+    assert claims and not any(d.truthful for d in claims)
+    assert all(d.truthful for d in liar.documents if not d.is_claim)

@@ -1,4 +1,4 @@
-"""Turn a scenario into physically consistent signals.
+"""Turn a scenario into physically consistent signals and documents.
 
 The model, per 5 minute step:
 
@@ -12,20 +12,25 @@ The model, per 5 minute step:
 - The aeration basin and clarifier hold constant volume, so treated flow
   equals inflow minus sludge water at once, while dissolved salt and organic
   load move through them with a lag (mixed-tank mass balances).
+- Biological treatment removes most organic load when aeration runs fully;
+  turning aerators down lowers removal, and effluent BOD follows with the
+  basin's lag.
 - A share of treated water is reused; the rest reaches the outfall (S4a),
-  together with any bypassed or overflowing untreated water.
+  together with any bypassed or overflowing untreated water and any
+  groundwater pumped in to dilute it.
 - Outfall pH (S4b) mixes hydroxide from each stream; conductivity (S4c) mixes
   linearly. Biological treatment removes little salt, so conductivity tracks
   the source water, not treatment.
 - ETP power (S3) is base load plus pumping plus aeration, which follows the
   organic load entering the basin with a response lag.
 
-Measured signals add sensor noise and the scenario's gaps.
+Measured signals add sensor noise, the scenario's gaps, replayed feeds and
+sensor faults. Documents are built from the true values afterwards.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
@@ -33,7 +38,7 @@ import pandas as pd
 from sim.config import FactoryConfig
 from sim.scenarios import EventType, Scenario
 
-TREATED_BOD_MG_L = 18.0  # assumed effluent BOD of a working biological ETP
+BOD_REMOVAL = 0.97  # assumed: removal by a fully aerated activated sludge basin
 STAGNANT_FLOW_M3_H = 0.5  # below this the outfall probe sits in standing water
 
 
@@ -53,6 +58,7 @@ class Case:
     truth: pd.DataFrame  # true physical values plus hidden state
     signals: pd.DataFrame  # what the meters recorded
     batches: list[Batch]
+    documents: list = field(default_factory=list)  # sim.documents.Document
 
 
 def _shift_multipliers(index: pd.DatetimeIndex, cfg: FactoryConfig) -> np.ndarray:
@@ -100,6 +106,9 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
     etp_off = np.zeros(n, dtype=bool)
     bypass_fraction = np.zeros(n)
     production_multiplier = np.ones(n)
+    aeration_factor = np.ones(n)
+    dilution = np.zeros(n)
+    dilution_metered = False
     for ev in scenario.events:
         mask = ev.active(index)
         if ev.type in (EventType.SHUTDOWN, EventType.MAINTENANCE):
@@ -108,6 +117,11 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
             bypass_fraction[mask] = ev.params["bypass_fraction"]
         elif ev.type is EventType.LOW_PRODUCTION:
             production_multiplier[mask] = ev.params["production_multiplier"]
+        elif ev.type is EventType.AERATORS_DOWN:
+            aeration_factor[mask] = ev.params["aeration_factor"]
+        elif ev.type is EventType.DILUTION:
+            dilution[mask] = ev.params["flow_m3_h"]
+            dilution_metered = ev.params["metered"]
 
     # --- production and raw wastewater quality
     batches, shade_at, raw_ph = _batches(scenario, index, cfg, rng)
@@ -123,6 +137,8 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
         * (1 + _ar1(rng, n, prod.noise_rel))
     ).clip(min=0)
     treated_ph = etp.treated_ph.mean + _ar1(rng, n, etp.treated_ph.sd, phi=0.98)
+    gw = water.groundwater
+    gw_oh = 10.0 ** (gw.ph - 14)
 
     step_m3 = wastewater * dt
     for b in batches:
@@ -136,6 +152,7 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
     medium = prod.shades.get("medium") or next(iter(prod.shades.values()))
     eq_cond, eq_bod, eq_oh = medium.conductivity_us_cm, medium.bod_mg_l, 10.0 ** (prod.raw_ph.mean - 14)
     basin_cond = clar_cond = eq_cond
+    basin_bod_out = eq_bod * (1 - BOD_REMOVAL)
     aeration_load = prod.mean_rate_m3_h * eq_bod / 1000
     last_ph, last_cond = etp.treated_ph.mean, eq_cond * (1 - etp.conductivity_removal_fraction)
 
@@ -143,10 +160,12 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
         k: np.zeros(n)
         for k in (
             "wastewater", "S1", "S2", "S3", "S4a", "S4b", "S4c", "T1",
-            "bypass", "overflow", "untreated", "reuse", "eq_bod", "effluent_bod",
+            "bypass", "overflow", "untreated", "reuse", "dilution", "eq_bod", "effluent_bod",
         )
     }
     cols["etp_on"] = ~etp_off
+    cols["aeration_factor"] = aeration_factor
+    last_bod = basin_bod_out
 
     for i in range(n):
         p = wastewater[i]
@@ -179,49 +198,57 @@ def generate(scenario: Scenario, cfg: FactoryConfig) -> Case:
         # aeration basin and clarifier: constant volume, so flow passes at once
         basin_cond += s2 * dt / etp.aeration_basin_volume_m3 * (eq_cond - basin_cond)
         clar_cond += s2 * dt / etp.clarifier_volume_m3 * (basin_cond - clar_cond)
+        removal = BOD_REMOVAL * np.sqrt(aeration_factor[i])
+        basin_bod_out += s2 * dt / etp.aeration_basin_volume_m3 * (eq_bod * (1 - removal) - basin_bod_out)
+
         treated = s2 * (1 - water.sludge_water_fraction)
         reuse = water.reuse_fraction * treated
         treated_out = treated - reuse
         untreated = bypass + overflow
-        s4a = treated_out + untreated
+        d = dilution[i]
+        s4a = treated_out + untreated + d
 
         if s4a > STAGNANT_FLOW_M3_H:
             oh_treated = 10.0 ** (treated_ph[i] - 14)
-            oh_mix = (treated_out * oh_treated + untreated * eq_oh) / s4a
+            oh_mix = (treated_out * oh_treated + untreated * eq_oh + d * gw_oh) / s4a
             last_ph = 14 + np.log10(oh_mix)
             cond_treated = clar_cond * (1 - etp.conductivity_removal_fraction)
-            last_cond = (treated_out * cond_treated + untreated * eq_cond) / s4a
-            effluent_bod = (treated_out * TREATED_BOD_MG_L + untreated * eq_bod) / s4a
-        else:
-            effluent_bod = np.nan
+            last_cond = (treated_out * cond_treated + untreated * eq_cond + d * gw.conductivity_us_cm) / s4a
+            last_bod = (treated_out * basin_bod_out + untreated * eq_bod) / s4a
 
         load_in = s2 * eq_bod / 1000  # kg BOD per hour entering the basin
         aeration_load += dt / power.aeration_response_h * (load_in - aeration_load)
         if etp_off[i]:
             kw = power.standby_kw
         else:
-            kw = power.base_kw + power.pump_kw_per_m3_h * s2 + power.aeration_kw_per_kg_bod_h * aeration_load
+            kw = (power.base_kw + power.pump_kw_per_m3_h * s2
+                  + power.aeration_kw_per_kg_bod_h * aeration_load * aeration_factor[i])
 
-        row = cols
-        row["wastewater"][i] = p
-        row["S1"][i] = p / (1 - water.process_loss_fraction) - reuse
-        row["S2"][i] = s2
-        row["S3"][i] = kw
-        row["S4a"][i] = s4a
-        row["S4b"][i] = last_ph
-        row["S4c"][i] = last_cond
-        row["T1"][i] = v / eq_volume
-        row["bypass"][i] = bypass
-        row["overflow"][i] = overflow
-        row["untreated"][i] = untreated
-        row["reuse"][i] = reuse
-        row["eq_bod"][i] = eq_bod
-        row["effluent_bod"][i] = effluent_bod
+        cols["wastewater"][i] = p
+        cols["S1"][i] = p / (1 - water.process_loss_fraction) - reuse + (d if dilution_metered else 0.0)
+        cols["S2"][i] = s2
+        cols["S3"][i] = kw
+        cols["S4a"][i] = s4a
+        cols["S4b"][i] = last_ph
+        cols["S4c"][i] = last_cond
+        cols["T1"][i] = v / eq_volume
+        cols["bypass"][i] = bypass
+        cols["overflow"][i] = overflow
+        cols["untreated"][i] = untreated
+        cols["reuse"][i] = reuse
+        cols["dilution"][i] = d
+        cols["eq_bod"][i] = eq_bod
+        cols["effluent_bod"][i] = last_bod
 
     truth = pd.DataFrame(cols, index=index)
     truth["shade"] = shade_at
     signals = _measure(truth, scenario, cfg, rng)
-    return Case(scenario, cfg.id, truth, signals, batches)
+    case = Case(scenario, cfg.id, truth, signals, batches)
+
+    from sim.documents import build_documents  # documents read the finished case
+
+    case.documents = build_documents(case, cfg, rng)
+    return case
 
 
 def _measure(truth: pd.DataFrame, scenario: Scenario, cfg: FactoryConfig, rng: np.random.Generator) -> pd.DataFrame:
@@ -238,6 +265,38 @@ def _measure(truth: pd.DataFrame, scenario: Scenario, cfg: FactoryConfig, rng: n
     on_grid = (truth.index.minute % s.tank_level_resolution_minutes) == 0
     m["T1"] = level.where(on_grid & scenario.tank_level_available)
 
+    for ev in scenario.events:
+        if ev.type is EventType.REPLAY:
+            _replay(m, ev)
+        elif ev.type is EventType.SENSOR_FAULT:
+            _fault(m, ev, rng)
+
     for gap in scenario.gaps:
         m.loc[(m.index >= gap.start) & (m.index < gap.end), gap.signal] = np.nan
     return m
+
+
+def _replay(m: pd.DataFrame, ev) -> None:
+    """The feed re-sends what it recorded at the same clock time earlier."""
+    sig, offset = ev.params["signal"], pd.Timedelta(days=ev.params["offset_days"])
+    sel = (m.index >= ev.start) & (m.index < ev.end)
+    source = m.loc[(m.index >= ev.start - offset) & (m.index < ev.end - offset), sig].to_numpy()
+    m.loc[sel, sig] = source[: int(sel.sum())]
+
+
+def _fault(m: pd.DataFrame, ev, rng: np.random.Generator) -> None:
+    sig, mode = ev.params["signal"], ev.params["mode"]
+    sel = (m.index >= ev.start) & (m.index < ev.end)
+    k = int(sel.sum())
+    values = m.loc[sel, sig].to_numpy(dtype=float)
+    if mode == "flatline_zero":
+        values = np.zeros(k)
+    elif mode == "stuck":
+        values = np.full(k, values[0])
+    elif mode == "drift":
+        ramp = np.linspace(0, 1, k)
+        values = values + ramp * 2.0 * np.sign(ev.params["drift"]) if sig == "S4b" else values * (1 + ramp * ev.params["drift"])
+    elif mode == "spikes":
+        hits = rng.random(k) < 0.06
+        values = np.where(hits, values * rng.uniform(2.5, 4.0, k) if sig != "S4b" else values + rng.uniform(2, 3.5, k), values)
+    m.loc[sel, sig] = values
