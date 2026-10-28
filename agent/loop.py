@@ -23,11 +23,12 @@ from agent.validate import validate
 from core.physics import PowerModel
 from store.cases import Bundle
 
-# USD per million tokens (input, output); None when billed another way
+# USD per million tokens (input, cached input, output) at list price; None when billed another way.
+# Estimates only: the provider's billing page is the real figure.
 PRICES = {
-    "muse-spark-1.3": (1.25, 4.25),
-    "muse-spark-1.3-contributor": (0.10, 0.20),
-    "accounts/fireworks/models/muse-spark-open": (1.25, 4.25),
+    "muse-spark-1.3": (1.25, 1.25, 4.25),
+    "muse-spark-1.3-contributor": (0.10, 0.10, 0.20),
+    "accounts/fireworks/models/muse-spark-open": (1.25, 0.15, 4.25),
 }
 MAX_IMAGE_SIDE = 1600
 MAX_NUDGES = 3
@@ -49,6 +50,7 @@ class Trace:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     reasoning_tokens: int = 0
+    cached_tokens: int = 0
     cost_usd: float | None = None
     seconds: float = 0.0
     error: str | None = None
@@ -97,6 +99,7 @@ def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | N
             trace.prompt_tokens += u.get("prompt_tokens") or 0
             trace.completion_tokens += u.get("completion_tokens") or 0
             trace.reasoning_tokens += (u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0
+            trace.cached_tokens += (u.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
             msg = reply.message
 
             if not msg.tool_calls:
@@ -158,5 +161,6 @@ def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | N
     trace.seconds = round(time.perf_counter() - started, 1)
     price = PRICES.get(client.endpoint.model)
     if price:
-        trace.cost_usd = round((trace.prompt_tokens * price[0] + trace.completion_tokens * price[1]) / 1e6, 4)
+        fresh = trace.prompt_tokens - trace.cached_tokens
+        trace.cost_usd = round((fresh * price[0] + trace.cached_tokens * price[1] + trace.completion_tokens * price[2]) / 1e6, 4)
     return trace
