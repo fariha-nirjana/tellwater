@@ -1,0 +1,232 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "M. Hossain",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "426682dffec4dae8053c2f3868406560bd3b10e3c0d383f3c406170aae58ddd4",
+    "content": {
+      "date": "13/10/2026",
+      "operator": "M. Hossain",
+      "entries": [
+        {
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "06:20",
+          "text": "Lime dosed 25 kg",
+          "crossed_out": true,
+          "late": false
+        },
+        {
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "09:45",
+          "text": "Sludge removed from clarifier",
+          "crossed_out": false,
+          "late": true,
+          "written": "17:45"
+        },
+        {
+          "time": "13:10",
+          "text": "ETP stopped for planned maintenance (WO-1013-43). Tank taking inflow",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:00",
+          "text": "Shift B start. ETP stopped. Outfall pH 7.2",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "15:40",
+          "text": "ETP restarted. Running normal",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.4",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "late": false
+        }
+      ]
+    },
+    "truthful": true,
+    "meta": {
+      "lines": [
+        {
+          "index": 0,
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "box": {
+            "x_min": 97,
+            "y_min": 172,
+            "x_max": 792,
+            "y_max": 219
+          }
+        },
+        {
+          "index": 1,
+          "time": "06:20",
+          "text": "Lime dosed 25 kg",
+          "crossed_out": true,
+          "box": {
+            "x_min": 100,
+            "y_min": 230,
+            "x_max": 411,
+            "y_max": 263
+          }
+        },
+        {
+          "index": 2,
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 102,
+            "y_min": 265,
+            "x_max": 403,
+            "y_max": 297
+          }
+        },
+        {
+          "index": 3,
+          "time": "09:45",
+          "text": "Sludge removed from clarifier",
+          "crossed_out": false,
+          "box": {
+            "x_min": 103,
+            "y_min": 301,
+            "x_max": 680,
+            "y_max": 340
+          }
+        },
+        {
+          "index": 4,
+          "time": "13:10",
+          "text": "ETP stopped for planned maintenance (WO-1013-43). Tank taking inflow",
+          "crossed_out": false,
+          "box": {
+            "x_min": 96,
+            "y_min": 339,
+            "x_max": 792,
+            "y_max": 418
+          }
+        },
+        {
+          "index": 5,
+          "time": "14:00",
+          "text": "Shift B start. ETP stopped. Outfall pH 7.2",
+          "crossed_out": false,
+          "box": {
+            "x_min": 100,
+            "y_min": 411,
+            "x_max": 702,
+            "y_max": 448
+          }
+        },
+        {
+          "index": 6,
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 97,
+            "y_min": 461,
+            "x_max": 398,
+            "y_max": 489
+          }
+        },
+        {
+          "index": 7,
+          "time": "15:40",
+          "text": "ETP restarted. Running normal",
+          "crossed_out": false,
+          "box": {
+            "x_min": 96,
+            "y_min": 502,
+            "x_max": 555,
+            "y_max": 533
+          }
+        },
+        {
+          "index": 8,
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.4",
+          "crossed_out": false,
+          "box": {
+            "x_min": 97,
+            "y_min": 535,
+            "x_max": 780,
+            "y_max": 570
+          }
+        },
+        {
+          "index": 9,
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 101,
+            "y_min": 578,
+            "x_max": 403,
+            "y_max": 605
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "doc:maintenance-1013-1310",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 13:10:00+06:00",
+      "2026-10-13 15:40:00+06:00"
+    ],
+    "received_at": "2026-10-11 13:10:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1310.jpg",
+    "sha256": "94a80e42f701b2e60ee56074dc076dcb21a8533b37222085a9428cd5e9b40f37",
+    "content": {
+      "work_order": "WO-261013-12",
+      "equipment": "ETP aeration and feed system",
+      "start": "13/10/2026 13:10",
+      "end": "13/10/2026 15:40",
+      "description": "Planned maintenance: aerator diffuser cleaning and feed pump inspection. ETP stopped; equalization tank to absorb inflow until restart.",
+      "approved_by": "Plant engineer"
+    },
+    "truthful": true,
+    "meta": {
+      "written_at": "2026-10-11 13:10:00+06:00"
+    }
+  }
+]

@@ -35,3 +35,8 @@ eval/runs/
 .vscode/
 .idea/
 frontend-design.md
+design/
+
+# Demo runtime state (reviews, uploads, live runs)
+data/demo/state.json
+data/demo/*/trace-live.json

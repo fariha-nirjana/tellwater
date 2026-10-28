@@ -1,0 +1,20 @@
+{
+  "case_id": "factory-a-460f93ca",
+  "batch_id": "factory-a-460f93ca-B04",
+  "treatment_interval": [
+    "2026-10-13 10:00:00+06:00",
+    "2026-10-14 14:00:00+06:00"
+  ],
+  "underlying": "aerators_down",
+  "justified": "contradicts",
+  "window": [
+    "2026-10-13 11:40:00+06:00",
+    "2026-10-13 16:45:00+06:00"
+  ],
+  "established_by": [
+    "S2",
+    "S3",
+    "photo:S3"
+  ],
+  "evidence_request": null
+}

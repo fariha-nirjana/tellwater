@@ -1,0 +1,28 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "R. Karim",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "47ccf66fd547eb67a335fc15de9cd277048b2cbbc3f46b3b09d786d758fa16fe"
+  },
+  {
+    "id": "doc:maintenance-1013-1420",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 14:20:00+06:00",
+      "2026-10-13 17:50:00+06:00"
+    ],
+    "received_at": "2026-10-12 14:20:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1420.jpg",
+    "sha256": "81f91d37435c8fb11e4bf56fad6d434d16cfbf18d231be31620a81930d93b477"
+  }
+]

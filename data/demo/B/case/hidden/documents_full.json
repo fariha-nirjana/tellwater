@@ -1,0 +1,262 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "R. Karim",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "9005294406b690d05bd968054ddb303c6003f2352d01c7432996003cd9626213",
+    "content": {
+      "date": "13/10/2026",
+      "operator": "R. Karim",
+      "entries": [
+        {
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "11:40",
+          "text": "Aerator 2 serviced. Other units running",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "13:20",
+          "text": "Aerator 2 back in service",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "late": false
+        }
+      ]
+    },
+    "truthful": false,
+    "meta": {
+      "lines": [
+        {
+          "index": 0,
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "box": {
+            "x_min": 130,
+            "y_min": 197,
+            "x_max": 779,
+            "y_max": 241
+          }
+        },
+        {
+          "index": 1,
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 137,
+            "y_min": 251,
+            "x_max": 425,
+            "y_max": 283
+          }
+        },
+        {
+          "index": 2,
+          "time": "11:40",
+          "text": "Aerator 2 serviced. Other units running",
+          "crossed_out": false,
+          "box": {
+            "x_min": 134,
+            "y_min": 278,
+            "x_max": 663,
+            "y_max": 317
+          }
+        },
+        {
+          "index": 3,
+          "time": "13:20",
+          "text": "Aerator 2 back in service",
+          "crossed_out": false,
+          "box": {
+            "x_min": 136,
+            "y_min": 321,
+            "x_max": 506,
+            "y_max": 353
+          }
+        },
+        {
+          "index": 4,
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "box": {
+            "x_min": 134,
+            "y_min": 350,
+            "x_max": 786,
+            "y_max": 397
+          }
+        },
+        {
+          "index": 5,
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 133,
+            "y_min": 402,
+            "x_max": 419,
+            "y_max": 434
+          }
+        },
+        {
+          "index": 6,
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "box": {
+            "x_min": 133,
+            "y_min": 428,
+            "x_max": 784,
+            "y_max": 472
+          }
+        },
+        {
+          "index": 7,
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 126,
+            "y_min": 476,
+            "x_max": 422,
+            "y_max": 507
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "doc:maintenance-1013-1140",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 11:40:00+06:00",
+      "2026-10-13 13:20:00+06:00"
+    ],
+    "received_at": "2026-10-14 11:05:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1140.jpg",
+    "sha256": "be845cb3c3b3f12537e9f36ee9c7f348ef6a32973bab645fed4e09f3f2b9f5bf",
+    "content": {
+      "work_order": "WO-261013-74",
+      "equipment": "Aerator 2",
+      "start": "13/10/2026 11:40",
+      "end": "13/10/2026 13:20",
+      "description": "Aerator 2 bearing replaced. All other aerators and pumps in service.",
+      "approved_by": "Plant engineer"
+    },
+    "truthful": false,
+    "meta": {
+      "written_at": "2026-10-14 11:05:00+06:00"
+    }
+  },
+  {
+    "id": "doc:statement-1014-1030",
+    "type": "operator_statement",
+    "covers": [
+      "2026-10-13 11:40:00+06:00",
+      "2026-10-13 16:45:00+06:00"
+    ],
+    "received_at": "2026-10-14 10:30:00+06:00",
+    "author": "ETP operator",
+    "is_claim": true,
+    "image": null,
+    "sha256": null,
+    "content": {
+      "text": "Production was mostly light shades that day, so the ETP needed less aeration."
+    },
+    "truthful": false,
+    "meta": {}
+  },
+  {
+    "id": "doc:photo-S3-1013-1530",
+    "type": "meter_photo",
+    "covers": [
+      "2026-10-13 15:30:00+06:00",
+      "2026-10-13 15:35:00+06:00"
+    ],
+    "received_at": "2026-10-13 20:10:14.524621261+06:00",
+    "author": "Site photo",
+    "is_claim": false,
+    "image": "docs/photo-S3-1013-1530.jpg",
+    "sha256": "d103dd61b2df60b9ec27ca00eaaef667052adf95bb1ede5fa664bafdefe5279d",
+    "content": {
+      "signal": "S3",
+      "meter": "ETP main panel energy meter",
+      "unit": "kW",
+      "value": 39.4,
+      "display_time": "13/10/2026 15:31"
+    },
+    "truthful": true,
+    "meta": {
+      "taken_at": "2026-10-13 15:30:00+06:00",
+      "index": 0
+    }
+  },
+  {
+    "id": "doc:lab-1013-1610",
+    "type": "lab_report",
+    "covers": [
+      "2026-10-13 16:10:00+06:00",
+      "2026-10-13 16:15:00+06:00"
+    ],
+    "received_at": "2026-10-16 16:10:00+06:00",
+    "author": "Accredited laboratory (simulated)",
+    "is_claim": false,
+    "image": "docs/lab-1013-1610.jpg",
+    "sha256": "94782ba57a217feaf23374c78b0cfb6791eb287eef932ab3e579b9af443b0201",
+    "content": {
+      "sample_point": "Final outfall",
+      "sample_time": "13/10/2026 16:10",
+      "bod_mg_l": 60.9,
+      "cod_mg_l": 155.4,
+      "tss_mg_l": 67.6,
+      "ph": 7.37,
+      "bod_limit_mg_l": 30.0
+    },
+    "truthful": true,
+    "meta": {}
+  }
+]

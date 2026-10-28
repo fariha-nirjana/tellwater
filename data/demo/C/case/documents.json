@@ -1,0 +1,28 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "M. Hossain",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "426682dffec4dae8053c2f3868406560bd3b10e3c0d383f3c406170aae58ddd4"
+  },
+  {
+    "id": "doc:maintenance-1013-1310",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 13:10:00+06:00",
+      "2026-10-13 15:40:00+06:00"
+    ],
+    "received_at": "2026-10-11 13:10:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1310.jpg",
+    "sha256": "94a80e42f701b2e60ee56074dc076dcb21a8533b37222085a9428cd5e9b40f37"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "id": "factory-a-6e86676d",
+  "seed": 10002,
+  "kind": "maintenance",
+  "tank_level_available": false,
+  "events": [
+    {
+      "type": "maintenance",
+      "start": "2026-10-13 13:10:00+06:00",
+      "end": "2026-10-13 15:40:00+06:00",
+      "params": {}
+    }
+  ],
+  "gaps": []
+}

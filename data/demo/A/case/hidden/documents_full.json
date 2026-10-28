@@ -1,0 +1,195 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "R. Karim",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "47ccf66fd547eb67a335fc15de9cd277048b2cbbc3f46b3b09d786d758fa16fe",
+    "content": {
+      "date": "13/10/2026",
+      "operator": "R. Karim",
+      "entries": [
+        {
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:20",
+          "text": "ETP stopped for planned maintenance (WO-1013-51). Tank taking inflow",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:25",
+          "text": "Lime dosed 30 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "17:50",
+          "text": "ETP restarted. Running normal",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.1",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        }
+      ]
+    },
+    "truthful": true,
+    "meta": {
+      "lines": [
+        {
+          "index": 0,
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+          "crossed_out": false,
+          "box": {
+            "x_min": 117,
+            "y_min": 179,
+            "x_max": 776,
+            "y_max": 235
+          }
+        },
+        {
+          "index": 1,
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 109,
+            "y_min": 234,
+            "x_max": 424,
+            "y_max": 273
+          }
+        },
+        {
+          "index": 2,
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "box": {
+            "x_min": 115,
+            "y_min": 277,
+            "x_max": 771,
+            "y_max": 332
+          }
+        },
+        {
+          "index": 3,
+          "time": "14:20",
+          "text": "ETP stopped for planned maintenance (WO-1013-51). Tank taking inflow",
+          "crossed_out": false,
+          "box": {
+            "x_min": 114,
+            "y_min": 309,
+            "x_max": 847,
+            "y_max": 406
+          }
+        },
+        {
+          "index": 4,
+          "time": "14:25",
+          "text": "Lime dosed 30 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 116,
+            "y_min": 394,
+            "x_max": 421,
+            "y_max": 432
+          }
+        },
+        {
+          "index": 5,
+          "time": "17:50",
+          "text": "ETP restarted. Running normal",
+          "crossed_out": false,
+          "box": {
+            "x_min": 121,
+            "y_min": 438,
+            "x_max": 575,
+            "y_max": 482
+          }
+        },
+        {
+          "index": 6,
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.1",
+          "crossed_out": false,
+          "box": {
+            "x_min": 118,
+            "y_min": 473,
+            "x_max": 765,
+            "y_max": 526
+          }
+        },
+        {
+          "index": 7,
+          "time": "22:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 116,
+            "y_min": 523,
+            "x_max": 420,
+            "y_max": 562
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "doc:maintenance-1013-1420",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 14:20:00+06:00",
+      "2026-10-13 17:50:00+06:00"
+    ],
+    "received_at": "2026-10-12 14:20:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1420.jpg",
+    "sha256": "81f91d37435c8fb11e4bf56fad6d434d16cfbf18d231be31620a81930d93b477",
+    "content": {
+      "work_order": "WO-261013-37",
+      "equipment": "ETP aeration and feed system",
+      "start": "13/10/2026 14:20",
+      "end": "13/10/2026 17:50",
+      "description": "Planned maintenance: aerator diffuser cleaning and feed pump inspection. ETP stopped; equalization tank to absorb inflow until restart.",
+      "approved_by": "Plant engineer"
+    },
+    "truthful": true,
+    "meta": {
+      "written_at": "2026-10-12 14:20:00+06:00"
+    }
+  }
+]

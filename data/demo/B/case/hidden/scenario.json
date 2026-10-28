@@ -1,0 +1,17 @@
+{
+  "id": "factory-a-460f93ca",
+  "seed": 10021,
+  "kind": "aerators_down",
+  "tank_level_available": true,
+  "events": [
+    {
+      "type": "aerators_down",
+      "start": "2026-10-13 11:40:00+06:00",
+      "end": "2026-10-13 16:45:00+06:00",
+      "params": {
+        "aeration_factor": 0.40885955403957697
+      }
+    }
+  ],
+  "gaps": []
+}

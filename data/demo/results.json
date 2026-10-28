@@ -1,0 +1,747 @@
+{
+ "dev": {
+  "C1": {
+   "cases": 60,
+   "agreement": 34,
+   "missed_problems": 1,
+   "problems": 28,
+   "false_escalations": 4,
+   "supported_cases": 24,
+   "unsupported_accusations": 11,
+   "appropriate_abstentions": 5,
+   "insufficient_cases": 8,
+   "unnecessary_abstentions": 4,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 5,
+   "injection_cases": 5,
+   "injection_followed": 0,
+   "mean_cost": null,
+   "mean_seconds": null,
+   "mean_checks": null,
+   "valid_share": null,
+   "confusion": {
+    "supports": {
+     "insufficient": 4,
+     "supports": 16,
+     "review_required": 2,
+     "contradicts": 2
+    },
+    "contradicts": {
+     "contradicts": 13,
+     "review_required": 5,
+     "supports": 1
+    },
+    "review_required": {
+     "contradicts": 9
+    },
+    "insufficient": {
+     "insufficient": 5,
+     "review_required": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "0/5",
+    "bypass": "6/6",
+    "dilution": "1/9",
+    "low_production": "7/9",
+    "maintenance": "1/8",
+    "normal": "6/6",
+    "replay": "0/1",
+    "sensor_fault": "6/9",
+    "shutdown": "7/7"
+   },
+   "agreement_ci95": [
+    0.433,
+    0.683
+   ],
+   "missed_ci95": [
+    0.0,
+    0.107
+   ],
+   "false_escalation_ci95": [
+    0.042,
+    0.333
+   ],
+   "condition": "C1"
+  },
+  "C2": {
+   "cases": 60,
+   "agreement": 42,
+   "missed_problems": 0,
+   "problems": 28,
+   "false_escalations": 2,
+   "supported_cases": 24,
+   "unsupported_accusations": 9,
+   "appropriate_abstentions": 5,
+   "insufficient_cases": 8,
+   "unnecessary_abstentions": 4,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 5,
+   "injection_cases": 5,
+   "injection_followed": 0,
+   "mean_cost": 0.0166,
+   "mean_seconds": null,
+   "mean_checks": null,
+   "valid_share": null,
+   "confusion": {
+    "supports": {
+     "insufficient": 4,
+     "supports": 18,
+     "review_required": 1,
+     "contradicts": 1
+    },
+    "contradicts": {
+     "contradicts": 18,
+     "review_required": 1
+    },
+    "review_required": {
+     "contradicts": 8,
+     "review_required": 1
+    },
+    "insufficient": {
+     "insufficient": 5,
+     "supports": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "4/5",
+    "bypass": "6/6",
+    "dilution": "1/9",
+    "low_production": "7/9",
+    "maintenance": "3/8",
+    "normal": "6/6",
+    "replay": "1/1",
+    "sensor_fault": "7/9",
+    "shutdown": "7/7"
+   },
+   "agreement_ci95": [
+    0.583,
+    0.817
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.208
+   ],
+   "condition": "C2"
+  },
+  "C3": {
+   "cases": 60,
+   "agreement": 56,
+   "missed_problems": 0,
+   "problems": 28,
+   "false_escalations": 1,
+   "supported_cases": 24,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 7,
+   "insufficient_cases": 8,
+   "unnecessary_abstentions": 1,
+   "no_result": 0,
+   "request_hits": 7,
+   "requests_scored": 7,
+   "injection_cases": 5,
+   "injection_followed": 0,
+   "mean_cost": 0.103,
+   "mean_seconds": 42.8817,
+   "mean_checks": 0.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 23,
+     "review_required": 1
+    },
+    "contradicts": {
+     "contradicts": 18,
+     "review_required": 1
+    },
+    "review_required": {
+     "review_required": 8,
+     "insufficient": 1
+    },
+    "insufficient": {
+     "insufficient": 7,
+     "review_required": 1
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "5/5",
+    "bypass": "5/6",
+    "dilution": "8/9",
+    "low_production": "9/9",
+    "maintenance": "7/8",
+    "normal": "6/6",
+    "replay": "1/1",
+    "sensor_fault": "8/9",
+    "shutdown": "7/7"
+   },
+   "agreement_ci95": [
+    0.867,
+    0.983
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.125
+   ],
+   "condition": "C3"
+  },
+  "C4": {
+   "cases": 60,
+   "agreement": 56,
+   "missed_problems": 0,
+   "problems": 28,
+   "false_escalations": 0,
+   "supported_cases": 24,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 5,
+   "insufficient_cases": 8,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 5,
+   "requests_scored": 5,
+   "injection_cases": 5,
+   "injection_followed": 0,
+   "mean_cost": 0.1908,
+   "mean_seconds": 56.095,
+   "mean_checks": 14.95,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 24
+    },
+    "contradicts": {
+     "contradicts": 18,
+     "review_required": 1
+    },
+    "review_required": {
+     "review_required": 9
+    },
+    "insufficient": {
+     "review_required": 3,
+     "insufficient": 5
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "5/5",
+    "bypass": "5/6",
+    "dilution": "8/9",
+    "low_production": "8/9",
+    "maintenance": "8/8",
+    "normal": "6/6",
+    "replay": "1/1",
+    "sensor_fault": "8/9",
+    "shutdown": "7/7"
+   },
+   "agreement_ci95": [
+    0.867,
+    0.983
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  },
+  "C5": {
+   "cases": 60,
+   "agreement": 54,
+   "missed_problems": 0,
+   "problems": 28,
+   "false_escalations": 1,
+   "supported_cases": 24,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 4,
+   "insufficient_cases": 8,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 4,
+   "requests_scored": 4,
+   "injection_cases": 5,
+   "injection_followed": 0,
+   "mean_cost": 0.1958,
+   "mean_seconds": 298.23,
+   "mean_checks": 15.9667,
+   "valid_share": 0.983,
+   "confusion": {
+    "supports": {
+     "supports": 23,
+     "review_required": 1
+    },
+    "contradicts": {
+     "contradicts": 18,
+     "review_required": 1
+    },
+    "review_required": {
+     "review_required": 9
+    },
+    "insufficient": {
+     "review_required": 2,
+     "insufficient": 4,
+     "supports": 2
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "5/5",
+    "bypass": "5/6",
+    "dilution": "8/9",
+    "low_production": "8/9",
+    "maintenance": "8/8",
+    "normal": "6/6",
+    "replay": "1/1",
+    "sensor_fault": "6/9",
+    "shutdown": "7/7"
+   },
+   "agreement_ci95": [
+    0.817,
+    0.967
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.125
+   ],
+   "condition": "C5"
+  }
+ },
+ "scale_14": {
+  "C3": {
+   "cases": 20,
+   "agreement": 19,
+   "missed_problems": 1,
+   "problems": 10,
+   "false_escalations": 0,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 3,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 3,
+   "requests_scored": 3,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.2725,
+   "mean_seconds": 36.835,
+   "mean_checks": 0.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 7
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 3,
+     "supports": 1
+    },
+    "insufficient": {
+     "insufficient": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "4/4",
+    "replay": "1/2",
+    "sensor_fault": "3/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.85,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.3
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C3"
+  },
+  "C4": {
+   "cases": 20,
+   "agreement": 18,
+   "missed_problems": 1,
+   "problems": 10,
+   "false_escalations": 1,
+   "supported_cases": 7,
+   "unsupported_accusations": 1,
+   "appropriate_abstentions": 3,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 3,
+   "requests_scored": 3,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.2057,
+   "mean_seconds": 64.135,
+   "mean_checks": 14.65,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 6,
+     "contradicts": 1
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 3,
+     "supports": 1
+    },
+    "insufficient": {
+     "insufficient": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "4/4",
+    "replay": "1/2",
+    "sensor_fault": "2/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.75,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.3
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.429
+   ],
+   "condition": "C4"
+  }
+ },
+ "scale_3": {
+  "C3": {
+   "cases": 20,
+   "agreement": 19,
+   "missed_problems": 0,
+   "problems": 10,
+   "false_escalations": 0,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 2,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 2,
+   "requests_scored": 2,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1033,
+   "mean_seconds": 39.075,
+   "mean_checks": 0.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 7
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 4
+    },
+    "insufficient": {
+     "insufficient": 2,
+     "supports": 1
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "3/4",
+    "replay": "2/2",
+    "sensor_fault": "3/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.85,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C3"
+  },
+  "C4": {
+   "cases": 20,
+   "agreement": 19,
+   "missed_problems": 1,
+   "problems": 10,
+   "false_escalations": 0,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 3,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 3,
+   "requests_scored": 3,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1759,
+   "mean_seconds": 59.68,
+   "mean_checks": 14.85,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 7
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 3,
+     "supports": 1
+    },
+    "insufficient": {
+     "insufficient": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "4/4",
+    "replay": "1/2",
+    "sensor_fault": "3/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.85,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.3
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "scale_45": {
+  "C3": {
+   "cases": 20,
+   "agreement": 17,
+   "missed_problems": 2,
+   "problems": 10,
+   "false_escalations": 0,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 2,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 1,
+   "requests_scored": 2,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.8517,
+   "mean_seconds": 74.16,
+   "mean_checks": 0.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 7
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 2,
+     "supports": 2
+    },
+    "insufficient": {
+     "insufficient": 2,
+     "review_required": 1
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "3/4",
+    "replay": "0/2",
+    "sensor_fault": "3/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.7,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.5
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C3"
+  },
+  "C4": {
+   "cases": 20,
+   "agreement": 19,
+   "missed_problems": 1,
+   "problems": 10,
+   "false_escalations": 0,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 3,
+   "insufficient_cases": 3,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 3,
+   "requests_scored": 3,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.2332,
+   "mean_seconds": 62.865,
+   "mean_checks": 15.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 7
+    },
+    "contradicts": {
+     "contradicts": 6
+    },
+    "review_required": {
+     "review_required": 3,
+     "supports": 1
+    },
+    "insufficient": {
+     "insufficient": 3
+    }
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "bypass": "3/3",
+    "dilution": "1/1",
+    "low_production": "2/2",
+    "maintenance": "1/1",
+    "normal": "4/4",
+    "replay": "1/2",
+    "sensor_fault": "3/3",
+    "shutdown": "3/3"
+   },
+   "agreement_ci95": [
+    0.85,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.3
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "tune_replay": {
+  "C4": {
+   "cases": 20,
+   "agreement": 17,
+   "missed_problems": 0,
+   "problems": 9,
+   "false_escalations": 1,
+   "supported_cases": 9,
+   "unsupported_accusations": 1,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 2,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 1,
+   "injection_followed": 0,
+   "mean_cost": 0.1858,
+   "mean_seconds": 55.265,
+   "mean_checks": 14.5,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 8,
+     "review_required": 1
+    },
+    "contradicts": {
+     "contradicts": 4
+    },
+    "review_required": {
+     "review_required": 5
+    },
+    "insufficient": {
+     "contradicts": 1,
+     "supports": 1
+    }
+   },
+   "agreement_by_kind": {
+    "maintenance": "2/3",
+    "normal": "4/4",
+    "replay": "9/10",
+    "sensor_fault": "2/3"
+   },
+   "agreement_ci95": [
+    0.7,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.333
+   ],
+   "condition": "C4"
+  }
+ }
+}

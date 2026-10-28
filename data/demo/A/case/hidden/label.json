@@ -1,0 +1,19 @@
+{
+  "case_id": "factory-a-54b2c9cb",
+  "batch_id": "factory-a-54b2c9cb-B05",
+  "treatment_interval": [
+    "2026-10-13 14:00:00+06:00",
+    "2026-10-14 18:00:00+06:00"
+  ],
+  "underlying": "maintenance",
+  "justified": "supports",
+  "window": [
+    "2026-10-13 14:20:00+06:00",
+    "2026-10-13 23:50:00+06:00"
+  ],
+  "established_by": [
+    "T1",
+    "S4a"
+  ],
+  "evidence_request": null
+}

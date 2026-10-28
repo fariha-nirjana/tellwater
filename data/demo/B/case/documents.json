@@ -1,0 +1,79 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "R. Karim",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "9005294406b690d05bd968054ddb303c6003f2352d01c7432996003cd9626213"
+  },
+  {
+    "id": "doc:maintenance-1013-1140",
+    "type": "maintenance_record",
+    "covers": [
+      "2026-10-13 11:40:00+06:00",
+      "2026-10-13 13:20:00+06:00"
+    ],
+    "received_at": "2026-10-14 11:05:00+06:00",
+    "author": "Maintenance department",
+    "is_claim": true,
+    "image": "docs/maintenance-1013-1140.jpg",
+    "sha256": "be845cb3c3b3f12537e9f36ee9c7f348ef6a32973bab645fed4e09f3f2b9f5bf"
+  },
+  {
+    "id": "doc:statement-1014-1030",
+    "type": "operator_statement",
+    "covers": [
+      "2026-10-13 11:40:00+06:00",
+      "2026-10-13 16:45:00+06:00"
+    ],
+    "received_at": "2026-10-14 10:30:00+06:00",
+    "author": "ETP operator",
+    "is_claim": true,
+    "image": null,
+    "sha256": null,
+    "content": {
+      "text": "Production was mostly light shades that day, so the ETP needed less aeration."
+    }
+  },
+  {
+    "id": "doc:photo-S3-1013-1530",
+    "type": "meter_photo",
+    "covers": [
+      "2026-10-13 15:30:00+06:00",
+      "2026-10-13 15:35:00+06:00"
+    ],
+    "received_at": "2026-10-13 20:10:14.524621261+06:00",
+    "author": "Site photo",
+    "is_claim": false,
+    "image": "docs/photo-S3-1013-1530.jpg",
+    "sha256": "d103dd61b2df60b9ec27ca00eaaef667052adf95bb1ede5fa664bafdefe5279d"
+  },
+  {
+    "id": "doc:lab-1013-1610",
+    "type": "lab_report",
+    "covers": [
+      "2026-10-13 16:10:00+06:00",
+      "2026-10-13 16:15:00+06:00"
+    ],
+    "received_at": "2026-10-16 16:10:00+06:00",
+    "author": "Accredited laboratory (simulated)",
+    "is_claim": false,
+    "image": "docs/lab-1013-1610.jpg",
+    "sha256": "94782ba57a217feaf23374c78b0cfb6791eb287eef932ab3e579b9af443b0201",
+    "content": {
+      "sample_point": "Final outfall",
+      "sample_time": "13/10/2026 16:10",
+      "bod_mg_l": 60.9,
+      "cod_mg_l": 155.4,
+      "tss_mg_l": 67.6,
+      "ph": 7.37,
+      "bod_limit_mg_l": 30.0
+    }
+  }
+]
