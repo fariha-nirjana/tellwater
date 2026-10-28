@@ -48,7 +48,7 @@ def _hm(t: pd.Timestamp) -> str:
 def _logbook(case, cfg: FactoryConfig, rng: np.random.Generator) -> Document:
     sc = case.scenario
     plan = sc.docs
-    day = sc.start + pd.Timedelta(days=1)
+    day = (sc.start + pd.Timedelta(days=1)).normalize()
     main = sc.main_event
     operator = str(rng.choice(OPERATORS))
     truthful_page = plan.logbook == "honest"
