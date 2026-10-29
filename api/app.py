@@ -31,7 +31,8 @@ from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
 from api import limits, translate
-from api.demo import CATALOG, DEMO, DEMO_ROOT
+from api.demo import CARE, CATALOG, COMPOSITION, DEMO, DEMO_ROOT
+from core.physics import treatment_interval
 from passport import record as passport_record
 from sim.baseline import power_model
 from store.cases import ROOT, Bundle, load_bundle
@@ -365,6 +366,11 @@ def _target_batch(key: str) -> dict:
     return load_bundle(_folder(key)).target_batch  # the shipped case files never change while the demo runs
 
 
+@lru_cache(maxsize=None)
+def _cfg(key: str):
+    return load_bundle(_folder(key)).cfg
+
+
 def _batch(key: str) -> dict:
     """The target batch in the interface's shape (production_start/end, as in the case overview)."""
     b = _target_batch(key)
@@ -417,10 +423,21 @@ def passport(key: str, gtin: str | None = None) -> dict:
     rec = _record(key)
     products = _products(key)
     scanned = next((p for p in products if p.get("gtin") == gtin), None)
+    b, cfg = _target_batch(key), _cfg(key)
+    ti = treatment_interval(pd.Timestamp(b["start"]), pd.Timestamp(b["end"]), cfg)
+    request = final if final.get("kind") == "evidence_request" else final.get("evidence_request") if isinstance(final.get("evidence_request"), dict) else None
+    labs = next((s["result"].get("lab_results") for s in t.get("steps", []) if s.get("tool") == "get_lab_results" and isinstance(s.get("result"), dict)), None) or []
     return {"batch": _batch(key), "product": scanned or products[0], "products": products, "scanned": bool(scanned), "status": status, "assessed_status": t.get("status"),
             "summary": final.get("summary"), "scope_line": final.get("scope_line"),
             "limitations": final.get("limitations", []), "key_evidence": final.get("key_evidence", []),
-            "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
+            "evidence_request": request and {"items": request.get("items", []), "interval": request.get("interval"), "reason": request.get("reason")},
+            "treatment_interval": [str(ti[0]), str(ti[1])],
+            "garment": {"composition": COMPOSITION[CATALOG[key][0]], "care": CARE, "origin": "Bangladesh",
+                        "factory": f"Factory {b['id'].split('-')[1].upper()} (demo), a knit dyehouse", "reuse_share": cfg.water.reuse_fraction},
+            "lab": [{k: l.get(k) for k in ("sample_time", "sample_point", "bod_mg_l", "bod_limit_mg_l", "ph", "evidence_id")} for l in labs],
+            "investigation": {"model": t.get("model"), "checks": t.get("checks_used"), "seconds": t.get("seconds"),
+                              "finished_at": t.get("finished_at"), "citations_validated": t.get("valid")},
+            "reviews": reviews, "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
             "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate."}
 
 

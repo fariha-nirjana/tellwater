@@ -28,6 +28,9 @@ DEMO = {
 }
 # What each demo batch became. A batch is one dye run: one fabric in one colour, cut into several garments,
 # all of which carry the batch's assessment. The simulated plant is a knit dyehouse, so knit fabrics only.
+# What a shopper reads on the label (demo values for cotton knits).
+COMPOSITION = {"Cotton piqué": "100% cotton piqué", "Cotton jersey": "100% cotton jersey", "Cotton fleece": "100% cotton, brushed fleece"}
+CARE = ["Machine wash at 30°C", "Do not bleach", "Tumble dry low", "Iron on medium", "Do not dry clean"]
 CATALOG = {
     "A": ("Cotton piqué", [("polo", "Men's polo shirt"), ("polo-w", "Women's polo shirt")]),
     "B": ("Cotton jersey", [("tee", "Crew-neck T-shirt"), ("longsleeve", "Long-sleeve T-shirt"), ("kids-tee", "Kids' T-shirt")]),

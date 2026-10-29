@@ -4,7 +4,8 @@ import { CaseFile } from './CaseFile'
 import { Arrival, Companion, Footer, Hero, Story, Symbols, useCurtain } from './Journey'
 import { HowTeaser, ScanLabel } from './Home'
 import { HowItWorks } from './How'
-import { Passport, Results } from './Pages'
+import { Results } from './Pages'
+import { Passport } from './Passport'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file),
 // #/passport/A, #/results
@@ -58,7 +59,7 @@ export function App() {
         <button className="menu-chat" onClick={ask}>Ask a thread ↗</button>
       </header>
       <main>
-        {passport ? <Passport caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey} caseKey={caseKey} /> : (
+        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey} caseKey={caseKey} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
             <ScanLabel />

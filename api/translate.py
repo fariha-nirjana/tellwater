@@ -37,8 +37,43 @@ UI = {
     "limitations": "Limitations", "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate.",
     "doc_logbook": "Logbook", "doc_maintenance_record": "Maintenance record", "doc_operator_statement": "Operator statement",
     "doc_meter_photo": "Meter photo", "doc_lab_report": "Lab report",
+    "tab_you": "For you", "tab_buyer": "For buyers", "tab_auditor": "For auditors",
+    "journey_title": "Where the water went", "stage_intake_dyeing": "Your fabric dyed", "of_water": "of water used by this run",
+    "stage_intake": "Water drawn in", "stage_tank": "Held in the tank", "stage_treatment": "Cleaned at the treatment plant", "stage_river": "Back to the river",
+    "state_intake_ok": "Metered as it came in", "state_intake_missing": "The intake record is missing", "state_intake_neutral": "Not needed for this answer",
+    "state_tank_ok": "The tank held the water", "state_tank_problem": "The tank overflowed", "state_tank_missing": "The tank record is missing", "state_tank_neutral": "Not needed for this answer",
+    "state_treatment_ok": "Treatment ran as needed", "state_treatment_problem": "Cleaning fell short", "state_treatment_affected": "Not checked after the problem",
+    "state_treatment_missing": "A treatment record is missing", "state_treatment_neutral": "Not needed for this answer",
+    "state_river_ok": "Left the factory treated", "state_river_seen": "Nothing untreated seen at the outfall", "state_river_problem": "Some water went around treatment",
+    "state_river_affected": "Reached the river without full treatment", "state_river_missing": "An outfall record is missing", "state_river_neutral": "Not needed for this answer",
+    "reused_prefix": "about", "reused_suffix": "reused in the factory",
+    "journey_note": "Marked from the investigation of this garment’s dye run. Garments don’t make wastewater; dye runs do, so this answer covers every garment cut from the run.",
+    "about_title": "About this garment", "made_of": "Made of", "made_in": "Made in", "colour": "Colour",
+    "see_buyer": "The details a buyer checks", "see_auditor": "Everything, for auditors",
+    "sec_general": "General information", "row_product": "Product", "row_lot": "Lot (dye run)", "sec_water": "Wastewater treatment", "row_answer": "Answer",
+    "row_window_start": "Treatment window start", "row_window_end": "Treatment window end", "row_scope": "Scope", "not_reviewed": "Not yet reviewed",
+    "row_signed": "Signed record", "yes_signed": "Yes", "not_signed": "Not yet: signed when a reviewer decides", "row_requested": "Requested from the factory",
+    "sec_lab": "Lab validation", "limit": "limit", "lab_over": "Above the limit", "lab_within": "Within the limit", "all_limits": "All limitations",
+    "download_record": "The signed record (JSON)", "sec_finding": "The finding", "sec_investigation": "The investigation", "row_model": "Model",
+    "row_checks": "Checks run", "row_time": "Time taken", "row_citations": "Every citation checked against the evidence", "yes": "Yes", "no": "No",
+    "row_window": "Treatment window", "sec_reviews": "Reviewer history", "public_key": "The public key that checks it",
+    "log_why": "What the factory wrote, tested against the records.",
     "signed_record": "Signed record", "sig_ok": "Signature checks out: issued here, not altered since.",
     "evidence_ok": "Evidence unchanged since the review.", "investigation_ok": "Investigation unchanged",
+}
+
+# what a shopper reads, by answer (web/src/Passport.tsx shows the same English)
+HEADLINE = {
+    "supports": "The water from making this was treated before it left the factory.",
+    "contradicts": "The records don’t show this batch’s water was properly treated.",
+    "review_required": "A person is checking something in this batch’s records.",
+    "insufficient": "One record is missing, so we can’t tell yet.",
+}
+WARM = {
+    "supports": "Every drop has a story. This one has a good ending.",
+    "contradicts": "Not every story ends well, and you deserve to know which ones don’t.",
+    "review_required": "Better a careful answer than a fast one.",
+    "insufficient": "A gap, not a verdict. The factory has been asked for the missing record.",
 }
 
 PROMPT = """You translate a garment's batch passport for a buyer into {language}.
@@ -71,6 +106,13 @@ def source(p: dict) -> dict[str, str]:
         out[f"fabric.{fabric}"] = fabric
     if (p.get("batch") or {}).get("shade"):
         out[f"shade.{p['batch']['shade']}"] = p["batch"]["shade"]
+    status = p.get("status") or ""
+    if status in HEADLINE:
+        out[f"headline.{status}"], out[f"warm.{status}"] = HEADLINE[status], WARM[status]
+    g = p.get("garment") or {}
+    if g:
+        out["composition"], out["origin"] = g["composition"], g["origin"]
+        out |= {f"care.{i}": c for i, c in enumerate(g.get("care", []))}
     out |= {f"ui.{k}": v for k, v in UI.items()}
     return {k: v for k, v in out.items() if v}
 

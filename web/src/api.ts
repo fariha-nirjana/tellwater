@@ -50,6 +50,11 @@ export type Passport = {
   batch: Overview['batch']; product: Product; products: Product[]; scanned: boolean; status: Status | null; assessed_status: Status | null; summary: string | null
   scope_line: string | null; limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null
   record: SignedRecord | null; verification: Verification | null; disclosure: string
+  evidence_request: { items?: string[]; interval?: string; reason?: string } | null; treatment_interval: [string, string]
+  garment: { composition: string; care: string[]; origin: string; factory: string; reuse_share: number | null }
+  lab: { sample_time: string; sample_point: string; bod_mg_l: number; bod_limit_mg_l: number; ph: number; evidence_id: string }[]
+  investigation: { model: string | null; checks: number | null; seconds: number | null; finished_at: string | null; citations_validated: boolean | null }
+  reviews: Review[]
 }
 
 async function get<T>(path: string): Promise<T> {
