@@ -743,5 +743,51 @@
    ],
    "condition": "C4"
   }
+ },
+ "localize": {
+  "open/dev-square": {
+   "model": "accounts/fireworks/models/muse-spark-open",
+   "pages": 60,
+   "lines": 442,
+   "found": 0.977,
+   "right_line": 0.95,
+   "iou_mean": 0.618,
+   "iou_at_0.5": 0.821,
+   "text_exact": 0.914,
+   "crossed_out_right": 0.962,
+   "seconds_per_page": 34.8,
+   "prompt_tokens": 218820,
+   "completion_tokens": 148716,
+   "pad_square": true
+  },
+  "spark/dev-square": {
+   "model": "muse-spark-1.3",
+   "pages": 60,
+   "lines": 442,
+   "found": 1.0,
+   "right_line": 0.995,
+   "iou_mean": 0.699,
+   "iou_at_0.5": 0.905,
+   "text_exact": 0.937,
+   "crossed_out_right": 0.993,
+   "seconds_per_page": 6.7,
+   "prompt_tokens": 210780,
+   "completion_tokens": 95318,
+   "pad_square": true
+  },
+  "spark/dev": {
+   "model": "muse-spark-1.3",
+   "pages": 60,
+   "lines": 442,
+   "found": 1.0,
+   "right_line": 0.337,
+   "iou_mean": 0.177,
+   "iou_at_0.5": 0.109,
+   "text_exact": 0.934,
+   "crossed_out_right": 0.998,
+   "seconds_per_page": 6.9,
+   "prompt_tokens": 156000,
+   "completion_tokens": 100377
+  }
  }
 }

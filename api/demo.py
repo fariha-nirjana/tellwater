@@ -41,6 +41,9 @@ def build() -> None:
         set_name, condition = summary.parent.parent.name, summary.parent.name
         if "_v" not in condition:  # skip archived earlier iterations
             results.setdefault(set_name, {})[condition] = json.loads(summary.read_text())["summary"]
+    # line-finding on logbook photos (eval.localize): raw and square-padded, per model
+    for f in sorted((ROOT / "eval" / "runs" / "localize").glob("*/*.json")):
+        results.setdefault("localize", {})[f"{f.parent.name}/{f.stem}"] = json.loads(f.read_text())["summary"]
     (DEMO_ROOT / "results.json").write_text(json.dumps(results, indent=1))
 
 
