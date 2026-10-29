@@ -92,7 +92,7 @@ export function Hero({ onEnter }: { onEnter: () => void }) {
           <h1>Nice shirt.<br />What about<br /><em>its water?</em></h1>
           <p>There’s a story behind every garment.<br />Let’s follow the thread to the evidence.</p>
           <button className="button acid" onClick={onEnter}>Follow the thread <span>↗</span></button>
-          <span className="hero-foot">ONE BATCH. THREE POSSIBLE STORIES. YOU’RE THE REVIEWER.</span>
+          <span className="hero-foot">EVERY GARMENT HAS A RUN. EVERY RUN HAS RECORDS. YOU’RE THE REVIEWER.</span>
           <svg className="hero-scribble" viewBox="0 0 600 90" aria-hidden="true"><path d="M-10 65C70 0 100 100 200 50S310 20 360 50S460 90 610 10" /></svg>
         </div>
         <div className="hero-object">
