@@ -49,6 +49,8 @@ for _name in SCALE_HISTORY:
 # Tuning sets with fixed kinds, for weaknesses the dev mix covers thinly. Never the test set.
 FIXED_KINDS = {"tune_replay": ["replay"] * 10 + ["normal"] * 4 + ["maintenance"] * 3 + ["sensor_fault"] * 3}
 SETS["tune_replay"] = [("factory", 30_000, 20)]
+# Fresh cases for spot-checking the distilled model: never trained on, never the test set.
+SETS["check"] = [("factory", 40_000, 8)]
 
 
 def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> list[dict]:
