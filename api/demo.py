@@ -23,6 +23,13 @@ DEMO = {
     "B": ("dev", "factory-a-460f93ca"),
     "C": ("dev", "factory-a-6e86676d"),
 }
+# What each demo batch became. A batch is one dye run: one fabric in one colour, cut into several garments,
+# all of which carry the batch's assessment. The simulated plant is a knit dyehouse, so knit fabrics only.
+CATALOG = {
+    "A": ("Cotton piqué", [("polo", "Men's polo shirt"), ("polo-w", "Women's polo shirt")]),
+    "B": ("Cotton jersey", [("tee", "Crew-neck T-shirt"), ("longsleeve", "Long-sleeve T-shirt"), ("kids-tee", "Kids' T-shirt")]),
+    "C": ("Cotton fleece", [("hoodie", "Hoodie"), ("sweatshirt", "Sweatshirt"), ("joggers", "Joggers")]),
+}
 
 
 def build() -> None:

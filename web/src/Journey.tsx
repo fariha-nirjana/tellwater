@@ -137,6 +137,10 @@ export function Story() {
             <small>Contextual photograph · Unsplash<br />Not evidence of pollution by any factory.</small></div>
           <div className="photo-frame"><img src="/assets/river.jpg" alt="Wooden boats on a river beside a city" loading="lazy" /><span className="photo-sticker coral">THE STORY<br />KEEPS FLOWING.</span></div>
         </article>
+        <blockquote className="story-quote">
+          <p>“The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”</p>
+          <footer><b>Rajib Singha</b> · Vice President, Human Resources &amp; Administration, Pearl Global Industries Ltd<br /><small>Formerly Group General Manager, HR &amp; Compliance, Sterling Group</small></footer>
+        </blockquote>
         <article className="story-stop stop-three">
           <div className="connection-art" aria-hidden="true"><span className="art-label">THE CLAIM</span><span className="art-paper">“All treated.”</span>
             <svg viewBox="0 0 340 90"><path d="M30 40C70 0 95 85 140 45S220 5 260 45S300 80 330 30" /></svg>

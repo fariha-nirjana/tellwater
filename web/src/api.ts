@@ -31,7 +31,8 @@ export type Final = {
 }
 export type Trace = { case_id: string; model: string; steps: Step[]; ledger: Explanation[][]; final: Final | null; status: Status | null; valid: boolean; seconds: number; checks_used: number; cost_usd: number | null }
 export type Series = { times: string[]; series: Record<string, (number | null)[]>; power_band_half_width_kw?: number }
-export type Product = { gtin: string; lot: string; name: string; link: string }
+export type Product = { gtin: string; lot: string; name: string; link: string; kind: string; fabric: string }
+export type CatalogBatch = { key: CaseKey; batch: Overview['batch']; factory: string; fabric: string; products: Product[] }
 export type SignedRecord = {
   issued_at: string; status: Status; product: Product
   evidence: { items: { id: string; sha256: string }[]; root: string }
@@ -46,7 +47,7 @@ export type Verification = {
 export type Allowance = { left: number; per_visitor: number; live: boolean }
 export type Limits = { runs: Allowance; questions: Allowance }
 export type Passport = {
-  batch: Overview['batch']; product: Product; status: Status | null; assessed_status: Status | null; summary: string | null
+  batch: Overview['batch']; product: Product; products: Product[]; scanned: boolean; status: Status | null; assessed_status: Status | null; summary: string | null
   scope_line: string | null; limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null
   record: SignedRecord | null; verification: Verification | null; disclosure: string
 }
@@ -63,7 +64,8 @@ export const api = {
   signals: (k: CaseKey, start?: string, end?: string, step = 15) =>
     get<Series>(`/api/cases/${k}/signals?step=${step}${start ? `&start=${start}` : ''}${end ? `&end=${end}` : ''}`),
   trace: (k: CaseKey, which: 'saved' | 'after' = 'saved') => get<Trace>(`/api/cases/${k}/trace?which=${which}`),
-  passport: (k: CaseKey) => get<Passport>(`/api/passport/${k}`),
+  passport: (k: CaseKey, gtin?: string) => get<Passport>(`/api/passport/${k}${gtin ? `?gtin=${gtin}` : ''}`),
+  catalog: () => get<CatalogBatch[]>('/api/catalog'),
   limits: () => get<Limits>('/api/limits'),
   results: () => get<Record<string, Record<string, Record<string, unknown>>>>('/api/results'),
   submitSample: async (k: CaseKey, note: string) => {

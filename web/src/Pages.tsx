@@ -2,16 +2,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, STATUS_LABEL, type CaseKey, type Doc, type Passport as P, type SignedRecord, type Verification } from './api'
 import { Stamp } from './CaseFile'
+import { Garment } from './Garments'
 import { dayHm, docLabel, wall } from './evidence'
 
-export function Passport({ caseKey }: { caseKey: CaseKey }) {
+export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string }) {
   const [p, setP] = useState<P | null>(null)
   const [docs, setDocs] = useState<Doc[]>([])
   const [open, setOpen] = useState<Doc | null>(null)
   useEffect(() => {
-    api.passport(caseKey).then(setP)
+    api.passport(caseKey, gtin).then(setP)
     api.case(caseKey).then((c) => setDocs(c.documents))
-  }, [caseKey])
+  }, [caseKey, gtin])
   if (!p) return <p className="loading">Opening the passport…</p>
   // the key records: documents the investigator's own key evidence rests on, then the factory's logbook
   const records: { doc: Doc; why: string }[] = []
@@ -30,10 +31,17 @@ export function Passport({ caseKey }: { caseKey: CaseKey }) {
         <div className="passport-label">
           <span className="micro">TELLWATER / BATCH PASSPORT</span>
           <h1>A label with<br /><em>a little more.</em></h1>
-          <div className="passport-batch">{p.product.name} · Batch {p.batch.id.split('-').at(-1)}</div>
-          <p>{factory} (demo) · produced {dayHm(wall(p.batch.production_start))}</p>
-          <p>GTIN {p.product.gtin} · Lot {p.product.lot}</p>
+          <div className="passport-product">
+            <Garment kind={p.product.kind} shade={p.batch.shade} />
+            <div>
+              <span className="micro">{p.scanned ? 'YOU SCANNED' : 'MADE FROM THIS RUN'}</span>
+              <div className="passport-batch">{p.product.name}</div>
+              <p>{p.product.fabric} · {p.batch.shade} shade · {factory} (demo)</p>
+              <p>GTIN {p.product.gtin} · Lot {p.product.lot}</p>
+            </div>
+          </div>
         </div>
+        <p className="passport-run">This garment was cut from fabric dyed in one run, produced {dayHm(wall(p.batch.production_start))}–{dayHm(wall(p.batch.production_end)).split(' ').at(-1)}. Wastewater is made by dye runs, not by single garments, so this passport answers for the whole run{p.products.length > 1 ? `, and for the ${p.products.filter((x) => x.gtin !== p.product.gtin).map((x) => x.name.toLowerCase()).join(' and ')} made from it too` : ''}.</p>
         {p.status && <Stamp status={p.status} />}
         {p.review?.action === 'change' && p.assessed_status && <p className="passport-scope">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
         <p className="passport-scope">{p.scope_line}</p>

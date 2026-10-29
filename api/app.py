@@ -31,7 +31,7 @@ from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
 from api import limits
-from api.demo import DEMO, DEMO_ROOT
+from api.demo import CATALOG, DEMO, DEMO_ROOT
 from passport import record as passport_record
 from sim.baseline import power_model
 from store.cases import ROOT, Bundle, load_bundle
@@ -354,14 +354,10 @@ def review(key: str, r: Review) -> dict:
             raise HTTPException(409, "no investigation to decide on yet")
         status = r.status if r.action == "change" and r.status else t.get("status")
         s.setdefault("records", {}).setdefault(key, []).append(passport_record.issue(
-            product=_product(key), batch=_batch(key), trace=t, review=entry,
+            products=_products(key), batch=_batch(key), trace=t, review=entry,
             status=status, manifest=passport_record.evidence_manifest(_folder(key), sub)))
     _save_state(s)
     return entry
-
-
-# Demo products, one per case. GTINs sit in GS1's restricted-circulation range (prefix 02), never a real product's.
-PRODUCT_GTIN = {key: passport_record.gtin14(f"029900000000{i}") for i, key in enumerate(DEMO, start=1)}
 
 
 @lru_cache(maxsize=None)
@@ -376,11 +372,17 @@ def _batch(key: str) -> dict:
             "planned_wastewater_m3": b["planned_wastewater_m3"]}
 
 
-def _product(key: str) -> dict:
-    batch = _target_batch(key)
-    lot = batch["id"].split("-", 2)[2]  # factory-a-460f93ca-B04 -> 460f93ca-B04
-    return {"gtin": PRODUCT_GTIN[key], "lot": lot, "name": f"Cotton T-shirt, {batch['shade']} shade",
-            "link": passport_record.digital_link(PRODUCT_GTIN[key], lot)}
+def _products(key: str) -> list[dict]:
+    """The garments made from a batch, each with its own GTIN (GS1's restricted-circulation range, prefix 02,
+    never a real product's) and the batch as its lot: every one of them opens the batch's passport."""
+    lot = _target_batch(key)["id"].split("-", 2)[2]  # factory-a-460f93ca-B04 -> 460f93ca-B04
+    fabric, items = CATALOG[key]
+    out = []
+    for j, (kind, name) in enumerate(items, start=1):
+        gtin = passport_record.gtin14(f"029900{list(DEMO).index(key) + 1:03d}{j:04d}")
+        out.append({"gtin": gtin, "lot": lot, "kind": kind, "name": name, "fabric": fabric,
+                    "link": passport_record.digital_link(gtin, lot)})
+    return out
 
 
 def _record(key: str) -> dict | None:
@@ -397,8 +399,15 @@ def _verification(key: str, rec: dict) -> dict:
     return passport_record.verify(rec, passport_record.evidence_manifest(_folder(key), sub), t)
 
 
+@app.get("/api/catalog")
+def catalog() -> list[dict]:
+    """The production log the label section picks from: each batch and the garments made from it, no verdicts."""
+    return [{"key": k, "batch": _batch(k), "factory": f"Factory {_target_batch(k)['id'].split('-')[1].upper()}",
+             "fabric": CATALOG[k][0], "products": _products(k)} for k in DEMO]
+
+
 @app.get("/api/passport/{key}")
-def passport(key: str) -> dict:
+def passport(key: str, gtin: str | None = None) -> dict:
     """The batch-level summary a QR code opens: the latest signed record, checked against today's evidence."""
     t = _basis(key)[0] or {}
     final = t.get("final") or {}
@@ -406,7 +415,9 @@ def passport(key: str) -> dict:
     last = reviews[-1] if reviews else None
     status = last["status"] if last and last["action"] == "change" and last.get("status") else t.get("status")
     rec = _record(key)
-    return {"batch": _batch(key), "product": _product(key), "status": status, "assessed_status": t.get("status"),
+    products = _products(key)
+    scanned = next((p for p in products if p.get("gtin") == gtin), None)
+    return {"batch": _batch(key), "product": scanned or products[0], "products": products, "scanned": bool(scanned), "status": status, "assessed_status": t.get("status"),
             "summary": final.get("summary"), "scope_line": final.get("scope_line"),
             "limitations": final.get("limitations", []), "key_evidence": final.get("key_evidence", []),
             "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
@@ -441,10 +452,10 @@ def passport_key() -> dict:
 @app.get("/01/{gtin}/10/{lot}")
 def resolve(gtin: str, lot: str) -> RedirectResponse:
     """GS1 Digital Link resolver: the URL in the garment's QR code opens that batch's passport."""
-    key = next((k for k in DEMO if PRODUCT_GTIN[k] == gtin and _product(k)["lot"] == lot), None)
+    key = next((k for k in DEMO for p in _products(k) if p["gtin"] == gtin and p["lot"] == lot), None)
     if not key:
         raise HTTPException(404, "no passport for that product and lot")
-    return RedirectResponse(f"{WEB_URL}/#/passport/{key}")
+    return RedirectResponse(f"{WEB_URL}/#/passport/{key}/{gtin}")
 
 
 # ---- evaluation results

@@ -98,7 +98,7 @@ def public_key() -> dict:
 # ---- issue and verify
 
 
-def issue(*, product: dict, batch: dict, trace: dict, review: dict, status: str, manifest: list[dict],
+def issue(*, products: list[dict], batch: dict, trace: dict, review: dict, status: str, manifest: list[dict],
           issuer: str = "Tellwater prototype") -> dict:
     final = trace.get("final") or {}
     record = {
@@ -106,7 +106,7 @@ def issue(*, product: dict, batch: dict, trace: dict, review: dict, status: str,
         "version": 1,
         "issuer": issuer,
         "issued_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "product": product,
+        "products": products,  # every garment made from the batch carries its assessment
         "batch": {k: batch.get(k) for k in ("id", "production_start", "production_end", "shade")},
         "claim": CLAIM,
         "status": status,

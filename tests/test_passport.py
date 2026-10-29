@@ -18,7 +18,7 @@ def client(tmp_path, monkeypatch):
 
 def _record(trace=None, manifest=None):
     trace = trace or {"model": "muse-spark-1.3", "status": "contradicts", "final": {"summary": "s"}, "valid": True}
-    return pr.issue(product={"gtin": pr.gtin14("0299000000002"), "lot": "x"}, batch={"id": "b"}, trace=trace,
+    return pr.issue(products=[{"gtin": pr.gtin14("0299000000002"), "lot": "x"}], batch={"id": "b"}, trace=trace,
                     review={"action": "approve", "reason": "r"}, status="contradicts",
                     manifest=manifest or pr.evidence_manifest(CASE_B))
 
@@ -82,7 +82,24 @@ def test_new_evidence_after_the_record_shows_as_a_change(client):
 
 
 def test_digital_link_opens_the_passport(client):
-    link = client.get("/api/passport/A").json()["product"]["link"]
-    r = client.get(link, follow_redirects=False)
-    assert r.status_code == 307 and r.headers["location"].endswith("#/passport/A")
+    hoodie = next(p for p in client.get("/api/passport/C").json()["products"] if p["kind"] == "hoodie")
+    r = client.get(hoodie["link"], follow_redirects=False)
+    assert r.status_code == 307 and r.headers["location"].endswith(f"#/passport/C/{hoodie['gtin']}")
+    p = client.get("/api/passport/C", params={"gtin": hoodie["gtin"]}).json()
+    assert p["scanned"] and p["product"]["name"] == "Hoodie"
     assert client.get("/01/09506000134352/10/nope", follow_redirects=False).status_code == 404
+
+
+def test_catalog_lists_each_batch_and_its_garments_without_verdicts(client):
+    cat = client.get("/api/catalog").json()
+    assert [c["key"] for c in cat] == ["A", "B", "C"] and all("status" not in c for c in cat)
+    gtins = [p["gtin"] for c in cat for p in c["products"]]
+    assert len(gtins) == len(set(gtins)) == 8 and all(g.startswith("02") and len(g) == 14 for g in gtins)
+    jersey = next(c for c in cat if c["key"] == "B")
+    assert jersey["fabric"] == "Cotton jersey" and {p["lot"] for p in jersey["products"]} == {"460f93ca-B04"}
+
+
+def test_signed_record_names_every_garment_of_the_batch(client):
+    client.post("/api/cases/A/review", json={"action": "approve", "reason": "Tank held the water."})
+    names = [p["name"] for p in client.get("/api/passport/A/record").json()["products"]]
+    assert names == ["Men's polo shirt", "Women's polo shirt"]

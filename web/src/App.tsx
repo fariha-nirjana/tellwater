@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { CaseKey } from './api'
 import { CaseFile } from './CaseFile'
 import { Arrival, Companion, Footer, Hero, Story, Symbols, useCurtain } from './Journey'
+import { HowTeaser, ScanLabel } from './Home'
+import { HowItWorks } from './How'
 import { Passport, Results } from './Pages'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file),
@@ -24,9 +26,10 @@ export function App() {
   const [replay, setReplay] = useState(0)
   const { curtain, run } = useCurtain(motion)
   const caseKey = hash.match(/^#\/case\/([ABC])$/)?.[1] as CaseKey | undefined
-  const passport = hash.match(/^#\/passport\/([ABC])$/)?.[1] as CaseKey | undefined
+  const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([ABC])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const results = hash === '#/results'
-  const home = !caseKey && !passport && !results
+  const how = hash === '#/how'
+  const home = !caseKey && !passport && !results && !how
   const [arrived] = useState(home && hash !== '#/story') // only a first visit to the garment plays the arrival
 
   useEffect(() => { document.body.classList.toggle('reduced', !motion) }, [motion])
@@ -47,6 +50,7 @@ export function App() {
         <a className="wordmark" href="#/" aria-label="Tellwater home"><svg viewBox="0 0 40 20"><path d="M2 16C8 0 10 25 19 7S29 20 38 3" /></svg>tellwater</a>
         <nav aria-label="Main navigation">
           <a href="#/case/B" aria-current={caseKey ? 'page' : undefined}>The investigation</a>
+          <a href="#/how" aria-current={how ? 'page' : undefined}>How it works</a>
           <a href="#/story">Why I was born</a>
           <a href="#/results" aria-current={results ? 'page' : undefined}>Results</a>
         </nav>
@@ -54,9 +58,11 @@ export function App() {
         <button className="menu-chat" onClick={ask}>Ask a thread ↗</button>
       </header>
       <main>
-        {passport ? <Passport caseKey={passport} /> : results ? <Results /> : caseKey ? <CaseFile key={caseKey} caseKey={caseKey} /> : (
+        {passport ? <Passport caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey} caseKey={caseKey} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
+            <ScanLabel />
+            <HowTeaser />
             <Story />
           </>
         )}
