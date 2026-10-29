@@ -17,12 +17,14 @@ import re
 import queue
 import threading
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from agent.loop import investigate
@@ -38,7 +40,9 @@ app = FastAPI(title="Tellwater")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 WEB_URL = os.environ.get("TELLWATER_WEB_URL", "")  # where the interface lives, when it is not on the API's own origin
-STATE = DEMO_ROOT / "state.json"  # reviewer decisions and factory submissions, shared across devices
+# What the demo writes while it runs (reviews, submissions, live runs) goes here; on a host, a persistent volume.
+RUNTIME = Path(os.environ.get("TW_RUNTIME_DIR", DEMO_ROOT))
+STATE = RUNTIME / "state.json"  # reviewer decisions and factory submissions, shared across devices
 _lock = threading.Lock()
 
 
@@ -64,8 +68,12 @@ def _save_state(s: dict) -> None:
 
 
 def _trace(key: str, which: str = "saved") -> dict | None:
-    path = DEMO_ROOT / key / ("trace.json" if which == "saved" else f"trace-{which}.json")
-    return json.loads(path.read_text()) if path.exists() else None
+    """A run written while the demo was live wins over the one shipped with the repo."""
+    name = "trace.json" if which == "saved" else f"trace-{which}.json"
+    for path in (RUNTIME / key / name, DEMO_ROOT / key / name):
+        if path.exists():
+            return json.loads(path.read_text())
+    return None
 
 
 def _basis(key: str) -> tuple[dict | None, dict | None]:
@@ -195,7 +203,8 @@ def investigate_live(key: str, request: Request) -> StreamingResponse:
             t = investigate(bundle, ModelClient(ModelEndpoint.muse_spark()), on_step=lambda st: events.put(("step", st)))
             result = json.loads(t.to_json())
             which = "after" if _state()["submissions"].get(key) else "live"
-            (DEMO_ROOT / key / f"trace-{which}.json").write_text(json.dumps(result, indent=1, default=str))
+            (RUNTIME / key).mkdir(parents=True, exist_ok=True)
+            (RUNTIME / key / f"trace-{which}.json").write_text(json.dumps(result, indent=1, default=str))
             events.put(("final", result))
         except Exception as exc:  # reported to the interface, never swallowed
             events.put(("error", {"error": f"{type(exc).__name__}: {exc}"}))
@@ -355,15 +364,20 @@ def review(key: str, r: Review) -> dict:
 PRODUCT_GTIN = {key: passport_record.gtin14(f"029900000000{i}") for i, key in enumerate(DEMO, start=1)}
 
 
+@lru_cache(maxsize=None)
+def _target_batch(key: str) -> dict:
+    return load_bundle(_folder(key)).target_batch  # the shipped case files never change while the demo runs
+
+
 def _batch(key: str) -> dict:
     """The target batch in the interface's shape (production_start/end, as in the case overview)."""
-    b = load_bundle(_folder(key)).target_batch
+    b = _target_batch(key)
     return {"id": b["id"], "production_start": b["start"], "production_end": b["end"], "shade": b["shade"],
             "planned_wastewater_m3": b["planned_wastewater_m3"]}
 
 
 def _product(key: str) -> dict:
-    batch = load_bundle(_folder(key)).target_batch
+    batch = _target_batch(key)
     lot = batch["id"].split("-", 2)[2]  # factory-a-460f93ca-B04 -> 460f93ca-B04
     return {"gtin": PRODUCT_GTIN[key], "lot": lot, "name": f"Cotton T-shirt, {batch['shade']} shade",
             "link": passport_record.digital_link(PRODUCT_GTIN[key], lot)}
@@ -441,3 +455,10 @@ def results() -> dict:
     """Evaluation summaries per case set and condition, snapshotted by `python -m api.demo`."""
     path = DEMO_ROOT / "results.json"
     return json.loads(path.read_text()) if path.exists() else {}
+
+
+# ---- the interface itself, when it has been built (web/dist): one origin for the pages, the API and the QR links
+
+WEB_DIST = ROOT / "web" / "dist"
+if WEB_DIST.exists():
+    app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")

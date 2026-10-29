@@ -12,7 +12,8 @@ Settings (environment):
   TW_RUNS_PER_VISITOR=3      TW_RUNS_PER_DAY=15        live investigations (about $0.19 list each)
   TW_QUESTIONS_PER_VISITOR=20 TW_QUESTIONS_PER_DAY=150 guide questions (about $0.01 list each)
   TW_MAX_LIVE_RUNS=2         live runs in flight at once
-  TW_TRUST_PROXY=1           count by X-Forwarded-For (behind a host's proxy)
+  TW_TRUST_PROXY=1           behind a host's proxy: count by the address it appends to X-Forwarded-For
+  TW_RUNTIME_DIR             where the counts are kept (default data/demo)
 """
 
 from __future__ import annotations
@@ -23,12 +24,13 @@ import os
 import secrets
 import threading
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import Request
 
 from store.cases import ROOT
 
-USAGE = ROOT / "data" / "demo" / "usage.json"  # gitignored
+USAGE = Path(os.environ.get("TW_RUNTIME_DIR", ROOT / "data" / "demo")) / "usage.json"  # gitignored
 DEFAULTS = {"runs": (3, 15), "questions": (20, 150)}  # at most about $4.35 list a day on Muse Spark
 NOUN = {"runs": "live investigations", "questions": "guide questions"}
 _lock = threading.Lock()
@@ -67,7 +69,8 @@ def _load() -> dict:
 def visitor(request: Request) -> str:
     ip = request.client.host if request.client else "unknown"
     if os.environ.get("TW_TRUST_PROXY") == "1":
-        ip = request.headers.get("x-forwarded-for", ip).split(",")[0].strip()
+        # the last entry is the one the host's proxy added; earlier ones come from the visitor and can be made up
+        ip = request.headers.get("x-forwarded-for", ip).split(",")[-1].strip()
     return ip
 
 
