@@ -44,3 +44,6 @@ data/demo/*/trace-live.json
 # Vendored external repos (not ours)
 third_party/
 data/distill/
+
+# Other participants' posts (reference only)
+participant ideas/
