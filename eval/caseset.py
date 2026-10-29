@@ -51,6 +51,8 @@ FIXED_KINDS = {"tune_replay": ["replay"] * 10 + ["normal"] * 4 + ["maintenance"]
 SETS["tune_replay"] = [("factory", 30_000, 20)]
 # Fresh cases for spot-checking the distilled model: never trained on, never the test set.
 SETS["check"] = [("factory", 40_000, 8)]
+# Fresh factory B cases for a sanity check before the frozen test (half of which is factory B). Never the test set.
+SETS["check_b"] = [("factory_b", 70_000, 10)]
 
 
 def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> list[dict]:
