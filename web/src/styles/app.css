@@ -13,6 +13,8 @@
 .title-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
 .title-actions .text-btn{color:var(--purple)}
 .live-error{margin:0 30px 12px;padding:10px 14px;background:#ffe7e1;color:#9c392b;font-size:12px;border-radius:4px}
+.live-note{background:#f0f0ff;color:#3a36b8}
+.runs-left{display:block;font-size:9px;color:#92909c;text-align:right}
 .workspace-top>.text-btn:disabled{opacity:.35;cursor:default}
 
 /* claim column: the real document inside the paper */

@@ -41,6 +41,7 @@ design/
 # Demo runtime state (reviews, uploads, live runs)
 data/demo/state.json
 data/demo/*/trace-live.json
+data/demo/usage.json
 
 # Vendored external repos (not ours)
 third_party/

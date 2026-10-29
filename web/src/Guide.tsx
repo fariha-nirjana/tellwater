@@ -1,7 +1,7 @@
 // The thread guide: iteration 02's chat panel, answered by Muse Spark from this case's investigation only.
 // Citations in an answer become chips that thread to their record.
 import { useEffect, useRef, useState } from 'react'
-import type { CaseKey } from './api'
+import { api, type Allowance, type CaseKey } from './api'
 import { docLabel, parseEvidence } from './evidence'
 
 type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[] }
@@ -14,7 +14,9 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  const [left, setLeft] = useState<Allowance | null>(null)
   const end = useRef<HTMLDivElement>(null)
+  useEffect(() => { if (open) api.limits().then((l) => setLeft(l.questions)).catch(() => setLeft(null)) }, [open, msgs.length])
   useEffect(() => setMsgs([]), [caseKey])
   useEffect(() => end.current?.scrollIntoView({ block: 'nearest' }), [msgs, busy])
   if (!open) return null
@@ -53,7 +55,8 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
         <input value={input} onChange={(e) => setInput(e.target.value)} aria-label="Ask about the evidence" placeholder="Ask about this evidence…" maxLength={600} autoComplete="off" />
         <button aria-label="Send question" disabled={busy}>↗</button>
       </form>
-      <small className="chat-disclosure">Answered by Muse Spark from this case’s records only · citations are checked against them</small>
+      <small className="chat-disclosure">Answered by Muse Spark from this case’s records only · citations are checked against them
+        {left && (left.live ? ` · ${left.left} of ${left.per_visitor} questions left today` : ' · questions are off in this demo')}</small>
     </aside>
   )
 }

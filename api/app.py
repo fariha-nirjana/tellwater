@@ -20,7 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel
@@ -28,6 +28,7 @@ from pydantic import BaseModel
 from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
+from api import limits
 from api.demo import DEMO, DEMO_ROOT
 from passport import record as passport_record
 from sim.baseline import power_model
@@ -169,10 +170,24 @@ def trace(key: str, which: str = "saved") -> dict:
 # ---- live investigation
 
 
+@app.get("/api/limits")
+def limits_left(request: Request) -> dict:
+    """What this visitor has left today of the calls that spend model credit."""
+    who = limits.visitor(request)
+    return {"runs": limits.remaining("runs", who), "questions": limits.remaining("questions", who)}
+
+
 @app.post("/api/cases/{key}/investigate")
-def investigate_live(key: str) -> StreamingResponse:
-    """Run Muse Spark on the case now. Streams each step as a server-sent event, then the final trace."""
+def investigate_live(key: str, request: Request) -> StreamingResponse:
+    """Run Muse Spark on the case now. Streams each step as a server-sent event, then the final trace.
+    Capped per visitor and per day (api/limits.py); past a cap the answer is 429 with the reason."""
     bundle = _bundle(key)
+    if not limits.start_run():
+        raise HTTPException(429, "Two live investigations are already running. Try again in a minute; "
+                                 "the saved investigation of the same evidence is shown instead.")
+    if reason := limits.take("runs", limits.visitor(request)):
+        limits.end_run()
+        raise HTTPException(429, reason)
     events: queue.Queue = queue.Queue()
 
     def work():
@@ -184,6 +199,8 @@ def investigate_live(key: str) -> StreamingResponse:
             events.put(("final", result))
         except Exception as exc:  # reported to the interface, never swallowed
             events.put(("error", {"error": f"{type(exc).__name__}: {exc}"}))
+        finally:
+            limits.end_run()
         events.put(None)
 
     threading.Thread(target=work, daemon=True).start()
@@ -228,12 +245,14 @@ class Question(BaseModel):
 
 
 @app.post("/api/cases/{key}/ask")
-def ask(key: str, q: Question) -> dict:
+def ask(key: str, q: Question, request: Request) -> dict:
     t, _ = _basis(key)
     if not t:
         raise HTTPException(404, "no investigation to ask about")
     if not q.question.strip() or len(q.question) > 600:
         raise HTTPException(400, "ask a question of up to 600 characters")
+    if reason := limits.take("questions", limits.visitor(request)):
+        raise HTTPException(429, reason)
     known = {s["result"].get("evidence_id") for s in t["steps"] if isinstance(s.get("result"), dict) and s["result"].get("evidence_id")}
     known |= {k["id"] for k in (t.get("final") or {}).get("key_evidence", [])}
     known |= {d["id"] for d in load_bundle(_folder(key)).documents}

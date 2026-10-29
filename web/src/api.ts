@@ -43,6 +43,8 @@ export type Verification = {
   signature_valid: boolean; key_id: string; evidence_matches: boolean; changed: string[]; missing: string[]; added: string[]
   items: number; investigation_matches: boolean
 }
+export type Allowance = { left: number; per_visitor: number; live: boolean }
+export type Limits = { runs: Allowance; questions: Allowance }
 export type Passport = {
   batch: Overview['batch']; product: Product; status: Status | null; assessed_status: Status | null; summary: string | null
   scope_line: string | null; limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null
@@ -62,6 +64,7 @@ export const api = {
     get<Series>(`/api/cases/${k}/signals?step=${step}${start ? `&start=${start}` : ''}${end ? `&end=${end}` : ''}`),
   trace: (k: CaseKey, which: 'saved' | 'after' = 'saved') => get<Trace>(`/api/cases/${k}/trace?which=${which}`),
   passport: (k: CaseKey) => get<Passport>(`/api/passport/${k}`),
+  limits: () => get<Limits>('/api/limits'),
   results: () => get<Record<string, Record<string, Record<string, unknown>>>>('/api/results'),
   submitSample: async (k: CaseKey, note: string) => {
     const body = new FormData()

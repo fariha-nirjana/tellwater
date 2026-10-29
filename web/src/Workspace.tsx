@@ -2,7 +2,7 @@
 // the factory's claim (the real logbook photo) threaded to the record that tests it,
 // the explanation strip, the possible stories, the steps, and the finding.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { api, STATUS_LABEL, type CaseFile as CF, type CaseKey, type Explanation, type Series, type Status, type Step, type Trace } from './api'
+import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type Series, type Status, type Step, type Trace } from './api'
 import { Dialogs, type DialogKind } from './Dialogs'
 import { Guide } from './Guide'
 import { docLabel, parseEvidence, wall, dayHm, hm, type Target } from './evidence'
@@ -34,8 +34,11 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
   const [allRecords, setAllRecords] = useState(false)
   const [stepsOpen, setStepsOpen] = useState(false)
   const [dialog, setDialog] = useState<DialogKind>(null)
-  const [live, setLive] = useState<'idle' | 'running' | 'error'>('idle')
+  const [live, setLive] = useState<'idle' | 'running' | 'error' | 'limited'>('idle')
   const [liveError, setLiveError] = useState('')
+  const [runs, setRuns] = useState<Allowance | null>(null)
+  const refreshRuns = useCallback(() => { api.limits().then((l) => setRuns(l.runs)).catch(() => setRuns(null)) }, [])
+  useEffect(refreshRuns, [refreshRuns])
   const [guideOpen, setGuideOpen] = useState(false)
   useEffect(() => {
     const open = () => setGuideOpen(true)
@@ -139,10 +142,18 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
 
   const runLive = async () => {
     abort.current = new AbortController()
+    const before = { trace, which, at }
     setLive('running'); setLiveError(''); setWhich('live'); setPlaying(false)
     setTrace({ ...trace, steps: [], final: null, status: null, ledger: [] }); setAt(-1); setActive(null)
     try {
       const res = await fetch(`/api/cases/${caseKey}/investigate`, { method: 'POST', signal: abort.current.signal })
+      if (!res.ok) {
+        // over a demo cap (or the server refused): back to the investigation that was showing, with the reason
+        const detail = (await res.json().catch(() => ({}))).detail
+        setTrace(before.trace); setWhich(before.which); setAt(before.at)
+        setLive(res.status === 429 ? 'limited' : 'error'); setLiveError(detail ?? `the server answered ${res.status}`)
+        return
+      }
       const reader = res.body!.getReader(), dec = new TextDecoder()
       let buf = ''
       for (;;) {
@@ -160,7 +171,7 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
       }
     } catch (e) {
       if ((e as Error).name !== 'AbortError') { setLive('error'); setLiveError((e as Error).message) }
-    }
+    } finally { refreshRuns() }
   }
 
   return (
@@ -191,12 +202,17 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
             <button className="button ink small" onClick={() => { setAt(0); setPlaying(true) }} disabled={live === 'running'}>
               {playing ? 'Watching…' : 'Watch the investigation'} <span>▶</span>
             </button>
-            <button className="text-btn" onClick={runLive} disabled={live === 'running'}>
-              {live === 'running' ? 'Muse Spark is investigating…' : 'Run it live with Muse Spark ↗'}
+            <button className="text-btn" onClick={runLive} disabled={live === 'running' || runs?.left === 0}>
+              {live === 'running' ? 'Muse Spark is investigating…'
+                : runs && !runs.live ? 'Live runs are off in this demo'
+                : runs?.left === 0 ? 'Live runs used up for today'
+                : 'Run it live with Muse Spark ↗'}
             </button>
+            {runs?.live && runs.left > 0 && live !== 'running' && <small className="runs-left">{runs.left} of {runs.per_visitor} live runs left today</small>}
           </div>
         </div>
         {live === 'error' && <p className="live-error">The live run stopped: {liveError}</p>}
+        {live === 'limited' && <p className="live-error live-note">{liveError}</p>}
 
         <div className="evidence-stage" ref={stage}>
           <svg className="connection" aria-hidden="true">
