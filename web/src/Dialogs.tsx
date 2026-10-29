@@ -4,7 +4,7 @@ import QRCode from 'qrcode'
 import { api, STATUS_LABEL, type CaseKey, type Review, type Status } from './api'
 import { dayHm, wall } from './evidence'
 
-export type DialogKind = 'factory' | 'review' | 'limits' | null
+export type DialogKind = 'factory' | 'review' | 'limits' | 'qr' | null
 
 type Props = {
   kind: DialogKind; close: () => void; caseKey: CaseKey; status: Status | null; reviews: Review[]; limitations: string[]
@@ -20,10 +20,11 @@ export function Dialogs({ kind, close, ...p }: Props) {
     if (!kind && d.open) d.close()
   }, [kind])
   return (
-    <dialog ref={ref} onClose={close} onClick={(e) => { if (e.target === ref.current) close() }}>
+    <dialog ref={ref} className={kind === 'qr' ? 'qr-dialog' : ''} onClose={close} onClick={(e) => { if (e.target === ref.current) close() }}>
       <button className="close" onClick={close} aria-label="Close">×</button>
       {kind === 'factory' && <Factory {...p} close={close} />}
       {kind === 'review' && <ReviewForm {...p} close={close} />}
+      {kind === 'qr' && <PassportQR {...p} />}
       {kind === 'limits' && (
         <div>
           <span className="micro">THE FINDING’S LIMITS</span>
@@ -32,6 +33,29 @@ export function Dialogs({ kind, close, ...p }: Props) {
         </div>
       )}
     </dialog>
+  )
+}
+
+/** The garment's QR: the product's GS1 Digital Link, which the API resolves to this batch's passport. */
+function usePassportQR(caseKey: CaseKey, width: number) {
+  const [url, setUrl] = useState('')
+  const [qr, setQr] = useState('')
+  useEffect(() => { api.passport(caseKey).then((p) => setUrl(`${location.origin}${p.product.link}`)) }, [caseKey])
+  useEffect(() => { if (url) QRCode.toDataURL(url, { margin: 1, width, color: { dark: '#171735', light: '#f7f7f2' } }).then(setQr) }, [url, width])
+  return qr
+}
+
+function PassportQR({ caseKey }: { caseKey: CaseKey }) {
+  const qr = usePassportQR(caseKey, 380)
+  return (
+    <div>
+      <span className="micro">THE BATCH PASSPORT</span>
+      <h2>The story travels<br />with the label.</h2>
+      <a className="qr-link" href={`#/passport/${caseKey}`}>{qr && <img src={qr} alt={`QR code opening the Case ${caseKey} batch passport`} />}</a>
+      <p>Scan to open the phone passport, or open it here.</p>
+      <a className="button acid" href={`#/passport/${caseKey}`}>Open passport <span>↗</span></a>
+      <p className="scope">The QR holds the product’s GS1 Digital Link. A reviewer’s decision signs the passport; until then it shows the investigator’s assessment, unsigned.</p>
+    </div>
   )
 }
 
@@ -64,11 +88,7 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
   const [to, setTo] = useState<Status>('review_required')
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
-  const [qr, setQr] = useState('')
-  const [url, setUrl] = useState('')
-  // the QR holds the product's GS1 Digital Link; the API resolves it to this batch's passport
-  useEffect(() => { api.passport(caseKey).then((p) => setUrl(`${location.origin}${p.product.link}`)) }, [caseKey])
-  useEffect(() => { if (url) QRCode.toDataURL(url, { margin: 1, width: 150, color: { dark: '#171735', light: '#f7f7f2' } }).then(setQr) }, [url])
+  const qr = usePassportQR(caseKey, 150)
   if (!status) return null
   return (
     <div>

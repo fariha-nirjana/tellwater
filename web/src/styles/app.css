@@ -1,45 +1,15 @@
-/* New screens, in iteration 02's visual language (tokens, micro labels, ink borders, offset shadows). */
+/* Additions to iteration 03's stylesheet (it03.css) for what runs on real engine output. */
 
 .loading{padding:60px 5%;color:#767482}
 .header nav a{cursor:pointer}
+.header nav a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
 
-/* status chip, one tone per assessment */
-.status[data-type=supports]{background:#edf3d0;color:#536221}
-.status[data-type=contradicts]{background:#ffe7e1;color:#9c392b}
-.status[data-type=review_required]{background:#fbffd6;color:#5f6514}
-.status[data-type=insufficient]{background:#f1f0ff;color:#5751c0}
-.status[data-type=working]{background:var(--ink);color:var(--acid)}
-
-.title-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
-.title-actions .text-btn{color:var(--purple)}
+/* live runs and the demo's caps */
 .live-error{margin:0 30px 12px;padding:10px 14px;background:#ffe7e1;color:#9c392b;font-size:12px;border-radius:4px}
 .live-note{background:#f0f0ff;color:#3a36b8}
 .runs-left{display:block;font-size:9px;color:#92909c;text-align:right}
-.workspace-top>.text-btn:disabled{opacity:.35;cursor:default}
 
-/* claim column: the real document inside the paper */
-.doc-picker{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-.doc-picker button{font-size:9px;letter-spacing:0;padding:4px 8px;border:1px solid #dcdbe5;border-radius:20px;color:#6c6b7a;background:#fff}
-.doc-picker button.is-claim::before,.doc-picker button.is-record::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
-.doc-picker button.is-claim::before{background:var(--acid);box-shadow:0 0 0 1px #17173540}
-.doc-picker button.is-record::before{background:var(--purple)}
-.doc-picker button[aria-selected=true]{background:var(--ink);border-color:var(--ink);color:#fff}
-.card-caption{flex-wrap:wrap;height:auto;min-height:35px}
-.paper.photo-paper{padding:14px 14px 12px;background-image:none}
-.instrument{margin-top:17px;background:#fff;border:1px solid var(--ink);border-radius:4px;padding:14px;box-shadow:4px 5px 0 #4945ff22;position:relative;z-index:2}
-.instrument .paper-head,.instrument .paper-foot{font:9px monospace;letter-spacing:.05em;display:flex;justify-content:space-between;color:#5751c0}
-.instrument .paper-head{padding-bottom:10px;border-bottom:1px solid #e4e3f6}
-.instrument .paper-foot{padding-top:10px;margin-top:9px;border-top:1px solid #e4e3f6;font-size:7px}
-.photo-paper .paper-head{padding-bottom:10px}
-.doc-photo{position:relative;margin-top:10px;border-radius:2px;max-height:420px;overflow-y:auto;scrollbar-width:thin}
-.doc-photo-inner{position:relative}
-.doc-photo img{display:block;width:100%;height:auto}
-.line-box{position:absolute;background:#e5ff5266;border-bottom:2px solid var(--purple);border-radius:2px;mix-blend-mode:multiply;animation:appear .35s ease}
-.lit-line{outline:2px solid var(--purple);outline-offset:1px}
-.doc-anchor{box-shadow:0 0 0 2px var(--purple)}
-.paper .handwriting.doc-anchor{box-shadow:none;background:#e5ff5270;border-bottom:2px solid var(--purple);padding:0 4px}
-
-/* records column: stacked chart */
+/* the stacked signal timeline */
 .chart.stacked{height:auto}
 .timeline svg{display:block;overflow:visible}
 .timeline text{font:8px var(--font);fill:#93919e}
@@ -58,46 +28,6 @@
 .chart-legend .legend-claim i{background:#e5ff5290;border:0}
 .chart-legend .legend-band i{background:#4945ff18;border:0}
 .chart-label>span:last-child{white-space:nowrap}
-
-/* the possible stories */
-.stories{padding:22px 30px 26px;border-top:1px solid #e4e3f6}
-.stories .card-caption{margin-bottom:6px}
-.story-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.story-card{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff;transition:background .4s,border-color .4s,opacity .4s;animation:appear .35s ease}
-.story-card p{font:650 14px/1.35 Manrope,var(--font);letter-spacing:-.03em;margin-top:9px}
-.story-card small{display:block;margin-top:8px;font-size:10px;color:#85818e}
-.story-state{font:700 8px/1 var(--font);letter-spacing:.1em;padding:4px 6px;border-radius:3px;background:#f1f0ff;color:#5751c0;display:inline-block}
-.story-card[data-state=supported]{border-color:var(--purple);background:#f0f0ff;box-shadow:4px 4px 0 #4945ff22}
-.story-card[data-state=supported] .story-state{background:var(--purple);color:#fff}
-.story-card[data-state=open]{border-color:var(--ink);border-style:dashed}
-.story-card[data-state=open] .story-state{background:var(--acid);color:var(--ink)}
-.story-card[data-state=contradicted]{background:var(--paper);opacity:.75}
-.story-card[data-state=contradicted] p{text-decoration:line-through;text-decoration-color:#17173550}
-.story-card[data-state=contradicted] .story-state{background:#e7e6ec;color:#6d6b7a}
-.story-card.empty p{font-weight:400;color:#85818e}
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
-.chips button{font-size:9px;padding:4px 7px;border:1px solid #dcdbe5;border-radius:4px;background:#fff;color:var(--ink)}
-.chips button:hover{border-color:var(--purple)}
-.chips button[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff}
-
-/* the steps */
-.progress-steps .of{font-style:normal;color:#a3a2ae;margin-left:4px}
-.progress-steps button:disabled{opacity:.35}
-.step-list{list-style:none;margin:0;padding:6px 30px 18px;border-top:1px solid #e4e3f6;max-height:360px;overflow:auto;columns:2;column-gap:30px}
-.step-list li{break-inside:avoid}
-.step-list button{display:grid;grid-template-columns:26px 1fr;gap:8px;text-align:left;padding:7px 0;width:100%;font-size:12px;border-bottom:1px solid #f0eff4}
-.step-list button b{font-size:9px;color:#a3a2ae;padding-top:2px}
-.step-list button[aria-current=true] b,.step-list button[aria-current=true] strong{color:var(--purple)}
-.step-list em{display:block;font-style:normal;color:#6d6b7a;font-size:11px;line-height:1.45;margin-top:2px}
-
-/* the finding */
-.finding .scope{font-size:10px;color:#4b4b2a;margin-top:10px}
-.finding p{font-size:13px}
-.request-slip{margin-top:16px;padding:14px 16px;background:var(--paper);border:1px dashed var(--ink);transform:rotate(-.6deg);max-width:620px;display:flex;flex-direction:column;gap:5px}
-.request-slip .micro{color:var(--coral);font-size:8px}
-.request-slip b{font:700 15px Manrope,var(--font);letter-spacing:-.03em}
-.request-slip span:last-child{font-size:12px;line-height:1.5}
-.finding-actions .text-btn{font-size:11px}
 
 /* dialogs */
 dialog .choice{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
@@ -161,62 +91,53 @@ dialog .passport-link p{margin:2px 0}
 .scale svg .axis{font-weight:700;letter-spacing:.1em;fill:var(--ink)}
 .dont-claim{border:1px solid var(--ink);border-radius:14px}
 
-@media(max-width:1100px){
-  .title-actions{justify-content:flex-start}
-  .step-list{columns:1}
-}
-@media(max-width:760px){
-  .workspace-title .title-actions{margin-top:14px}
-  .live-error{margin:0 18px 12px}
-  .stories{padding:18px}
-  .story-cards{grid-template-columns:1fr}
-  .step-list{padding:6px 18px 16px}
-  .doc-picker{justify-content:flex-start;margin-top:6px}
-  .scale{grid-template-columns:1fr;gap:30px;margin:44px 0}
-  .scale h3{font-size:32px}
-  .passport h2{font-size:40px}
-}
-
-/* the thread must show even where animations don't run */
-.connection path:not(#connectionShadow){stroke:var(--purple);stroke-width:2;fill:none}
-.connection #connectionShadow{stroke:#4945ff22}
-
-/* no horizontal overflow on narrow screens: columns never grow to fit a wide child */
-.evidence-stage>*,.record,.claim,.chart,.timeline,.workspace-title>div,.stories,.story-cards{min-width:0}
-.timeline{width:100%;overflow:hidden}
-.workspace-title h3{overflow-wrap:anywhere}
-main{overflow-x:clip}
-@media(max-width:760px){
-  .chart-label{flex-wrap:wrap}
-  .chart-label>span:last-child{margin-left:18px;font-size:16px}
-  .doc-picker button{font-size:8px}
-  .workspace-top>.text-btn{display:none}
-}
-
-/* measured, not written: the records a feed cannot fake */
-.measured{padding:4px 30px 26px}
-.measured-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
-.measured-card{text-align:left;background:#fff;border:1px solid var(--ink);border-radius:6px;padding:16px 18px;box-shadow:4px 5px 0 #4945ff22;display:flex;flex-direction:column;gap:12px;transition:transform .2s,box-shadow .2s}
-.measured-card:hover{transform:translateY(-2px);box-shadow:5px 7px 0 #4945ff33}
-.measured-card[aria-pressed=true]{border-color:var(--purple);box-shadow:5px 6px 0 var(--purple)}
-.measured-card .micro{color:var(--purple);font-size:8px}
-.measured-figures{display:flex;gap:22px;flex-wrap:wrap}
-.measured-figures span{display:flex;flex-direction:column}
-.measured-figures b{font:700 30px/1 Manrope,var(--font);letter-spacing:-.05em}
-.measured-figures small{font-size:9px;color:#85818e;margin-top:5px}
-.measured-figures .is-low b{color:var(--coral)}
-.measured-note{font-size:12px;line-height:1.5;color:#4d4b5c}
-@media(max-width:760px){.measured{padding:4px 18px 20px}.measured-figures b{font-size:26px}}
-
 /* thread guide */
 .chat .message .cite{display:inline-block;margin:0 3px;padding:1px 7px;font-size:10px;border:1px solid var(--purple);border-radius:10px;color:var(--purple);background:#f0f0ff;vertical-align:1px}
 .chat .message .cite:hover{background:var(--purple);color:#fff}
 .chat .message.thinking{color:#85818e;font-style:italic}
 .chat .prompts{flex-wrap:wrap}
-.explanation>.text-btn{color:var(--purple);font-size:10px;margin-left:auto;align-self:flex-end}
 
 /* checking next: the reason shows before the result */
 .pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);margin-right:7px;vertical-align:1px;animation:pulse 1s ease-in-out infinite}
 .thinking-line{display:block;margin-top:8px;font-size:10px;color:#6d6a9c}
 @keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+/* no horizontal overflow on narrow screens */
+main{overflow-x:clip}
+.timeline{width:100%;overflow:hidden}
+@media(max-width:760px){
+  .chart-label{flex-wrap:wrap}
+  .chart-label>span:last-child{margin-left:18px;font-size:16px}
+  .live-error{margin:0 0 12px}
+  .scale{grid-template-columns:1fr;gap:30px;margin:44px 0}
+  .scale h3{font-size:32px}
+}
+
+/* the case file on real data */
+.case-panel,.case-grid>*{min-width:0}
+.stamp-working{background:#fff}
+.stamp-working .stamp-mark{display:grid;place-items:center}
+.stamp-working .pulse{margin:0}
+.finding-summary{font-size:15px;line-height:1.6;letter-spacing:-.01em;max-width:1050px;margin-bottom:14px}
+.case-finding .limits-link{margin-top:10px;color:var(--ink)}
+.timeline-panel .chart-label{padding-top:4px}
+.timeline-key .need-band{background:#4945ff18}
+.more-records{color:var(--purple);margin-top:8px}
+.trail-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:flex-end}
+.trail-actions .text-btn{color:var(--purple)}
+.trail-actions .runs-left{flex-basis:100%}
+.trail-list button:disabled{opacity:.45}
+.review-bar .button:disabled{opacity:.4;cursor:default}
+.physical-moment .meter-comparison button[aria-pressed=true] img,.lab-moment[aria-pressed=true]{outline:3px solid var(--purple);outline-offset:2px}
+@media(max-width:760px){
+  .trail-actions{justify-content:flex-start;margin-top:12px}
+  .trail-actions .runs-left{text-align:left}
+}
+
+/* the passport on real data */
+.passport-summary{font-size:12px;line-height:1.7;margin-top:-8px}
+.passport-records small{max-width:250px;line-height:1.5}
+.passport-sheet .passport-record{margin-top:14px}
+.passport-limit+.passport-limit{margin-top:8px}
+.passport-record .text-btn{color:var(--purple);display:inline-block;margin-top:10px}

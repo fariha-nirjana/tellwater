@@ -1,34 +1,81 @@
 // The batch passport (phone-first, opened from the QR code) and the results page.
-import { useEffect, useState } from 'react'
-import { api, STATUS_LABEL, type CaseKey, type Passport as P, type SignedRecord, type Verification } from './api'
-import { dayHm, wall } from './evidence'
+import { useEffect, useRef, useState } from 'react'
+import { api, STATUS_LABEL, type CaseKey, type Doc, type Passport as P, type SignedRecord, type Verification } from './api'
+import { Stamp } from './CaseFile'
+import { dayHm, docLabel, wall } from './evidence'
 
 export function Passport({ caseKey }: { caseKey: CaseKey }) {
   const [p, setP] = useState<P | null>(null)
-  useEffect(() => { api.passport(caseKey).then(setP) }, [caseKey])
+  const [docs, setDocs] = useState<Doc[]>([])
+  const [open, setOpen] = useState<Doc | null>(null)
+  useEffect(() => {
+    api.passport(caseKey).then(setP)
+    api.case(caseKey).then((c) => setDocs(c.documents))
+  }, [caseKey])
   if (!p) return <p className="loading">Opening the passport…</p>
+  // the key records: documents the investigator's own key evidence rests on, then the factory's logbook
+  const records: { doc: Doc; why: string }[] = []
+  for (const k of p.key_evidence) {
+    const sig = k.id.match(/reading_vs_feed:(\w+)@/)?.[1]
+    const doc = docs.find((d) => d.id === k.id || (sig && d.id.startsWith(`doc:photo-${sig}-`)))
+    if (doc?.image && !records.some((r) => r.doc.id === doc.id)) records.push({ doc, why: k.why })
+  }
+  const log = docs.find((d) => d.type === 'logbook')
+  if (log?.image && !records.some((r) => r.doc.id === log.id)) records.push({ doc: log, why: 'What the factory wrote, tested against the records.' })
+  const factory = `Factory ${p.batch.id.split('-')[1]?.toUpperCase() ?? ''}`
   return (
-    <main className="passport">
-      <span className="micro">BATCH PASSPORT · PROTOTYPE</span>
-      <h2>Batch {p.batch.id.split('-').at(-1)}<br /><span className="serif">{p.batch.shade} shade</span></h2>
-      <p className="passport-meta">{p.product.name} · Produced {dayHm(wall(p.batch.production_start))} · Factory A (demo)</p>
-      <p className="passport-meta">GTIN {p.product.gtin} · Lot {p.product.lot}</p>
-      {p.status && <div className="passport-status" data-type={p.status}>{STATUS_LABEL[p.status]}</div>}
-      {p.review?.action === 'change' && p.assessed_status && <p className="scope">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
-      <p className="passport-summary">{p.summary}</p>
-      {p.scope_line && <p className="scope">{p.scope_line}</p>}
-      {p.review && (
-        <div className="passport-review"><span className="micro">REVIEWER · {dayHm(wall(p.review.at)).toUpperCase()}</span><p>“{p.review.reason}”</p></div>
-      )}
-      {p.record && p.verification
-        ? <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} />
-        : <p className="scope">No signed record yet: a reviewer has not decided this case.</p>}
-      {p.limitations.length > 0 && (
-        <details><summary>What this can’t show</summary>{p.limitations.map((l) => <p key={l} className="detail-row">{l}</p>)}</details>
-      )}
-      <p className="passport-disclosure">{p.disclosure}</p>
-      <a className="text-btn" href={`#/case/${caseKey}`}>See the full case file ↗</a>
-    </main>
+    <section className="passport-view">
+      <div className="passport-sheet">
+        <a className="passport-back" href={`#/case/${caseKey}`}>← Open case file</a>
+        <div className="passport-label">
+          <span className="micro">TELLWATER / BATCH PASSPORT</span>
+          <h1>A label with<br /><em>a little more.</em></h1>
+          <div className="passport-batch">{p.product.name} · Batch {p.batch.id.split('-').at(-1)}</div>
+          <p>{factory} (demo) · produced {dayHm(wall(p.batch.production_start))}</p>
+          <p>GTIN {p.product.gtin} · Lot {p.product.lot}</p>
+        </div>
+        {p.status && <Stamp status={p.status} />}
+        {p.review?.action === 'change' && p.assessed_status && <p className="passport-scope">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
+        <p className="passport-scope">{p.scope_line}</p>
+        <p className="passport-summary">{p.summary}</p>
+
+        <h2>Key records</h2>
+        <div className="passport-records">
+          {records.slice(0, 4).map(({ doc, why }) => (
+            <button key={doc.id} onClick={() => setOpen(doc)}>
+              <img src={doc.image!} alt="" />
+              <span>{docLabel(doc.id)}<small>{doc.is_claim ? 'Factory claim' : 'Physical record'} ↗ · {why}</small></span>
+            </button>
+          ))}
+        </div>
+
+        <h2>Reviewer decision</h2>
+        <div className="passport-decision">
+          {p.review ? <><b>{p.review.action === 'change' && p.review.status ? `Changed to ${STATUS_LABEL[p.review.status]}` : p.review.action === 'approve' ? 'Approved' : 'Sent back'} · {dayHm(wall(p.review.at))}</b><p>“{p.review.reason}”</p></>
+            : <p>Awaiting a written reviewer decision. Until then this is the investigator’s assessment, unsigned.</p>}
+        </div>
+        {p.record && p.verification && <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} />}
+
+        <h2>Limitations</h2>
+        {p.limitations.slice(0, 3).map((l) => <p key={l} className="passport-limit">{l}</p>)}
+        <p className="passport-local">{p.disclosure}</p>
+        <div className="passport-foot">Prototype · records from the Tellwater simulator</div>
+      </div>
+      {open && <DocDialog doc={open} close={() => setOpen(null)} />}
+    </section>
+  )
+}
+
+function DocDialog({ doc, close }: { doc: Doc; close: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null)
+  useEffect(() => { ref.current?.showModal() }, [])
+  return (
+    <dialog ref={ref} className="document-dialog" onClose={close} onClick={(e) => { if (e.target === ref.current) close() }}>
+      <button className="close" onClick={close} aria-label="Close">×</button>
+      <span className="micro">{doc.is_claim ? 'FACTORY CLAIM' : 'PHYSICAL RECORD'}</span>
+      <h2>{docLabel(doc.id)}</h2>
+      <img className="full-document" src={doc.image!} alt={docLabel(doc.id)} />
+    </dialog>
   )
 }
 

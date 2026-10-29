@@ -107,7 +107,7 @@ export function Hero({ onEnter }: { onEnter: () => void }) {
           <span className="round-seal">EVERY DROP<br /><b>HAS A</b><br />STORY ↗</span>
         </div>
       </section>
-      <div className="chapter-bar"><span>01 / FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><span>SCROLL TO UNRAVEL ↓</span></div>
+      <div className="chapter-bar"><span>FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><a href="#/case/B">OPEN THE CASE FILE ↗</a></div>
     </>
   )
 }
@@ -145,7 +145,7 @@ export function Story() {
             <p>I help you follow a claim back to its records. And when the evidence is missing, I say so. A small thread, asking an important question.</p></div>
         </article>
         <div className="road-finish"><span className="micro">ONE THREAD. ALL THE WAY THROUGH.</span><h3>A little curiosity.<br /><em>A clearer picture.</em></h3>
-          <a href="#investigation" className="button acid">Follow another story <span>↗</span></a></div>
+          <a href="#/case/C" className="button acid">Follow another story <span>↗</span></a></div>
       </section>
     </>
   )
@@ -166,7 +166,7 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
 }
 
 /**
- * The one companion. Docks in the hero, beside the explanation strip (#evidenceDock),
+ * The one companion. Docks in the hero, beside the case file's explanation strip (#caseDock),
  * then walks the stitched route through the origin story as the page scrolls.
  */
 export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion: boolean; onClick: () => void }) {
@@ -197,7 +197,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
     const position = () => {
       if (document.body.classList.contains('arriving')) return
       const rect = (s: string) => document.querySelector(s)?.getBoundingClientRect()
-      const road = rect('#roadSvg'), intro = rect('#origin'), ev = rect('#evidenceDock'), hero = rect('#heroDock'), footer = rect('footer')
+      const road = rect('#roadSvg'), intro = rect('#origin'), ev = rect('#caseDock'), hero = rect('#heroDock'), footer = rect('footer')
       const focus = innerHeight * 0.55
       const rb = $('#roadBase'), ib = $('#introBase')
       if (road && rb && road.top < focus && road.bottom > innerHeight * 0.2) {
