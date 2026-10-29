@@ -368,8 +368,9 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
       <section className="trail-section">
         <div className="trail-heading">
           <div><h2>Investigation trail</h2>
-            <p>{steps.length} recorded steps by Muse Spark{trace.model ? ` (${trace.model})` : ''} · {trace.checks_used || steps.length} checks · about {Math.round(trace.seconds || 0)} s
-              {which === 'after' ? ' · run after the factory’s record arrived' : which === 'live' ? ' · live run, just now' : ''}</p></div>
+            <p>{live === 'running'
+              ? `Live run by Muse Spark${trace.model ? ` (${trace.model})` : ''} · ${steps.length} ${steps.length === 1 ? 'step' : 'steps'} so far`
+              : `${steps.length} recorded steps by Muse Spark${trace.model ? ` (${trace.model})` : ''} · ${trace.checks_used || steps.length} checks · about ${Math.round(trace.seconds || 0)} s${which === 'after' ? ' · run after the factory’s record arrived' : which === 'live' ? ' · live run, just now' : ''}`}</p></div>
           <div className="trail-actions">
             <button className="button ink small" onClick={() => { if (playing) return setPlaying(false); setAt(0); setPhase('reason'); setPlaying(true) }} disabled={live === 'running'}>
               {playing ? 'Pause replay' : 'Watch the investigation'} <span>{playing ? 'Ⅱ' : '▶'}</span>
@@ -401,7 +402,7 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
           <label htmlFor="trailScrub">Step {Math.max(1, at + 1)} of {steps.length}</label>
           <input id="trailScrub" type="range" min={0} max={Math.max(0, steps.length - 1)} value={Math.max(0, at)}
             onChange={(e) => { setPlaying(false); setPhase('result'); setAt(Number(e.target.value)) }} aria-label="Scrub the investigation's steps" />
-          <button onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>Show final assessment ↗</button>
+          <button disabled={live === 'running'} onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>Show final assessment ↗</button>
         </div>
       </section>
 
