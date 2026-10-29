@@ -1,6 +1,6 @@
 // The batch passport (phone-first, opened from the QR code) and the results page.
 import { useEffect, useState } from 'react'
-import { api, STATUS_LABEL, type CaseKey, type Passport as P } from './api'
+import { api, STATUS_LABEL, type CaseKey, type Passport as P, type SignedRecord, type Verification } from './api'
 import { dayHm, wall } from './evidence'
 
 export function Passport({ caseKey }: { caseKey: CaseKey }) {
@@ -11,7 +11,8 @@ export function Passport({ caseKey }: { caseKey: CaseKey }) {
     <main className="passport">
       <span className="micro">BATCH PASSPORT · PROTOTYPE</span>
       <h2>Batch {p.batch.id.split('-').at(-1)}<br /><span className="serif">{p.batch.shade} shade</span></h2>
-      <p className="passport-meta">Produced {dayHm(wall(p.batch.production_start))} · Factory A (demo)</p>
+      <p className="passport-meta">{p.product.name} · Produced {dayHm(wall(p.batch.production_start))} · Factory A (demo)</p>
+      <p className="passport-meta">GTIN {p.product.gtin} · Lot {p.product.lot}</p>
       {p.status && <div className="passport-status" data-type={p.status}>{STATUS_LABEL[p.status]}</div>}
       {p.review?.action === 'change' && p.assessed_status && <p className="scope">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
       <p className="passport-summary">{p.summary}</p>
@@ -19,12 +20,33 @@ export function Passport({ caseKey }: { caseKey: CaseKey }) {
       {p.review && (
         <div className="passport-review"><span className="micro">REVIEWER · {dayHm(wall(p.review.at)).toUpperCase()}</span><p>“{p.review.reason}”</p></div>
       )}
+      {p.record && p.verification
+        ? <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} />
+        : <p className="scope">No signed record yet: a reviewer has not decided this case.</p>}
       {p.limitations.length > 0 && (
         <details><summary>What this can’t show</summary>{p.limitations.map((l) => <p key={l} className="detail-row">{l}</p>)}</details>
       )}
       <p className="passport-disclosure">{p.disclosure}</p>
       <a className="text-btn" href={`#/case/${caseKey}`}>See the full case file ↗</a>
     </main>
+  )
+}
+
+const itemName = (id: string) => id.startsWith('submission:') ? `the factory’s ${id.split(':')[1]} log` : id.split('/').at(-1)!.replace(/^file:/, '')
+
+/** The signed record behind the passport, checked again every time the page opens. */
+function RecordCheck({ caseKey, rec, v }: { caseKey: CaseKey; rec: SignedRecord; v: Verification }) {
+  const drift = [...v.changed, ...v.added, ...v.missing].map(itemName)
+  const ran = rec.investigation.finished_at ? ` · ${dayHm(new Date(rec.investigation.finished_at))}` : ''
+  return (
+    <section className="passport-record" aria-label="Signed record">
+      <span className="micro">SIGNED RECORD · ISSUED {dayHm(new Date(rec.issued_at)).toUpperCase()}</span>
+      <p data-ok={v.signature_valid}>{v.signature_valid ? 'Signature checks out: issued here, not altered since.' : 'Signature does not match: this record was altered or not issued here.'}</p>
+      <p data-ok={v.evidence_matches}>{v.evidence_matches ? `Evidence unchanged since the review (${v.items} records).` : `Evidence has changed since the review: ${drift.join(', ')}.`}</p>
+      <p data-ok={v.investigation_matches}>{v.investigation_matches ? 'Investigation unchanged' : 'A newer investigation exists'} · {rec.investigation.model}{ran}</p>
+      <p className="fingerprint">Evidence fingerprint {rec.evidence.root.slice(0, 16)}… · key {rec.proof.key_id}</p>
+      <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">The signed record, for any product passport to embed ↗</a>
+    </section>
   )
 }
 

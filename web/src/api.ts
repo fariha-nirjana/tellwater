@@ -31,9 +31,22 @@ export type Final = {
 }
 export type Trace = { case_id: string; model: string; steps: Step[]; ledger: Explanation[][]; final: Final | null; status: Status | null; valid: boolean; seconds: number; checks_used: number; cost_usd: number | null }
 export type Series = { times: string[]; series: Record<string, (number | null)[]>; power_band_half_width_kw?: number }
+export type Product = { gtin: string; lot: string; name: string; link: string }
+export type SignedRecord = {
+  issued_at: string; status: Status; product: Product
+  evidence: { items: { id: string; sha256: string }[]; root: string }
+  investigation: { sha256: string; model: string | null; finished_at: string | null; checks: number | null; citations_validated: boolean | null }
+  proof: { alg: string; key_id: string; signature: string }
+  [k: string]: unknown
+}
+export type Verification = {
+  signature_valid: boolean; key_id: string; evidence_matches: boolean; changed: string[]; missing: string[]; added: string[]
+  items: number; investigation_matches: boolean
+}
 export type Passport = {
-  batch: Overview['batch']; status: Status | null; assessed_status: Status | null; summary: string | null; scope_line: string | null
-  limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null; disclosure: string
+  batch: Overview['batch']; product: Product; status: Status | null; assessed_status: Status | null; summary: string | null
+  scope_line: string | null; limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null
+  record: SignedRecord | null; verification: Verification | null; disclosure: string
 }
 
 async function get<T>(path: string): Promise<T> {

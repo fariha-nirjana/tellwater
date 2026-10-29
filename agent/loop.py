@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -54,6 +55,7 @@ class Trace:
     cached_tokens: int = 0
     cost_usd: float | None = None
     seconds: float = 0.0
+    finished_at: str | None = None  # UTC, ISO 8601
     error: str | None = None
 
     def to_json(self) -> str:
@@ -163,6 +165,7 @@ def investigate(bundle: Bundle, client: ModelClient, power_model: PowerModel | N
     if tools.final:
         trace.status = "insufficient" if tools.final["kind"] == "evidence_request" else tools.final["status"]
     trace.seconds = round(time.perf_counter() - started, 1)
+    trace.finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     price = PRICES.get(client.endpoint.model)
     if price:
         fresh = trace.prompt_tokens - trace.cached_tokens

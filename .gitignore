@@ -6,6 +6,7 @@ worklog.md
 
 # Secrets
 .env
+data/keys/
 .env.*
 !.env.example
 

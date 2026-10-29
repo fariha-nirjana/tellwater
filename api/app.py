@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import re
 import queue
 import threading
@@ -21,19 +22,21 @@ from pathlib import Path
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
 from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
 from api.demo import DEMO, DEMO_ROOT
+from passport import record as passport_record
 from sim.baseline import power_model
 from store.cases import ROOT, Bundle, load_bundle
 
 app = FastAPI(title="Tellwater")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+WEB_URL = os.environ.get("TELLWATER_WEB_URL", "")  # where the interface lives, when it is not on the API's own origin
 STATE = DEMO_ROOT / "state.json"  # reviewer decisions and factory submissions, shared across devices
 _lock = threading.Lock()
 
@@ -51,7 +54,7 @@ def _state() -> dict:
     try:
         return json.loads(STATE.read_text())
     except (FileNotFoundError, json.JSONDecodeError):
-        return {"reviews": {}, "submissions": {}}
+        return {"reviews": {}, "submissions": {}, "records": {}}
 
 
 def _save_state(s: dict) -> None:
@@ -62,6 +65,14 @@ def _save_state(s: dict) -> None:
 def _trace(key: str, which: str = "saved") -> dict | None:
     path = DEMO_ROOT / key / ("trace.json" if which == "saved" else f"trace-{which}.json")
     return json.loads(path.read_text()) if path.exists() else None
+
+
+def _basis(key: str) -> tuple[dict | None, dict | None]:
+    """The investigation the passport and guide stand on, and the factory submission it saw: the run after
+    the submission if there is one, otherwise the saved run (which saw no submission)."""
+    sub = _state()["submissions"].get(key)
+    after = _trace(key, "after") if sub else None
+    return (after, sub) if after else (_trace(key), None)
 
 
 def _bundle(key: str) -> Bundle:
@@ -218,7 +229,7 @@ class Question(BaseModel):
 
 @app.post("/api/cases/{key}/ask")
 def ask(key: str, q: Question) -> dict:
-    t = _trace(key, "after") if _state()["submissions"].get(key) else _trace(key)
+    t, _ = _basis(key)
     if not t:
         raise HTTPException(404, "no investigation to ask about")
     if not q.question.strip() or len(q.question) > 600:
@@ -309,23 +320,98 @@ def review(key: str, r: Review) -> dict:
     s = _state()
     entry = {**r.model_dump(), "at": datetime.now().isoformat(timespec="minutes")}
     s["reviews"].setdefault(key, []).append(entry)
+    if r.action in ("approve", "change"):  # a decided case gets a signed record; one sent back gets none
+        t, sub = _basis(key)
+        if not t:
+            raise HTTPException(409, "no investigation to decide on yet")
+        status = r.status if r.action == "change" and r.status else t.get("status")
+        s.setdefault("records", {}).setdefault(key, []).append(passport_record.issue(
+            product=_product(key), batch=_batch(key), trace=t, review=entry,
+            status=status, manifest=passport_record.evidence_manifest(_folder(key), sub)))
     _save_state(s)
     return entry
 
 
+# Demo products, one per case. GTINs sit in GS1's restricted-circulation range (prefix 02), never a real product's.
+PRODUCT_GTIN = {key: passport_record.gtin14(f"029900000000{i}") for i, key in enumerate(DEMO, start=1)}
+
+
+def _batch(key: str) -> dict:
+    """The target batch in the interface's shape (production_start/end, as in the case overview)."""
+    b = load_bundle(_folder(key)).target_batch
+    return {"id": b["id"], "production_start": b["start"], "production_end": b["end"], "shade": b["shade"],
+            "planned_wastewater_m3": b["planned_wastewater_m3"]}
+
+
+def _product(key: str) -> dict:
+    batch = load_bundle(_folder(key)).target_batch
+    lot = batch["id"].split("-", 2)[2]  # factory-a-460f93ca-B04 -> 460f93ca-B04
+    return {"gtin": PRODUCT_GTIN[key], "lot": lot, "name": f"Cotton T-shirt, {batch['shade']} shade",
+            "link": passport_record.digital_link(PRODUCT_GTIN[key], lot)}
+
+
+def _record(key: str) -> dict | None:
+    """The latest signed record, unless the case has since been sent back."""
+    s = _state()
+    reviews, records = s["reviews"].get(key, []), s.get("records", {}).get(key, [])
+    if not records or (reviews and reviews[-1]["action"] == "return"):
+        return None
+    return records[-1]
+
+
+def _verification(key: str, rec: dict) -> dict:
+    t, sub = _basis(key)
+    return passport_record.verify(rec, passport_record.evidence_manifest(_folder(key), sub), t)
+
+
 @app.get("/api/passport/{key}")
 def passport(key: str) -> dict:
-    """The batch-level summary a QR code opens. Reflects the latest investigation and review."""
-    bundle = load_bundle(_folder(key))
-    t = _trace(key, "after") or _trace(key) or {}
+    """The batch-level summary a QR code opens: the latest signed record, checked against today's evidence."""
+    t = _basis(key)[0] or {}
     final = t.get("final") or {}
     reviews = _state()["reviews"].get(key, [])
     last = reviews[-1] if reviews else None
     status = last["status"] if last and last["action"] == "change" and last.get("status") else t.get("status")
-    return {"batch": bundle.target_batch, "status": status, "assessed_status": t.get("status"),
+    rec = _record(key)
+    return {"batch": _batch(key), "product": _product(key), "status": status, "assessed_status": t.get("status"),
             "summary": final.get("summary"), "scope_line": final.get("scope_line"),
             "limitations": final.get("limitations", []), "key_evidence": final.get("key_evidence", []),
-            "review": last, "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate."}
+            "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
+            "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate."}
+
+
+@app.get("/api/passport/{key}/record")
+def passport_record_json(key: str) -> dict:
+    """The signed record itself, for any product passport to embed."""
+    _folder(key)
+    rec = _record(key)
+    if not rec:
+        raise HTTPException(404, "no signed record: the case has not been decided by a reviewer")
+    return rec
+
+
+@app.get("/api/passport/{key}/verify")
+def passport_verify(key: str) -> dict:
+    _folder(key)
+    rec = _record(key)
+    if not rec:
+        raise HTTPException(404, "no signed record to verify")
+    return _verification(key, rec)
+
+
+@app.get("/api/passport-key")
+def passport_key() -> dict:
+    """The public key that checks every record's signature."""
+    return passport_record.public_key()
+
+
+@app.get("/01/{gtin}/10/{lot}")
+def resolve(gtin: str, lot: str) -> RedirectResponse:
+    """GS1 Digital Link resolver: the URL in the garment's QR code opens that batch's passport."""
+    key = next((k for k in DEMO if PRODUCT_GTIN[k] == gtin and _product(k)["lot"] == lot), None)
+    if not key:
+        raise HTTPException(404, "no passport for that product and lot")
+    return RedirectResponse(f"{WEB_URL}/#/passport/{key}")
 
 
 # ---- evaluation results

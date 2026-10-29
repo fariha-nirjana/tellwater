@@ -130,6 +130,13 @@ dialog .passport-link p{margin:2px 0}
 .passport .detail-row{font-size:11px;padding:10px 0;border-bottom:1px solid #dedce5}
 .passport-disclosure{margin-top:26px;padding-top:12px;border-top:1px solid var(--ink);font-size:10px;color:#767482}
 .passport .text-btn{display:inline-block;margin-top:12px;color:var(--purple)}
+.passport-record{margin-top:18px;border:1px solid var(--ink);border-radius:6px;padding:14px;background:#fff}
+.passport-record .micro{font-size:8px;color:var(--purple)}
+.passport-record p{font-size:12px;line-height:1.5;margin-top:8px;padding-left:20px;position:relative}
+.passport-record p[data-ok]::before{position:absolute;left:0;top:0;font-weight:700}
+.passport-record p[data-ok=true]::before{content:'✓';color:var(--purple)}
+.passport-record p[data-ok=false]::before{content:'!';color:var(--coral)}
+.passport-record .fingerprint{font:10px ui-monospace,Menlo,monospace;color:#767482;padding-left:0;word-break:break-all}
 
 /* results */
 .table-wrap{overflow-x:auto}

@@ -65,8 +65,10 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
   const [qr, setQr] = useState('')
-  const url = `${location.origin}${location.pathname}#/passport/${caseKey}`
-  useEffect(() => { QRCode.toDataURL(url, { margin: 1, width: 150, color: { dark: '#171735', light: '#f7f7f2' } }).then(setQr) }, [url])
+  const [url, setUrl] = useState('')
+  // the QR holds the product's GS1 Digital Link; the API resolves it to this batch's passport
+  useEffect(() => { api.passport(caseKey).then((p) => setUrl(`${location.origin}${p.product.link}`)) }, [caseKey])
+  useEffect(() => { if (url) QRCode.toDataURL(url, { margin: 1, width: 150, color: { dark: '#171735', light: '#f7f7f2' } }).then(setQr) }, [url])
   if (!status) return null
   return (
     <div>
@@ -102,7 +104,7 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
       )}
       <div className="passport-link">
         {qr && <img src={qr} width={110} height={110} alt="QR code to the batch passport" />}
-        <div><b>The batch passport</b><p>Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here ↗</button></div>
+        <div><b>The batch passport</b><p>Recording a decision signs it. Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here ↗</button></div>
       </div>
     </div>
   )
