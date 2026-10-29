@@ -31,7 +31,7 @@ const MEANS: [Status, string][] = [
 
 const MODELS: [string, string, string][] = [
   ['Muse Spark', 'The investigator', 'Chooses one check at a time from a small set of tools, says why, and keeps competing explanations open until the evidence settles them. Every citation is checked against the record before a finding is accepted. 56 of 60 development cases agree with the justified answer, with no unsupported accusations.'],
-  ['Muse Spark (vision)', 'Reads the paperwork', 'Reads handwritten logbook photos, meter photos and lab reports itself; no transcription is given. We measured where it finds each logbook line: sending the photo padded to a square takes it from 40% to 99.5% right line.'],
+  ['Muse Spark (vision)', 'Reads the paperwork', 'Reads handwritten logbook photos, meter photos and lab reports itself; no transcription is given. We measured where it finds each logbook line: sending the photo padded to a square takes it from 34% to 99.5% of lines placed right.'],
   ['Muse Spark', 'The thread guide', 'Answers your questions about a case only from that case’s investigation, and every record it cites must exist there; citations that don’t are removed.'],
   ['Muse Spark Open', 'Open weights', 'The same investigation on open weights (served on Fireworks): 54 of 60 development cases.'],
   ['Muse Glimmer', 'Distilled from our own runs', 'A small model fine-tuned on 127 correct Muse Spark investigations (never the test set). On 8 fresh cases it reached the right answer on all 8.'],

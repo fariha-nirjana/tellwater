@@ -1,7 +1,8 @@
 """The three demo cases the interface opens with, copied into data/demo/ so
 the app runs from a fresh clone without regenerating anything.
 
-    .venv/bin/python -m api.demo
+    .venv/bin/python -m api.demo            (case copies, saved investigations and the results snapshot)
+    .venv/bin/python -m api.demo results    (the results snapshot only)
 
 A  maintenance, cleared: the tank log shows the water was held
 B  aeration cut: the photo confirms low power, the lab shows treatment failed
@@ -13,7 +14,9 @@ All three are development cases; nothing here comes from the held-out test set.
 from __future__ import annotations
 
 import json
+import re
 import shutil
+import sys
 
 from store.cases import ROOT
 
@@ -43,11 +46,16 @@ def build() -> None:
         run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
         (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
         print(f"{key}: {case_id} -> {run['status']}")
+    snapshot_results()
+
+
+def snapshot_results() -> None:
     # evaluation summaries, so the results page works without the (gitignored) run folders
     results: dict = {}
     for summary in sorted((ROOT / "eval" / "runs").glob("*/*/summary.json")):
         set_name, condition = summary.parent.parent.name, summary.parent.name
-        if "_v" not in condition:  # skip archived earlier iterations
+        # current conditions only (C1..C6): archived iterations are named C4_v1, C4-v1, C4-stopfix
+        if re.fullmatch(r"C\d", condition):
             results.setdefault(set_name, {})[condition] = json.loads(summary.read_text())["summary"]
     # line-finding on logbook photos (eval.localize): raw and square-padded, per model
     for f in sorted((ROOT / "eval" / "runs" / "localize").glob("*/*.json")):
@@ -56,4 +64,4 @@ def build() -> None:
 
 
 if __name__ == "__main__":
-    build()
+    snapshot_results() if sys.argv[1:] == ["results"] else build()

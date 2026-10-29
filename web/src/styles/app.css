@@ -265,3 +265,23 @@ main{overflow-x:clip}
 .translation-note{font-size:10px;line-height:1.6;background:#eeeaff;border:1px dashed var(--purple);color:#3a36b8;padding:8px 10px;margin-top:12px;border-radius:4px}
 .translation-note.warn{background:#ffe7e1;border-color:var(--coral);color:#9c392b}
 .translation-note .text-btn{font-size:10px;color:var(--purple);padding:0;margin-left:4px}
+
+/* results: fresh cases, line-finding */
+.fresh{margin:70px 0 0}
+.fresh>.micro{color:var(--purple)}
+.fresh-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+.fresh-card{background:#fff;border:1px solid var(--ink);border-radius:8px;padding:22px;box-shadow:5px 6px 0 #4945ff22}
+.fresh-card .micro{font-size:8px;color:var(--purple)}
+.fresh-card b{display:block;font:700 44px/1 Manrope,var(--font);letter-spacing:-.05em;margin:12px 0 10px}
+.fresh-card p{font-size:13px;line-height:1.7;color:#5d5b6a}
+.linefind{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:center;margin:80px 0 30px}
+.linefind h3{font-size:41px;line-height:1.1;font-weight:600;margin:14px 0}
+.linefind h3 em{color:var(--purple)}
+.linefind p{font-size:13px;line-height:1.75;color:#5d5b6a}
+.linefind table{min-width:520px}
+@media(max-width:760px){
+  .fresh-cards,.linefind{grid-template-columns:1fr}
+  .linefind{gap:20px;margin:50px 0 20px}
+  .linefind h3{font-size:32px}
+  .fresh-card b{font-size:36px}
+}

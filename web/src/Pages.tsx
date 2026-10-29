@@ -210,6 +210,49 @@ export function Results() {
         </svg>
       </div>
 
+      <div className="fresh">
+        <span className="micro">FRESH CASES · NEVER TRAINED OR TUNED ON, AND NOT THE TEST SET</span>
+        <div className="fresh-cards">
+          <div className="fresh-card">
+            <span className="micro">C6 · MUSE GLIMMER, DISTILLED</span>
+            <b>{n(r.check?.C6, 'agreement') ?? '–'} of {n(r.check?.C6, 'cases') ?? '–'}</b>
+            <p>A small model fine-tuned on 127 correct Muse Spark investigations, then run on fresh cases: right answer on every one, {n(r.check?.C6, 'unsupported_accusations') ?? 0} unsupported accusations, every citation valid. About {Math.round(n(r.check?.C6, 'mean_seconds') ?? 0)} s a case.</p>
+          </div>
+          <div className="fresh-card">
+            <span className="micro">C4 · A SECOND FACTORY (FACTORY B)</span>
+            <b>{n(r.check_b?.C4, 'agreement') ?? '–'} of {n(r.check_b?.C4, 'cases') ?? '–'}</b>
+            <p>A differently built plant nothing was tuned on. The first run got 9 of 10: the miss exposed a rule that was too strict for every factory (a stop with a rising tank and a dry outfall did hold its water). After narrowing it, 10 of 10, and the 15 development cases with a stop answered exactly as before.</p>
+          </div>
+        </div>
+      </div>
+
+      {r.localize && (
+        <div className="linefind">
+          <div>
+            <span className="micro">READING THE LOGBOOK · WHERE IS EACH LINE?</span>
+            <h3>Square the photo,<br /><em>find the line.</em></h3>
+            <p>The case file highlights the logbook line a check is about, so the model has to say where each line is. We measured it on 60 photographed pages ({n(r.localize['spark/dev'], 'lines')} lines) against the renderer’s true positions. Muse Spark places its boxes on a square grid: sent as is, a portrait photo’s boxes land on the wrong line; padded to a square, nearly every line is right.</p>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th /><th><b>Muse Spark</b><small>photo as is</small></th><th data-hl><b>Muse Spark</b><small>padded to a square</small></th><th><b>Muse Spark Open</b><small>padded to a square</small></th></tr></thead>
+              <tbody>
+                {([['Boxes on the right line', 'right_line'], ['Box overlap of at least half', 'iou_at_0.5'], ['Line text read exactly', 'text_exact']] as const).map(([label, k]) => (
+                  <tr key={k}><td>{label}</td>{(['spark/dev', 'spark/dev-square', 'open/dev-square'] as const).map((m) => (
+                    <td key={m} data-hl={m === 'spark/dev-square' || undefined}>{n(r.localize[m], k) === null ? '–' : `${(n(r.localize[m], k)! * 100).toFixed(1).replace(/\.0$/, '')}%`}</td>))}</tr>
+                ))}
+                <tr><td>Seconds per page</td>{(['spark/dev', 'spark/dev-square', 'open/dev-square'] as const).map((m) => <td key={m} data-hl={m === 'spark/dev-square' || undefined}>{n(r.localize[m], 'seconds_per_page')}</td>)}</tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="stamp-reference">
+        <span className="micro">FOUR POSSIBLE ANSWERS</span>
+        <div>{(['supports', 'contradicts', 'review_required', 'insufficient'] as const).map((st) => <Stamp key={st} status={st} />)}</div>
+      </div>
+
       <div className="finding dont-claim">
         <div><span className="micro">WHAT WE DON’T CLAIM</span><h3>Honest about the edges.</h3>
           <p>No compliance certification: an assessment is about one batch and the records it rests on. No inference of intent: missing evidence is not proof of wrongdoing. Synthetic data only. And one tuning case where our labelling rules and the investigator disagree: we kept our rules.</p></div>

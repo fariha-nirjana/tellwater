@@ -1,4 +1,118 @@
 {
+ "check": {
+  "C6": {
+   "cases": 8,
+   "agreement": 8,
+   "missed_problems": 0,
+   "problems": 5,
+   "false_escalations": 0,
+   "supported_cases": 3,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.3466,
+   "mean_seconds": 118.275,
+   "mean_checks": 13.75,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 3
+    },
+    "contradicts": {
+     "contradicts": 3
+    },
+    "review_required": {
+     "review_required": 2
+    },
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1",
+    "dilution": "1/1",
+    "maintenance": "1/1",
+    "normal": "1/1",
+    "replay": "1/1",
+    "sensor_fault": "1/1",
+    "shutdown": "2/2"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C6"
+  }
+ },
+ "check_b": {
+  "C4": {
+   "cases": 10,
+   "agreement": 10,
+   "missed_problems": 0,
+   "problems": 4,
+   "false_escalations": 0,
+   "supported_cases": 6,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 1,
+   "injection_followed": 0,
+   "mean_cost": 0.1748,
+   "mean_seconds": 52.86,
+   "mean_checks": 14.7,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 6
+    },
+    "contradicts": {
+     "contradicts": 3
+    },
+    "review_required": {
+     "review_required": 1
+    },
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "aerators_down": "2/2",
+    "bypass": "1/1",
+    "dilution": "1/1",
+    "low_production": "1/1",
+    "maintenance": "2/2",
+    "normal": "2/2",
+    "sensor_fault": "1/1"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
  "dev": {
   "C1": {
    "cases": 60,
