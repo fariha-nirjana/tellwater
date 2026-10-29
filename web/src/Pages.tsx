@@ -5,68 +5,100 @@ import { Stamp } from './CaseFile'
 import { Garment } from './Garments'
 import { dayHm, docLabel, wall } from './evidence'
 
+type Translation = { lang: string; language: string; model: string; fields: Record<string, string>; note: string }
+
 export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string }) {
   const [p, setP] = useState<P | null>(null)
   const [docs, setDocs] = useState<Doc[]>([])
   const [open, setOpen] = useState<Doc | null>(null)
+  const [langs, setLangs] = useState<Record<string, string>>({})
+  const [lang, setLang] = useState('en')
+  const [tr, setTr] = useState<Translation | null>(null)
+  const [trState, setTrState] = useState<'' | 'loading' | string>('')
   useEffect(() => {
     api.passport(caseKey, gtin).then(setP)
     api.case(caseKey).then((c) => setDocs(c.documents))
+    api.languages().then(setLangs).catch(() => setLangs({}))
   }, [caseKey, gtin])
+  useEffect(() => {
+    if (lang === 'en') { setTr(null); setTrState(''); return }
+    setTrState('loading')
+    fetch(`/api/passport/${caseKey}/translate?lang=${lang}${gtin ? `&gtin=${gtin}` : ''}`)
+      .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.detail ?? r.status); setTr(d); setTrState('') })
+      .catch((e) => { setTr(null); setTrState((e as Error).message); setLang('en') })
+  }, [lang, caseKey, gtin])
   if (!p) return <p className="loading">Opening the passport…</p>
+  // English unless a checked machine translation is showing
+  const t = (key: string, en: string) => tr?.fields[key] ?? en
+  const ui = (key: string, en: string) => t(`ui.${key}`, en)
   // the key records: documents the investigator's own key evidence rests on, then the factory's logbook
   const records: { doc: Doc; why: string }[] = []
   for (const k of p.key_evidence) {
     const sig = k.id.match(/reading_vs_feed:(\w+)@/)?.[1]
     const doc = docs.find((d) => d.id === k.id || (sig && d.id.startsWith(`doc:photo-${sig}-`)))
-    if (doc?.image && !records.some((r) => r.doc.id === doc.id)) records.push({ doc, why: k.why })
+    if (doc?.image && !records.some((r) => r.doc.id === doc.id)) records.push({ doc, why: t(`why.${k.id}`, k.why) })
   }
   const log = docs.find((d) => d.type === 'logbook')
-  if (log?.image && !records.some((r) => r.doc.id === log.id)) records.push({ doc: log, why: 'What the factory wrote, tested against the records.' })
+  if (log?.image && !records.some((r) => r.doc.id === log.id)) records.push({ doc: log, why: tr ? '' : 'What the factory wrote, tested against the records.' })
   const factory = `Factory ${p.batch.id.split('-')[1]?.toUpperCase() ?? ''}`
+  const others = p.products.filter((x) => x.gtin !== p.product.gtin).map((x) => x.name.toLowerCase())
   return (
     <section className="passport-view">
-      <div className="passport-sheet">
-        <a className="passport-back" href={`#/case/${caseKey}`}>← Open case file</a>
+      <div className="passport-sheet" lang={tr?.lang ?? 'en'}>
+        <div className="passport-top">
+          <a className="passport-back" href={`#/case/${caseKey}`}>← {ui('open_case', 'Open case file')}</a>
+          {Object.keys(langs).length > 0 && (
+            <label className="lang-pick">
+              <span>Read in</span>
+              <select value={lang} onChange={(e) => setLang(e.target.value)} disabled={trState === 'loading'} aria-label="Passport language">
+                <option value="en">English</option>
+                {Object.entries(langs).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+              </select>
+            </label>
+          )}
+        </div>
+        {trState === 'loading' && <p className="translation-note">Muse Spark is translating the passport…</p>}
+        {trState && trState !== 'loading' && <p className="translation-note warn">{trState}</p>}
+        {tr && <p className="translation-note">{tr.note} <button className="text-btn" onClick={() => setLang('en')}>Show the English original</button></p>}
         <div className="passport-label">
           <span className="micro">TELLWATER / BATCH PASSPORT</span>
-          <h1>A label with<br /><em>a little more.</em></h1>
+          <h1>{ui('title_1', 'A label with')}<br /><em>{ui('title_2', 'a little more.')}</em></h1>
           <div className="passport-product">
             <Garment kind={p.product.kind} shade={p.batch.shade} />
             <div>
-              <span className="micro">{p.scanned ? 'YOU SCANNED' : 'MADE FROM THIS RUN'}</span>
-              <div className="passport-batch">{p.product.name}</div>
-              <p>{p.product.fabric} · {p.batch.shade} shade · {factory} (demo)</p>
+              <span className="micro">{(p.scanned ? ui('you_scanned', 'You scanned') : ui('made_from_run', 'Made from this run')).toUpperCase()}</span>
+              <div className="passport-batch">{t(`product.${p.product.name}`, p.product.name)}</div>
+              <p>{t(`fabric.${p.product.fabric}`, p.product.fabric)} · {t(`shade.${p.batch.shade}`, p.batch.shade)} {ui('shade', 'shade')} · {factory} (demo)</p>
               <p>GTIN {p.product.gtin} · Lot {p.product.lot}</p>
             </div>
           </div>
         </div>
-        <p className="passport-run">This garment was cut from fabric dyed in one run, produced {dayHm(wall(p.batch.production_start))}–{dayHm(wall(p.batch.production_end)).split(' ').at(-1)}. Wastewater is made by dye runs, not by single garments, so this passport answers for the whole run{p.products.length > 1 ? `, and for the ${p.products.filter((x) => x.gtin !== p.product.gtin).map((x) => x.name.toLowerCase()).join(' and ')} made from it too` : ''}.</p>
-        {p.status && <Stamp status={p.status} />}
+        <p className="passport-run">{tr ? ui('run', '') : <>This garment was cut from fabric dyed in one run, produced {dayHm(wall(p.batch.production_start))}–{dayHm(wall(p.batch.production_end)).split(' ').at(-1)}. Wastewater is made by dye runs, not by single garments, so this passport answers for the whole run{others.length ? `, and for the ${others.join(' and ')} made from it too` : ''}.</>}</p>
+        {p.status && <Stamp status={p.status} label={tr?.fields.status} />}
         {p.review?.action === 'change' && p.assessed_status && <p className="passport-scope">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
-        <p className="passport-scope">{p.scope_line}</p>
-        <p className="passport-summary">{p.summary}</p>
+        <p className="passport-scope">{t('scope', p.scope_line ?? '')}</p>
+        <p className="passport-summary">{t('summary', p.summary ?? '')}</p>
 
-        <h2>Key records</h2>
+        <h2>{ui('key_records', 'Key records')}</h2>
         <div className="passport-records">
           {records.slice(0, 4).map(({ doc, why }) => (
             <button key={doc.id} onClick={() => setOpen(doc)}>
               <img src={doc.image!} alt="" />
-              <span>{docLabel(doc.id)}<small>{doc.is_claim ? 'Factory claim' : 'Physical record'} ↗ · {why}</small></span>
+              <span>{tr ? `${ui(`doc_${doc.type}`, docLabel(doc.id))}${doc.type === 'meter_photo' ? ` ${docLabel(doc.id).split(' ').at(-1)}` : ''}` : docLabel(doc.id)}<small>{doc.is_claim ? ui('factory_claim', 'Factory claim') : ui('physical_record', 'Physical record')} ↗{why ? ` · ${why}` : ''}</small></span>
             </button>
           ))}
         </div>
 
-        <h2>Reviewer decision</h2>
+        <h2>{ui('reviewer_decision', 'Reviewer decision')}</h2>
         <div className="passport-decision">
-          {p.review ? <><b>{p.review.action === 'change' && p.review.status ? `Changed to ${STATUS_LABEL[p.review.status]}` : p.review.action === 'approve' ? 'Approved' : 'Sent back'} · {dayHm(wall(p.review.at))}</b><p>“{p.review.reason}”</p></>
-            : <p>Awaiting a written reviewer decision. Until then this is the investigator’s assessment, unsigned.</p>}
+          {p.review ? <><b>{p.review.action === 'change' && p.review.status ? `${ui('changed_to', 'Changed to')} ${STATUS_LABEL[p.review.status]}` : p.review.action === 'approve' ? ui('approved', 'Approved') : ui('sent_back', 'Sent back')} · {dayHm(wall(p.review.at))}</b><p>“{t('review', p.review.reason)}”</p></>
+            : <p>{ui('awaiting', 'Awaiting a written reviewer decision. Until then this is the investigator’s assessment, unsigned.')}</p>}
         </div>
-        {p.record && p.verification && <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} />}
+        {p.record && p.verification && <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} ui={ui} />}
 
-        <h2>Limitations</h2>
-        {p.limitations.slice(0, 3).map((l) => <p key={l} className="passport-limit">{l}</p>)}
-        <p className="passport-local">{p.disclosure}</p>
+        <h2>{ui('limitations', 'Limitations')}</h2>
+        {p.limitations.slice(0, 3).map((l, i) => <p key={l} className="passport-limit">{t(`limitation.${i}`, l)}</p>)}
+        <p className="passport-local">{ui('disclosure', p.disclosure)}</p>
         <div className="passport-foot">Prototype · records from the Tellwater simulator</div>
       </div>
       {open && <DocDialog doc={open} close={() => setOpen(null)} />}
@@ -90,15 +122,15 @@ function DocDialog({ doc, close }: { doc: Doc; close: () => void }) {
 const itemName = (id: string) => id.startsWith('submission:') ? `the factory’s ${id.split(':')[1]} log` : id.split('/').at(-1)!.replace(/^file:/, '')
 
 /** The signed record behind the passport, checked again every time the page opens. */
-function RecordCheck({ caseKey, rec, v }: { caseKey: CaseKey; rec: SignedRecord; v: Verification }) {
+function RecordCheck({ caseKey, rec, v, ui }: { caseKey: CaseKey; rec: SignedRecord; v: Verification; ui: (key: string, en: string) => string }) {
   const drift = [...v.changed, ...v.added, ...v.missing].map(itemName)
   const ran = rec.investigation.finished_at ? ` · ${dayHm(new Date(rec.investigation.finished_at))}` : ''
   return (
     <section className="passport-record" aria-label="Signed record">
-      <span className="micro">SIGNED RECORD · ISSUED {dayHm(new Date(rec.issued_at)).toUpperCase()}</span>
-      <p data-ok={v.signature_valid}>{v.signature_valid ? 'Signature checks out: issued here, not altered since.' : 'Signature does not match: this record was altered or not issued here.'}</p>
-      <p data-ok={v.evidence_matches}>{v.evidence_matches ? `Evidence unchanged since the review (${v.items} records).` : `Evidence has changed since the review: ${drift.join(', ')}.`}</p>
-      <p data-ok={v.investigation_matches}>{v.investigation_matches ? 'Investigation unchanged' : 'A newer investigation exists'} · {rec.investigation.model}{ran}</p>
+      <span className="micro">{ui('signed_record', 'Signed record').toUpperCase()} · {dayHm(new Date(rec.issued_at)).toUpperCase()}</span>
+      <p data-ok={v.signature_valid}>{v.signature_valid ? ui('sig_ok', 'Signature checks out: issued here, not altered since.') : 'Signature does not match: this record was altered or not issued here.'}</p>
+      <p data-ok={v.evidence_matches}>{v.evidence_matches ? `${ui('evidence_ok', 'Evidence unchanged since the review.')} (${v.items})` : `Evidence has changed since the review: ${drift.join(', ')}.`}</p>
+      <p data-ok={v.investigation_matches}>{v.investigation_matches ? ui('investigation_ok', 'Investigation unchanged') : 'A newer investigation exists'} · {rec.investigation.model}{ran}</p>
       <p className="fingerprint">Evidence fingerprint {rec.evidence.root.slice(0, 16)}… · key {rec.proof.key_id}</p>
       <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">The signed record, for any product passport to embed ↗</a>
     </section>

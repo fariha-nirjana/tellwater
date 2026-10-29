@@ -66,6 +66,7 @@ export const api = {
   trace: (k: CaseKey, which: 'saved' | 'after' = 'saved') => get<Trace>(`/api/cases/${k}/trace?which=${which}`),
   passport: (k: CaseKey, gtin?: string) => get<Passport>(`/api/passport/${k}${gtin ? `?gtin=${gtin}` : ''}`),
   catalog: () => get<CatalogBatch[]>('/api/catalog'),
+  languages: () => get<Record<string, string>>('/api/passport-languages'),
   limits: () => get<Limits>('/api/limits'),
   results: () => get<Record<string, Record<string, Record<string, unknown>>>>('/api/results'),
   submitSample: async (k: CaseKey, note: string) => {

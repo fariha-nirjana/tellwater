@@ -29,9 +29,9 @@ const NEXT: Record<string, string> = {
 const STAMP: Record<Status, [number, string]> = { supports: [0, '↗'], contradicts: [1, '!'], review_required: [2, '↻'], insufficient: [3, '?'] }
 const ROUTINE = /^Lime dosed|^চুন দেওয়া/
 
-export function Stamp({ status }: { status: Status }) {
+export function Stamp({ status, label }: { status: Status; label?: string }) {
   const [n, mark] = STAMP[status]
-  return <span className={`stamp stamp-${n}`}><span className="stamp-mark">{mark}</span><span>{STATUS_LABEL[status]}</span></span>
+  return <span className={`stamp stamp-${n}`}><span className="stamp-mark">{mark}</span><span>{label ?? STATUS_LABEL[status]}</span></span>
 }
 
 export function CaseFile({ caseKey }: { caseKey: CaseKey }) {

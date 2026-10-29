@@ -257,3 +257,11 @@ main{overflow-x:clip}
   .story-quote{margin:10px 0 40px;padding:20px}
   .story-quote p{font-size:17px}
 }
+
+/* the passport in a buyer's language */
+.passport-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lang-pick{display:flex;align-items:center;gap:7px;font-size:10px;color:#85818e}
+.lang-pick select{font:inherit;font-size:11px;padding:5px 7px;border:1px solid #c9c7d1;border-radius:4px;background:#fff;color:var(--ink)}
+.translation-note{font-size:10px;line-height:1.6;background:#eeeaff;border:1px dashed var(--purple);color:#3a36b8;padding:8px 10px;margin-top:12px;border-radius:4px}
+.translation-note.warn{background:#ffe7e1;border-color:var(--coral);color:#9c392b}
+.translation-note .text-btn{font-size:10px;color:var(--purple);padding:0;margin-left:4px}

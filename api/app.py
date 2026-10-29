@@ -30,7 +30,7 @@ from pydantic import BaseModel
 from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
-from api import limits
+from api import limits, translate
 from api.demo import CATALOG, DEMO, DEMO_ROOT
 from passport import record as passport_record
 from sim.baseline import power_model
@@ -422,6 +422,34 @@ def passport(key: str, gtin: str | None = None) -> dict:
             "limitations": final.get("limitations", []), "key_evidence": final.get("key_evidence", []),
             "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
             "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate."}
+
+
+@app.get("/api/passport/{key}/translate")
+def passport_translation(key: str, lang: str, request: Request, gtin: str | None = None) -> dict:
+    """The passport's text in a buyer's language, machine-translated by Muse Spark (api/translate.py).
+    Cached per source text; a new translation counts against the visitor's guide allowance."""
+    if lang not in translate.LANGUAGES:
+        raise HTTPException(400, f"choose one of: {', '.join(translate.LANGUAGES)}")
+    src = translate.source(passport(key, gtin))
+    path = RUNTIME / "translations" / f"{key}-{lang}-{translate.digest(src)}.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    if reason := limits.take("questions", limits.visitor(request)):
+        raise HTTPException(429, reason)
+    try:
+        fields = translate.translate(src, lang, ModelClient(ModelEndpoint.muse_spark()))
+    except ValueError as exc:
+        raise HTTPException(502, f"the translation did not keep every number and term; showing English. ({exc})")
+    out = {"lang": lang, "language": translate.LANGUAGES[lang], "model": reply_model(), "fields": fields,
+           "note": f"Machine translation by Muse Spark into {translate.LANGUAGES[lang]}. The signed record is the English original."}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    return out
+
+
+@app.get("/api/passport-languages")
+def passport_languages() -> dict:
+    return translate.LANGUAGES
 
 
 @app.get("/api/passport/{key}/record")

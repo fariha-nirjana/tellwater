@@ -42,6 +42,7 @@ design/
 data/demo/state.json
 data/demo/*/trace-live.json
 data/demo/usage.json
+data/demo/translations/
 
 # Vendored external repos (not ours)
 third_party/
