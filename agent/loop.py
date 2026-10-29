@@ -29,6 +29,7 @@ PRICES = {
     "muse-spark-1.3": (1.25, 1.25, 4.25),
     "muse-spark-1.3-contributor": (0.10, 0.10, 0.20),
     "accounts/fireworks/models/muse-spark-open": (1.25, 0.15, 4.25),
+    "muse-glimmer-30b-sampler": (1.96, 0.39, 4.88),  # Fireworks serverless sampler, per the training API pricing page
 }
 MAX_IMAGE_SIDE = 1600
 MAX_NUDGES = 3

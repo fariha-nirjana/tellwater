@@ -10,6 +10,8 @@ Conditions:
   C3  Muse Spark with the complete evidence bundle, no tools
   C4  investigator with tools, Muse Spark (Meta Model API)
   C5  investigator with tools, Muse Spark Open (Fireworks; --host baseten for Baseten)
+  C6  investigator with tools, Muse Glimmer 30B distilled from C4 traces (--checkpoint, default glimmer-v1)
+  C6b investigator with tools, base Muse Glimmer 30B (no distillation), for comparison
 
 Results go to eval/runs/<set>/<condition>/: one trace per case, plus
 summary.json. Runs already present are reused, so an interrupted run can
@@ -77,6 +79,13 @@ def run_c2(folder: Path, endpoint: ModelEndpoint) -> dict:
     return {"status": r["status"], "final": None, "detail": {"c1": c1["detail"], **r}, "extracted": extracted, "cost": cost}
 
 
+def run_agent_with(folder: Path, client) -> dict:
+    trace = investigate(load_bundle(folder), client)
+    return {"status": trace.status, "final": trace.final, "trace": json.loads(trace.to_json()),
+            "cost": trace.cost_usd, "seconds": trace.seconds, "checks": trace.checks_used, "valid": trace.valid,
+            "error": trace.error}
+
+
 def run_agent(folder: Path, endpoint: ModelEndpoint, condition: str = "C4") -> dict:
     run = bundle_pass.assess if condition == "C3" else investigate
     trace = run(load_bundle(folder), ModelClient(endpoint))
@@ -88,7 +97,8 @@ def run_agent(folder: Path, endpoint: ModelEndpoint, condition: str = "C4") -> d
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("set")
-    p.add_argument("condition", choices=["C1", "C2", "C3", "C4", "C5"])
+    p.add_argument("condition", choices=["C1", "C2", "C3", "C4", "C5", "C6", "C6b"])
+    p.add_argument("--checkpoint", default="glimmer-v1", help="C6: run ID under data/distill/")
     p.add_argument("--workers", type=int, default=6)
     p.add_argument("--limit", type=int)
     p.add_argument("--fresh", action="store_true")
@@ -112,11 +122,24 @@ def main() -> None:
             result = run_c1(folder)
         elif a.condition == "C2":
             result = run_c2(folder, endpoint)
+        elif a.condition in ("C6", "C6b"):
+            result = run_agent_with(folder, glimmer())
         else:
             result = run_agent(folder, endpoint, a.condition)
         result["case_id"] = folder.name
         path.write_text(json.dumps(result, indent=2, default=str))
         return result
+
+    _glimmer: list = []
+
+    def glimmer():  # one sampler client shared by the workers
+        if not _glimmer:
+            from agent.glimmer import GlimmerClient
+            path = None
+            if a.condition == "C6":
+                path = json.loads((ROOT / "data" / "distill" / a.checkpoint / "checkpoint.json").read_text())["sampler_path"]
+            _glimmer.append(GlimmerClient(path))
+        return _glimmer[0]
 
     results = []
     with ThreadPoolExecutor(a.workers) as pool:
