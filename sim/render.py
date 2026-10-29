@@ -20,9 +20,23 @@ FONTS = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 HANDS = ("Caveat.ttf", "Kalam-Regular.ttf", "HomemadeApple-Regular.ttf", "ReenieBeanie.ttf")
 HAND_SIZE = {"Caveat.ttf": 46, "Kalam-Regular.ttf": 34, "HomemadeApple-Regular.ttf": 28, "ReenieBeanie.ttf": 48}
 INKS = ((22, 34, 120), (18, 18, 28), (30, 52, 140))
+# Bangla pages (sim/bangla.py): handwriting-style Bengali fonts, and a printed one for the register header
+BN_HANDS = ("Atma-Medium.ttf", "Galada-Regular.ttf")
+HAND_SIZE |= {"Atma-Medium.ttf": 36, "Galada-Regular.ttf": 33}
+BN_PRINTED = "NotoSansBengali.ttf"
+EN_HEADER = {"title": "EFFLUENT TREATMENT PLANT  -  DAILY LOG BOOK", "date": "Date:", "operator": "Operator:",
+             "time": "Time", "remarks": "Remarks"}
 
 
 def _font(name: str, size: int) -> ImageFont.FreeTypeFont:
+    if name in BN_HANDS or name == BN_PRINTED:
+        # Bengali needs shaping (conjuncts, vowel signs): Pillow's Raqm layout, which loads fribidi at run time
+        from PIL import features
+
+        if not features.check("raqm"):
+            raise RuntimeError("Bangla pages need Pillow's Raqm layout: brew install fribidi, then run with "
+                               "DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib")
+        return ImageFont.truetype(str(FONTS / name), size, layout_engine=ImageFont.Layout.RAQM)
     return ImageFont.truetype(str(FONTS / name), size)
 
 
@@ -83,21 +97,30 @@ def _norm_box(pts: np.ndarray, size: tuple[int, int]) -> dict:
     }
 
 
-def render_logbook(doc: Document, rng: np.random.Generator) -> tuple[Image.Image, list[dict]]:
+def render_logbook(doc: Document, rng: np.random.Generator, hand_name: str | None = None) -> tuple[Image.Image, list[dict]]:
     w, h = 1240, 1650
     page = Image.new("RGB", (w, h), (247, 244, 233))
     draw = ImageDraw.Draw(page)
-    printed = _font("CourierPrime-Bold.ttf", 34)
-    printed_small = _font("CourierPrime-Regular.ttf", 24)
-    hand_name = str(rng.choice(HANDS))
+    bangla = doc.content.get("language") == "bn"
+    if bangla:
+        from sim.bangla import HEADER, LATE_NOTE
+
+        printed, printed_small = _font(BN_PRINTED, 34), _font(BN_PRINTED, 24)
+        header, late_note = HEADER, LATE_NOTE
+    else:
+        printed = _font("CourierPrime-Bold.ttf", 34)
+        printed_small = _font("CourierPrime-Regular.ttf", 24)
+        header, late_note = EN_HEADER, "(written {time})"
+    chosen = str(rng.choice(BN_HANDS if bangla else HANDS))
+    hand_name = hand_name or chosen
     hand = _font(hand_name, HAND_SIZE[hand_name])
     hand_small = _font(hand_name, int(HAND_SIZE[hand_name] * 0.7))
     ink = INKS[int(rng.integers(len(INKS)))]
 
     # printed register header and ruling
-    draw.text((90, 60), "EFFLUENT TREATMENT PLANT  -  DAILY LOG BOOK", fill=(40, 40, 40), font=printed)
-    draw.text((90, 118), "Date:", fill=(60, 60, 60), font=printed_small)
-    draw.text((640, 118), "Operator:", fill=(60, 60, 60), font=printed_small)
+    draw.text((90, 60), header["title"], fill=(40, 40, 40), font=printed)
+    draw.text((90, 118), header["date"], fill=(60, 60, 60), font=printed_small)
+    draw.text((640, 118), header["operator"], fill=(60, 60, 60), font=printed_small)
     draw.text((180, 102), doc.content["date"], fill=ink, font=hand)
     draw.text((780, 102), doc.content["operator"], fill=ink, font=hand)
     top, pitch = 230, 74
@@ -105,8 +128,8 @@ def render_logbook(doc: Document, rng: np.random.Generator) -> tuple[Image.Image
         y = top + k * pitch
         draw.line([(60, y), (w - 60, y)], fill=(168, 190, 222), width=2)
     draw.line([(210, 180), (210, h - 40)], fill=(214, 120, 120), width=2)
-    draw.text((90, 186), "Time", fill=(60, 60, 60), font=printed_small)
-    draw.text((240, 186), "Remarks", fill=(60, 60, 60), font=printed_small)
+    draw.text((90, 186), header["time"], fill=(60, 60, 60), font=printed_small)
+    draw.text((240, 186), header["remarks"], fill=(60, 60, 60), font=printed_small)
 
     lines = []
     row = 0
@@ -135,7 +158,7 @@ def render_logbook(doc: Document, rng: np.random.Generator) -> tuple[Image.Image
             mid = (bbox[1] + bbox[3]) // 2
             ld.line([(bbox[0] - 4, mid + 3), (bbox[2] + 4, mid - 3)], fill=line_ink, width=4)
         if entry.get("late"):
-            note = f"(written {entry['written']})"
+            note = late_note.format(time=entry["written"])
             ld.text((bbox[2] + 18, y + 14), note, fill=line_ink, font=hand_small)
         pivot = (x_time, y + HAND_SIZE[hand_name] // 2)
         layer = layer.rotate(float(rng.uniform(-0.9, 0.9)), center=pivot, resample=Image.Resampling.BICUBIC)
