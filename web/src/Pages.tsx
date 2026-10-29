@@ -165,7 +165,7 @@ export function Results() {
   return (
     <main className="results section-pad">
       <div className="section-heading">
-        <div><span className="micro">THE EVALUATION</span><h2>How well does it<br /><span className="serif">actually work?</span></h2></div>
+        <div><span className="micro">THE EVALUATION</span><h1 className="results-title">How well does it<br /><span className="serif">actually work?</span></h1></div>
         <p>Synthetic results establish prototype performance, not field reliability.<br />Development set below. The held-out test set (120 cases, two factories,<br />frozen before any test run) is pending.</p>
       </div>
       <div className="workspace">

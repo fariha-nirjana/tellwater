@@ -285,3 +285,5 @@ main{overflow-x:clip}
   .linefind h3{font-size:32px}
   .fresh-card b{font-size:36px}
 }
+.section-heading h1.results-title{font-size:58px;line-height:1.08;margin:16px 0 0;font-weight:650;letter-spacing:-.055em}
+@media(max-width:760px){.section-heading h1.results-title{font-size:43px;margin-top:12px}}
