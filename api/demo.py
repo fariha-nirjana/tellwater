@@ -29,8 +29,9 @@ def build() -> None:
     for key, (set_name, case_id) in DEMO.items():
         src = ROOT / "data" / "generated" / set_name / case_id
         dst = DEMO_ROOT / key
-        if dst.exists():
-            shutil.rmtree(dst)
+        # replace only the case copy; saved investigations (trace-after.json) stay
+        if (dst / "case").exists():
+            shutil.rmtree(dst / "case")
         shutil.copytree(src, dst / "case")
         run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
         (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
