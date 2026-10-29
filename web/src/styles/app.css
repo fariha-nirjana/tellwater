@@ -183,3 +183,18 @@ main{overflow-x:clip}
   .doc-picker button{font-size:8px}
   .workspace-top>.text-btn{display:none}
 }
+
+/* measured, not written: the records a feed cannot fake */
+.measured{padding:4px 30px 26px}
+.measured-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.measured-card{text-align:left;background:#fff;border:1px solid var(--ink);border-radius:6px;padding:16px 18px;box-shadow:4px 5px 0 #4945ff22;display:flex;flex-direction:column;gap:12px;transition:transform .2s,box-shadow .2s}
+.measured-card:hover{transform:translateY(-2px);box-shadow:5px 7px 0 #4945ff33}
+.measured-card[aria-pressed=true]{border-color:var(--purple);box-shadow:5px 6px 0 var(--purple)}
+.measured-card .micro{color:var(--purple);font-size:8px}
+.measured-figures{display:flex;gap:22px;flex-wrap:wrap}
+.measured-figures span{display:flex;flex-direction:column}
+.measured-figures b{font:700 30px/1 Manrope,var(--font);letter-spacing:-.05em}
+.measured-figures small{font-size:9px;color:#85818e;margin-top:5px}
+.measured-figures .is-low b{color:var(--coral)}
+.measured-note{font-size:12px;line-height:1.5;color:#4d4b5c}
+@media(max-width:760px){.measured{padding:4px 18px 20px}.measured-figures b{font-size:26px}}

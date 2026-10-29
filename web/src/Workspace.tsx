@@ -70,7 +70,13 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
   }, [complete, playing, final])
 
   const target: Target | null = active ? parseEvidence(active) : null
-  useEffect(() => { if (target?.doc) setDoc(target.doc) }, [target?.doc])
+  useEffect(() => {
+    if (target?.doc) return setDoc(target.doc)
+    // a photo checked against the feed: show that photo
+    const sig = active?.match(/reading_vs_feed:(\w+)@/)?.[1]
+    const photo = sig && data?.documents.find((d) => d.id.startsWith(`doc:photo-${sig}-`))
+    if (photo) setDoc(photo.id)
+  }, [target?.doc, active, data])
 
   const explanations: Explanation[] = useMemo(() => {
     if (complete && final?.explanations) return final.explanations
@@ -223,6 +229,8 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
             </div>
           </article>
         </div>
+
+        <Measured steps={steps} active={active} onPick={(id) => { setPlaying(false); setActive(id) }} />
 
         <div className="explanation">
           <div id="evidenceDock" className="evidence-friend-anchor" />
@@ -392,4 +400,50 @@ function headlineFor(active: string | null, steps: Step[]): { title: string; sub
     return { title: 'Replay check', sub, value: longest >= 60 ? `${longest} min copied` : 'No copied stretch' }
   }
   return { title: t.label, sub, value: '' }
+}
+
+/** Records a feed cannot fake: meter photos checked against the feed, and lab samples. From the investigation's own results. */
+function Measured({ steps, active, onPick }: { steps: Step[]; active: string | null; onPick: (id: string) => void }) {
+  const photos = steps.filter((s) => s.tool === 'check_reading_against_feed' && s.result?.reading_given !== undefined)
+  const labs = (steps.find((s) => s.tool === 'get_lab_results')?.result?.lab_results as Record<string, unknown>[] | undefined) ?? []
+  if (!photos.length && !labs.length) return null
+  return (
+    <div className="measured">
+      <div className="card-caption"><span>MEASURED, NOT WRITTEN / RECORDS A FEED CANNOT FAKE</span></div>
+      <div className="measured-cards">
+        {photos.map((s) => {
+          const r = s.result as Record<string, number | string | boolean>
+          const sig = String(r.signal)
+          const below = r.reading_vs_expected_band === 'below'
+          return (
+            <button key={String(r.evidence_id)} className="measured-card" aria-pressed={active === r.evidence_id} onClick={() => onPick(String(r.evidence_id))}
+>
+              <span className="micro">METER PHOTO · {sig} · {String(r.time).slice(11, 16)}</span>
+              <span className="measured-figures">
+                <span className={below ? 'is-low' : ''}><b>{String(r.reading_given)}</b><small>the meter shows</small></span>
+                <span><b>{String(r.feed_nearest)}</b><small>the digital feed says</small></span>
+                {r.expected_kw_from_inflow !== undefined && <span><b>{String(r.expected_kw_from_inflow)}</b><small>what the inflow needs</small></span>}
+              </span>
+              <span className="measured-note">{r.consistent ? 'The photo matches the feed, so the reading is real, not a meter fault.' : 'The photo disagrees with the feed: the feed is what is wrong.'}
+                {below ? ' And it sits below what the plant needs for the water coming in.' : ''}</span>
+            </button>
+          )
+        })}
+        {labs.map((l) => {
+          const over = Number(l.bod_mg_l) > Number(l.bod_limit_mg_l)
+          return (
+            <button key={String(l.evidence_id)} className="measured-card" aria-pressed={active === l.evidence_id} onClick={() => onPick(String(l.evidence_id))}>
+              <span className="micro">LAB SAMPLE · {String(l.sample_point).toUpperCase()} · {String(l.sample_time).slice(-5)}</span>
+              <span className="measured-figures">
+                <span className={over ? 'is-low' : ''}><b>{String(l.bod_mg_l)}</b><small>BOD, mg/L</small></span>
+                <span><b>{String(l.bod_limit_mg_l)}</b><small>the limit</small></span>
+                <span><b>{String(l.ph)}</b><small>pH</small></span>
+              </span>
+              <span className="measured-note">{over ? 'Above the limit: treatment was not working when this sample was taken.' : 'Within the limit when this sample was taken.'}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }

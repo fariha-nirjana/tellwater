@@ -42,11 +42,13 @@ export function parseEvidence(id: string, year = 2026): Target {
   }
   if (head.startsWith('doc:')) {
     const photo = head.match(/photo-(S\d[a-c]?)-(\d{4})-(\d{4})/)
-    if (photo) {
-      start = stamp(`${photo[2]}-${photo[3]}`, year)
+    const lab = head.match(/lab-(\d{4})-(\d{4})/)
+    if (photo || lab) {
+      // a photo or a grab sample is a moment: show where it sits on the timeline
+      start = photo ? stamp(`${photo[2]}-${photo[3]}`, year) : stamp(`${lab![1]}-${lab![2]}`, year)
       end = new Date(start.getTime() + 10 * 60_000)
     }
-    return { kind: 'doc', id, signals: photo ? [photo[1]] : [], start, end, doc: id, label: 'Document' }
+    return { kind: 'doc', id, signals: photo ? [photo[1]] : lab ? ['S4b'] : [], start, end, doc: id, label: 'Document' }
   }
   if (head.startsWith('alert:')) return { kind: 'alert', id, signals: [], start, end, label: 'Alert' }
   return { kind: 'other', id, signals: [], label: id }
