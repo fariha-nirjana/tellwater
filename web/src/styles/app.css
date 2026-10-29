@@ -214,3 +214,9 @@ main{overflow-x:clip}
 .chat .message.thinking{color:#85818e;font-style:italic}
 .chat .prompts{flex-wrap:wrap}
 .explanation>.text-btn{color:var(--purple);font-size:10px;margin-left:auto;align-self:flex-end}
+
+/* checking next: the reason shows before the result */
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);margin-right:7px;vertical-align:1px;animation:pulse 1s ease-in-out infinite}
+.thinking-line{display:block;margin-top:8px;font-size:10px;color:#6d6a9c}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}

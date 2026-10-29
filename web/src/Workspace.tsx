@@ -20,6 +20,14 @@ const TOOL: Record<string, string> = {
   check_reading_against_feed: 'Checked a photo against the feed', get_lab_results: 'Read the lab results',
   get_production: 'Read the production plan', submit_assessment: 'Gave the assessment', request_evidence: 'Asked for evidence',
 }
+// the same tools as an intention, for the moment before the result shows
+const NEXT: Record<string, string> = {
+  get_case_overview: 'Open the case', update_hypotheses: 'Update the stories', get_signal_window: 'Look at a record',
+  compute_water_balance: 'Balance the water', check_power_vs_load: 'Check power against load',
+  compare_similar_windows: 'Check for a replayed feed', read_document: 'Read a document',
+  check_reading_against_feed: 'Check a photo against the feed', get_lab_results: 'Read the lab results',
+  get_production: 'Read the production plan', submit_assessment: 'Give the assessment', request_evidence: 'Ask for evidence',
+}
 const ROUTINE = /^Lime dosed/
 
 export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; setCase: (k: CaseKey) => void; onPassport: (k: CaseKey) => void }) {
@@ -29,6 +37,8 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
   const [which, setWhich] = useState<'saved' | 'after' | 'live'>('saved')
   const [at, setAt] = useState(0)
   const [playing, setPlaying] = useState(false)
+  // each step shows its reason first and its result a beat later, whether watched back or arriving live
+  const [phase, setPhase] = useState<'reason' | 'result'>('result')
   const [active, setActive] = useState<string | null>(null)
   const [doc, setDoc] = useState('')
   const [allRecords, setAllRecords] = useState(false)
@@ -52,29 +62,37 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
     const ti = c.overview.treatment_interval
     const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${hm(d)}`
     setSeries(await api.signals(caseKey, iso(new Date(wall(ti.start).getTime() - 2 * 3600_000)), iso(wall(ti.end)), 15))
-    setData(c); setTrace(t); setWhich(w); setAt(t.steps.length - 1); setActive(null); setPlaying(false)
+    setData(c); setTrace(t); setWhich(w); setAt(t.steps.length - 1); setPhase('result'); setActive(null); setPlaying(false)
     setDoc(c.documents.find((d) => d.type === 'logbook')?.id ?? c.documents[0]?.id ?? '')
   }, [caseKey])
   useEffect(() => { abort.current?.abort(); setLive('idle'); load('saved') }, [load])
 
+  const stepCount = trace?.steps.length ?? 0
   useEffect(() => {
-    if (!playing || !trace) return
-    if (at >= trace.steps.length - 1) { setPlaying(false); return }
-    const t = setTimeout(() => setAt((a) => a + 1), 1200)
-    return () => clearTimeout(t)
-  }, [playing, at, trace])
+    if (!playing && live !== 'running') return
+    if (phase === 'reason') {
+      const t = setTimeout(() => setPhase('result'), 950)
+      return () => clearTimeout(t)
+    }
+    if (at < stepCount - 1) {
+      const t = setTimeout(() => { setAt((a) => a + 1); setPhase('reason') }, 450)
+      return () => clearTimeout(t)
+    }
+    if (live !== 'running') setPlaying(false)  // caught up with the end of the run
+  }, [playing, live, phase, at, stepCount])
 
   const steps = trace?.steps ?? []
   const step: Step | undefined = steps[at]
   const final = trace?.final
-  const complete = !!trace && at >= steps.length - 1 && !!final && live !== 'running'
+  const complete = !!trace && at >= steps.length - 1 && phase === 'result' && !!final && live !== 'running'
+  const thinking = live === 'running' && steps.length > 0 && at >= steps.length - 1 && phase === 'result'
 
   useEffect(() => {
     if (!step) return
+    if (step.tool === 'read_document' && step.args.doc_id) setDoc(step.args.doc_id as string)  // what it is about to read
     const id = step.result?.evidence_id as string | undefined
-    if (id) setActive(id)
-    if (step.tool === 'read_document' && step.args.doc_id) setDoc(step.args.doc_id as string)
-  }, [step])
+    if (id && phase === 'result') setActive(id)  // what it found, a beat later
+  }, [step, phase])
   useEffect(() => {
     if (complete && !playing && final?.key_evidence?.length) setActive((a) => a ?? final.key_evidence![0].id)
   }, [complete, playing, final])
@@ -144,13 +162,13 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
     abort.current = new AbortController()
     const before = { trace, which, at }
     setLive('running'); setLiveError(''); setWhich('live'); setPlaying(false)
-    setTrace({ ...trace, steps: [], final: null, status: null, ledger: [] }); setAt(-1); setActive(null)
+    setTrace({ ...trace, steps: [], final: null, status: null, ledger: [] }); setAt(-1); setPhase('result'); setActive(null)
     try {
       const res = await fetch(`/api/cases/${caseKey}/investigate`, { method: 'POST', signal: abort.current.signal })
       if (!res.ok) {
         // over a demo cap (or the server refused): back to the investigation that was showing, with the reason
         const detail = (await res.json().catch(() => ({}))).detail
-        setTrace(before.trace); setWhich(before.which); setAt(before.at)
+        setTrace(before.trace); setWhich(before.which); setAt(before.at); setPhase('result')
         setLive(res.status === 429 ? 'limited' : 'error'); setLiveError(detail ?? `the server answered ${res.status}`)
         return
       }
@@ -164,8 +182,9 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
         while ((i = buf.indexOf('\n\n')) >= 0) {
           const chunk = buf.slice(0, i); buf = buf.slice(i + 2)
           const kind = chunk.match(/^event: (\w+)/m)?.[1], payload = JSON.parse(chunk.match(/^data: (.*)$/m)?.[1] ?? 'null')
-          if (kind === 'step') { setTrace((t) => t && { ...t, steps: [...t.steps, payload] }); setAt((a) => a + 1) }
-          else if (kind === 'final') { setTrace(payload); setAt(payload.steps.length - 1); setLive('idle') }
+          // steps are revealed one beat at a time by the effect above; the final trace lets it play out to the end
+          if (kind === 'step') setTrace((t) => t && { ...t, steps: [...t.steps, payload] })
+          else if (kind === 'final') { setTrace(payload); setPlaying(true); setLive('idle') }
           else if (kind === 'error') { setLive('error'); setLiveError(payload.error) }
         }
       }
@@ -199,7 +218,7 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
             <h3>{meta.title}</h3>
           </div>
           <div className="title-actions">
-            <button className="button ink small" onClick={() => { setAt(0); setPlaying(true) }} disabled={live === 'running'}>
+            <button className="button ink small" onClick={() => { setAt(0); setPhase('reason'); setPlaying(true) }} disabled={live === 'running'}>
               {playing ? 'Watching…' : 'Watch the investigation'} <span>▶</span>
             </button>
             <button className="text-btn" onClick={runLive} disabled={live === 'running' || runs?.left === 0}>
@@ -258,8 +277,12 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
         <div className="explanation">
           <div id="evidenceDock" className="evidence-friend-anchor" />
           <div className="explanation-copy">
-            <span className="micro">{complete ? 'LET ME CONNECT THE DOTS' : 'WHY THIS CHECK'}</span>
+            <span className="micro">{complete ? 'LET ME CONNECT THE DOTS'
+              : !step && live === 'running' ? 'LIVE RUN · MUSE SPARK'
+              : phase === 'reason' && step ? <><i className="pulse" />NEXT · {(NEXT[step.tool] ?? step.tool).toUpperCase()}</>
+              : 'WHY THIS CHECK'}</span>
             <p aria-live="polite">{why ?? (live === 'running' ? 'Opening the case…' : '…')}</p>
+            {thinking && <small className="thinking-line"><i className="pulse" />Muse Spark is choosing the next check…</small>}
           </div>
           <button className="text-btn" onClick={() => setGuideOpen(true)}>Explain a little more ↗</button>
         </div>
@@ -288,20 +311,20 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
 
         <div className="workspace-bottom">
           <div className="progress-steps" aria-label="Investigation progress">
-            <button onClick={() => { setPlaying(false); setAt((a) => Math.max(0, a - 1)) }} disabled={at <= 0} aria-label="Previous step"><b>‹</b></button>
+            <button onClick={() => { setPlaying(false); setPhase('result'); setAt((a) => Math.max(0, a - 1)) }} disabled={at <= 0} aria-label="Previous step"><b>‹</b></button>
             <span />
             <button className="selected" onClick={() => setStepsOpen((v) => !v)}>
               <b>{Math.max(1, at + 1)}</b> {step ? TOOL[step.tool] ?? step.tool : '…'} <em className="of">of {steps.length} steps · {Math.round(trace.seconds || 0)} s</em>
             </button>
             <span />
-            <button onClick={() => { setPlaying(false); setAt((a) => Math.min(steps.length - 1, a + 1)) }} disabled={at >= steps.length - 1} aria-label="Next step"><b>›</b></button>
+            <button onClick={() => { setPlaying(false); setPhase('result'); setAt((a) => Math.min(steps.length - 1, a + 1)) }} disabled={at >= steps.length - 1} aria-label="Next step"><b>›</b></button>
           </div>
           <button className="text-btn" onClick={() => setStepsOpen((v) => !v)}>{stepsOpen ? 'Hide the steps' : 'See every step ↗'}</button>
         </div>
         {stepsOpen && (
           <ol className="step-list">
             {steps.map((s, i) => (
-              <li key={i}><button aria-current={i === at} disabled={i > at && !complete} onClick={() => { setPlaying(false); setAt(i) }}>
+              <li key={i}><button aria-current={i === at} disabled={i > at && !complete} onClick={() => { setPlaying(false); setPhase('result'); setAt(i) }}>
                 <b>{String(s.n).padStart(2, '0')}</b><span><strong>{TOOL[s.tool] ?? s.tool}</strong> {(s.args.signal as string) ?? ''}{s.why && <em>{s.why}</em>}</span>
               </button></li>
             ))}
@@ -341,7 +364,7 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
         onCite={(id) => { setPlaying(false); setActive(id); document.querySelector('.evidence-stage')?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }} />
       <Dialogs kind={dialog} close={() => setDialog(null)} caseKey={caseKey} status={status} reviews={data.review ?? []}
         limitations={final?.limitations ?? []} onReviewed={() => load(which === 'after' ? 'after' : 'saved')}
-        onSubmitted={async () => { setDialog(null); await load('after'); setAt(0); setPlaying(true) }} onPassport={() => onPassport(caseKey)} />
+        onSubmitted={async () => { setDialog(null); await load('after'); setAt(0); setPhase('reason'); setPlaying(true) }} onPassport={() => onPassport(caseKey)} />
     </section>
   )
 }
