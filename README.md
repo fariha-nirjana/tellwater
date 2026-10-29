@@ -105,10 +105,10 @@ Deploy (Modal): `cd web && npx vite build && cd .. && .venv/bin/modal deploy dep
 
 ## Credits and licences
 
-- Fonts: Courier Prime, Caveat, Kalam, Reenie Beanie, DSEG7, Atma, Galada and Noto Sans Bengali (SIL Open Font License), Homemade Apple (Apache License 2.0); licence files in [`assets/fonts/`](assets/fonts/). Manrope and DM Sans via Google Fonts (OFL).
+- Meta models: Muse Spark and Muse Spark Open (Meta Model API), Muse Glimmer.
+- Platforms: Fireworks (Muse Spark Open serving, Muse Glimmer fine-tuning and sampling), Modal (hosting the demo), Baseten (early Muse Spark Open trials).
+- Fonts bundled for the simulator's documents: Courier Prime, Caveat, Kalam, Reenie Beanie, DSEG7, Atma, Galada and Noto Sans Bengali (SIL Open Font License) and Homemade Apple (Apache License 2.0); licence files in [`assets/fonts/`](assets/fonts/).
 - Photographs in the story section: Unsplash (Unsplash License), image IDs 1770196035129-0a0affd4a519 and 1716462301593-5e075f013998; contextual only, not from any factory.
-- Plant parameters: published Bangladesh textile ETP figures, including *Water and electricity consumption patterns with effluent quality in the textile processing industry of Bangladesh*, RSC Advances, doi:10.1039/D5RA05917H; the ECR 2023 textile effluent limit for BOD.
-- Software: FastAPI, pandas, NumPy, Pillow, cryptography, the OpenAI Python client (for OpenAI-compatible endpoints), React, Vite, qrcode; Fireworks' cookbook (Apache-2.0) installed separately for Muse Glimmer training, not vendored.
-- Interface design iterations explored with AI design tools and rebuilt here on the real engine.
+- Plant parameters: *Water and electricity consumption patterns with effluent quality in the textile processing industry of Bangladesh*, RSC Advances, doi:10.1039/D5RA05917H; the ECR 2023 textile effluent limit for BOD.
 
-Made by Fariha Tasnim (Nirjana).
+Released under the [MIT License](LICENSE). Made by Fariha Tasnim (Nirjana).
