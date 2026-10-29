@@ -198,3 +198,10 @@ main{overflow-x:clip}
 .measured-figures .is-low b{color:var(--coral)}
 .measured-note{font-size:12px;line-height:1.5;color:#4d4b5c}
 @media(max-width:760px){.measured{padding:4px 18px 20px}.measured-figures b{font-size:26px}}
+
+/* thread guide */
+.chat .message .cite{display:inline-block;margin:0 3px;padding:1px 7px;font-size:10px;border:1px solid var(--purple);border-radius:10px;color:var(--purple);background:#f0f0ff;vertical-align:1px}
+.chat .message .cite:hover{background:var(--purple);color:#fff}
+.chat .message.thinking{color:#85818e;font-style:italic}
+.chat .prompts{flex-wrap:wrap}
+.explanation>.text-btn{color:var(--purple);font-size:10px;margin-left:auto;align-self:flex-end}

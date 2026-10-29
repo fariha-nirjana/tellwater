@@ -54,6 +54,7 @@ export function App() {
           {journey && <a href="#origin">Why I was born</a>}
         </nav>
         <span className="prototype"><i /> PROTOTYPE · SIMULATED RECORDS</span>
+        {journey && <button className="menu-chat" onClick={() => { document.getElementById('investigation')?.scrollIntoView({ behavior: 'smooth' }); dispatchEvent(new Event('tw:guide')) }}>Ask a thread ↗</button>}
       </header>
       <main>
         {passport ? <Passport caseKey={passport} /> : results ? <Results /> : (
@@ -65,7 +66,7 @@ export function App() {
         )}
         <Footer motion={motion} setMotion={setMotion} replay={() => { scrollTo({ top: 0 }); location.hash = '#/'; setReplay((r) => r + 1) }} />
       </main>
-      {journey && <Companion hidden={false} motion={motion} onClick={() => document.getElementById('investigation')?.scrollIntoView({ behavior: 'smooth' })} />}
+      {journey && <Companion hidden={false} motion={motion} onClick={() => { document.getElementById('investigation')?.scrollIntoView({ behavior: 'smooth' }); dispatchEvent(new Event('tw:guide')) }} />}
     </>
   )
 }

@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { api, STATUS_LABEL, type CaseFile as CF, type CaseKey, type Explanation, type Series, type Status, type Step, type Trace } from './api'
 import { Dialogs, type DialogKind } from './Dialogs'
+import { Guide } from './Guide'
 import { docLabel, parseEvidence, wall, dayHm, hm, type Target } from './evidence'
 import { ORDER, Timeline } from './Timeline'
 
@@ -35,6 +36,12 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
   const [dialog, setDialog] = useState<DialogKind>(null)
   const [live, setLive] = useState<'idle' | 'running' | 'error'>('idle')
   const [liveError, setLiveError] = useState('')
+  const [guideOpen, setGuideOpen] = useState(false)
+  useEffect(() => {
+    const open = () => setGuideOpen(true)
+    addEventListener('tw:guide', open)
+    return () => removeEventListener('tw:guide', open)
+  }, [])
   const abort = useRef<AbortController | null>(null)
 
   const load = useCallback(async (w: 'saved' | 'after') => {
@@ -238,6 +245,7 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
             <span className="micro">{complete ? 'LET ME CONNECT THE DOTS' : 'WHY THIS CHECK'}</span>
             <p aria-live="polite">{why ?? (live === 'running' ? 'Opening the case…' : '…')}</p>
           </div>
+          <button className="text-btn" onClick={() => setGuideOpen(true)}>Explain a little more ↗</button>
         </div>
 
         <div className="stories">
@@ -313,6 +321,8 @@ export function Workspace({ caseKey, setCase, onPassport }: { caseKey: CaseKey; 
         <button className="text-btn" onClick={() => onPassport(caseKey)}>View the batch passport ↗</button>
       </div>
 
+      <Guide caseKey={caseKey} focus={active} open={guideOpen} onClose={() => setGuideOpen(false)}
+        onCite={(id) => { setPlaying(false); setActive(id); document.querySelector('.evidence-stage')?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }} />
       <Dialogs kind={dialog} close={() => setDialog(null)} caseKey={caseKey} status={status} reviews={data.review ?? []}
         limitations={final?.limitations ?? []} onReviewed={() => load(which === 'after' ? 'after' : 'saved')}
         onSubmitted={async () => { setDialog(null); await load('after'); setAt(0); setPlaying(true) }} onPassport={() => onPassport(caseKey)} />
