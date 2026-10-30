@@ -94,5 +94,17 @@
   .ps-copy h2 { font-size: 40px }
 }
 .hero-object .round-seal, .hero-object .stitch-tag, .hero-object .object-label { display: none }
-.hero-object .label-note { top: 24%; right: 21% }
+.hero-object .label-note { top: 23%; right: 16% }
 .tag-stage .tag-pointer { background: #f4f1e6e6; padding: 8px 12px 6px; border-radius: 6px; z-index: 1 }
+
+/* the story's text and photos sit clear of the stitched road, so the companion only ever hops the quote */
+@media (min-width: 761px) {
+  .stop-one .story-text, .stop-three .story-text { padding-left: 16% }
+  .stop-two .photo-frame { margin-left: 14% }
+}
+@media (min-width: 761px) and (max-width: 1279px) {
+  .story-intro h2 { font-size: clamp(64px, 7.4vw, 94px) }
+  .story-stop { gap: 26% }
+  .stop-one .story-text, .stop-three .story-text { padding-left: 8% }
+  .stop-two .photo-frame { margin-left: 6% }
+}

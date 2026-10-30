@@ -105,8 +105,9 @@ export function PhoneStory() {
   if (!batch || !product) return null
   const box = (TAGS as Record<string, { x: number; y: number; w: number; h: number }>)[product.kind]
   const go = (i: number) => { setAuto(false); setStep(i) }
-  // where the tag sits on the phone's screen, in % of it: the camera zooms in around it and brings it to the middle
-  const ox = 50 + (box.x + box.w / 2 - 0.5) * WIDE, oy = (box.y + box.h / 2) * 100
+  // where the QR printed on the tag sits on the phone's screen, in % of it: the camera zooms in around it and centres it
+  // (the print starts 24% down the card and is as tall as it is wide: 72% of the card's width, the photo being 4:5)
+  const ox = 50 + (box.x + box.w / 2 - 0.5) * WIDE, oy = (box.y + box.h * 0.24 + (box.w * 0.72 * 0.8) / 2) * 100
   return (
     <section className="phone-story" ref={ref} aria-label="Scanning a garment's tag">
       <div className="ps-copy">
@@ -127,7 +128,7 @@ export function PhoneStory() {
             <div className="ps-screen ps-tag"><Garment kind={product.kind} tag qr={qr} /></div>
             <div className="ps-screen ps-camera">
               {/* the camera framed on the tag: the same photo, close in on it */}
-              <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${46 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} tag qr={qr} /></div>
+              <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${50 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} tag qr={qr} /></div>
               <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport ↗</span>
             </div>
             <div className="ps-screen ps-passport">

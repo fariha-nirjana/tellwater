@@ -190,7 +190,7 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
   )
 }
 
-const OBSTACLES = '.story-quote, .story-stop h3, .story-stop p, .story-stop .micro, .photo-frame, .connection-art, .road-finish h3, .road-finish .button, .story-intro h2, .story-intro p, .scroll-prompt'
+const OBSTACLES = '.story-quote'  // the road crosses the quote card; everything else is laid out clear of the road
 // resting in a story section, the companion acts it out: looking into the water, reading the quote,
 // asking at the missing connection, a hop at the clearer picture
 const ROAD_MOODS: [string, Mood][] = [['.stop-two', 'checking'], ['.story-quote', 'reading'], ['.stop-three', 'asking'], ['.road-finish', 'found']]
@@ -234,7 +234,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
       // the section in the middle of the screen, not where it stands (it steps off the quote to keep it readable)
       setRoadMood(m === 'road' ? [...ROAD_MOODS].reverse().find(([sel]) => { const r = rectOf(sel); return r && r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.25 })?.[1] ?? null : null)
     }
-    // never stand on the quote, a photo or a line of text: wait at its near edge, then hop to the far one
+    // never stand on the quote: wait at its near edge, then hop to the far one
     const avoid = (x: number, y: number): [number, number] => {
       const w = f.offsetWidth / 2 + 8, h = f.offsetHeight / 2 + 8
       let dir = 0
