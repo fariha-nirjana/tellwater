@@ -26,6 +26,9 @@ export function App() {
   const hash = useHash()
   const [motion, setMotion] = useState(prefersMotion)
   const [replay, setReplay] = useState(0)
+  // the companion can be switched off from the footer; the choice is remembered
+  const [companion, setCompanionState] = useState(() => { try { return localStorage.getItem('tw:companion') !== 'off' } catch { return true } })
+  const setCompanion = (on: boolean) => { setCompanionState(on); try { localStorage.setItem('tw:companion', on ? 'on' : 'off') } catch { /* private window */ } }
   const { curtain, run } = useCurtain(motion)
   const [, caseKey, bangla] = (hash.match(/^#\/case\/([ABC])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([ABC])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
@@ -70,9 +73,10 @@ export function App() {
             <Story />
           </>
         )}
-        <Footer motion={motion} setMotion={setMotion} replay={() => { location.hash = '#/'; setReplay((r) => r + 1) }} />
+        <Footer motion={motion} setMotion={setMotion} replay={() => { location.hash = '#/'; setReplay((r) => r + 1) }} companion={companion} setCompanion={setCompanion} />
       </main>
-      {(home || caseKey) && <Companion hidden={false} motion={motion} onClick={ask} />}
+      {(home || caseKey) && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
+      {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide ↗</button>}
     </>
   )
 }

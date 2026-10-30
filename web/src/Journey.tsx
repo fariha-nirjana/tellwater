@@ -160,7 +160,7 @@ export function Story() {
         </article>
         <blockquote className="story-quote">
           <p>“The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”</p>
-          <footer><b>Rajib Singha</b> · Vice President, Human Resources &amp; Administration, Pearl Global Industries Ltd<br /><small>Formerly Group General Manager, HR &amp; Compliance, Sterling Group</small></footer>
+          <footer><b>Rajib Singha</b> · Vice President, Human Resources &amp; Administration, Pearl Global Industries Ltd</footer>
         </blockquote>
         <article className="story-stop stop-three">
           <div className="connection-art" aria-hidden="true"><span className="art-label">THE CLAIM</span><span className="art-paper">“All treated.”</span>
@@ -176,7 +176,7 @@ export function Story() {
   )
 }
 
-export function Footer({ motion, setMotion, replay }: { motion: boolean; setMotion: (m: boolean) => void; replay: () => void }) {
+export function Footer({ motion, setMotion, replay, companion, setCompanion }: { motion: boolean; setMotion: (m: boolean) => void; replay: () => void; companion: boolean; setCompanion: (c: boolean) => void }) {
   return (
     <footer>
       <a className="wordmark" href="#/">〰 tellwater</a>
@@ -185,6 +185,7 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
         <span>PROTOTYPE · SIMULATED RECORDS · REAL MUSE SPARK INVESTIGATIONS</span>
         <button onClick={replay}>Replay my arrival ↻</button>
         <button aria-pressed={motion} onClick={() => setMotion(!motion)}>{motion ? 'Motion on' : 'Motion off'}</button>
+        <button aria-pressed={companion} onClick={() => setCompanion(!companion)}>{companion ? 'Companion on' : 'Companion off'}</button>
       </div>
     </footer>
   )
@@ -200,8 +201,9 @@ const rectOf = (sel: string) => document.querySelector(sel)?.getBoundingClientRe
  * The one companion, and the way into the guide. Docks in the hero,
  * then walks the stitched route through the origin story as the page scrolls.
  */
-export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion: boolean; onClick: () => void }) {
+export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean; motion: boolean; onClick: () => void; inCase: boolean }) {
   const ref = useRef<HTMLButtonElement>(null)
+  const thread = useRef<SVGPathElement>(null)  // the thread it hangs from, top of the screen to its ring
   const [cloth, setCloth] = useState<Cloth>('g1')  // acid cloth while it walks the purple story
   const [walking, setWalking] = useState(false)
   const [caseMood, setCaseMood] = useState<Mood | null>(null)
@@ -224,6 +226,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
     const setFriend = (x: number, y: number, m: string) => {
       if (m !== mode) {
         f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence'); setCloth(m === 'road' ? 'g2' : 'g1')
+        f.classList.toggle('hanging', m !== 'road'); thread.current?.parentElement?.classList.toggle('let-go', m === 'road')
         f.classList.add('traveling'); clearTimeout(travelTimer); travelTimer = window.setTimeout(() => f.classList.remove('traveling'), 650)
         mode = m
       } else if (m === 'road' && Math.abs(y - lastY) > 70) {  // cleared something on the road: hop across it
@@ -287,12 +290,24 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
       if (!frame) frame = requestAnimationFrame(() => { position(); frame = 0 })
       if (mode === 'road' && motion) { setWalking(true); clearTimeout(walkTimer); walkTimer = window.setTimeout(() => setWalking(false), 450) }
     }
+    // off the road it hangs by its mill ring from a thread down from the top of the screen; the thread follows it every frame
+    let tie = 0
+    const tieThread = () => {
+      const t = thread.current
+      if (t && mode !== 'road') {
+        const r = f.getBoundingClientRect(), side = Math.min(r.width, r.height)
+        const x = r.left + (r.width - side) / 2 + (112 / 512) * side, y = r.top + (r.height - side) / 2 + (30 / 512) * side
+        t.setAttribute('d', `M${x + 10} 0Q${x - 6} ${y * 0.55} ${x} ${y}`)
+      }
+      tie = requestAnimationFrame(tieThread)
+    }
+    tieThread()
     const onResize = () => { setupRoad(); position() }
     setupRoad(); position()
     const settle = window.setInterval(position, 500) // content above (the case file) loads after mount
     addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onResize)
-    return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onResize); clearInterval(settle); cancelAnimationFrame(frame) }
-  }, [motion])
+    return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onResize); clearInterval(settle); cancelAnimationFrame(frame); cancelAnimationFrame(tie) }
+  }, [motion, hidden])
   // until the guide has been opened once, a bubble says what the companion is for
   const [introduce, setIntroduce] = useState(() => { try { return !localStorage.getItem('tw:guide-opened') } catch { return true } })
   useEffect(() => { const t = setTimeout(() => setIntroduce(false), 10_000); return () => clearTimeout(t) }, [])  // it doesn't sit over the page for long
@@ -300,9 +315,12 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
   const mood: Mood = walking ? 'walk' : guideBusy ? 'reading' : roadMood ?? caseMood ?? 'calm'
   const open = () => { setIntroduce(false); try { localStorage.setItem('tw:guide-opened', '1') } catch { /* private window */ } onClick() }
   return (
-    <button ref={ref} className={`companion${introduce ? ' introduce' : ''}`} aria-label="Ask the guide about the evidence" onClick={open}>
-      <img src={art(cloth, mood, motion)} alt="" draggable={false} />
-      <span className="friend-tooltip">Ask me about this case. I explain the evidence.</span>
-    </button>
+    <>
+      <svg className="companion-thread" aria-hidden="true"><path ref={thread} /></svg>
+      <button ref={ref} className={`companion${introduce && inCase ? ' introduce' : ''}`} aria-label="Ask the guide about the evidence" onClick={open}>
+        <img src={art(cloth, mood, motion)} alt="" draggable={false} />
+        <span className="friend-tooltip">Ask me about this case. I explain the evidence.</span>
+      </button>
+    </>
   )
 }

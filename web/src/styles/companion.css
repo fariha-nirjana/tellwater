@@ -108,3 +108,13 @@
   .stop-one .story-text, .stop-three .story-text { padding-left: 8% }
   .stop-two .photo-frame { margin-left: 6% }
 }
+
+/* hanging by its mill ring from a thread down from the top of the screen (off the story road) */
+.companion-thread { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 8; overflow: visible; transition: opacity .35s }
+.companion-thread path { fill: none; stroke: var(--purple); stroke-width: 2; stroke-linecap: round }
+.companion-thread.let-go { opacity: 0 }
+.arriving .companion-thread { opacity: 0 }
+.companion.hanging > img { transform-origin: 22% 13%; animation: hang-sway 5s ease-in-out infinite }
+@keyframes hang-sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2.5deg) } }
+.reduced .companion.hanging > img { animation: none }
+.guide-pill { position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 9; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; padding: 11px 16px; border-radius: 999px; box-shadow: 0 6px 16px #17173530 }
