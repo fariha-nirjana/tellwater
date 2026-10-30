@@ -91,6 +91,8 @@ def test_budget_and_errors_come_back_as_results(tmp_path):
     tools.call("get_case_overview", {})  # free: every investigation starts here
     tools.call("get_lab_results", {})
     assert "budget" in tools.call("get_lab_results", {})["error"]
+    # a model once sent its explanations as a JSON string; that must come back as an error, not end the run
+    assert "list of objects" in tools.call("update_hypotheses", {"explanations": '[{"id": "a"}, {"id": "b"}]'})["error"]
     assert tools.call("request_evidence", {"items": ["T1"], "interval_start": "2026-10-13T06:00",
                                            "interval_end": "2026-10-13T12:00", "reason": "x"}) == {"recorded": True}
     assert tools.final["kind"] == "evidence_request"

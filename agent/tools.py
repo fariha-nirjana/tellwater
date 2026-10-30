@@ -363,6 +363,8 @@ class CaseTools:
                 "batches": rows}
 
     def tool_update_hypotheses(self, explanations: list[dict]) -> dict:
+        if not isinstance(explanations, list) or not all(isinstance(e, dict) for e in explanations):
+            raise ToolError("explanations must be a list of objects, not text")
         if len(explanations) < 2:
             raise ToolError("keep at least two competing explanations open until the evidence rules one out")
         self.ledger.append(explanations)
