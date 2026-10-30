@@ -257,6 +257,10 @@ Answer the reader's question about this one case using only the investigation re
 GUIDE_BANGLA = """
 - Answer in everyday Bangladeshi Bangla, whatever language the question is in. Keep English digits (0-9), and keep ETP, pH, BOD,
   units, times and the evidence IDs in square brackets exactly as they appear in the record."""
+GUIDE_BANGLISH = """
+- Answer in Banglish: Bangla written in English letters, the way people in Bangladesh type it in a chat
+  (for example "ETP ta 13:10 theke 15:40 porjonto bondho chilo"). Keep digits, ETP, pH, BOD, units, times and the
+  evidence IDs in square brackets exactly as they appear in the record."""
 
 
 def _compact(trace: dict) -> str:
@@ -276,7 +280,7 @@ class Question(BaseModel):
     question: str
     focus: str | None = None  # the evidence ID the reader has selected
     history: list[dict] = []
-    lang: str = "en"  # "bn": answer in Bangla
+    lang: str = "en"  # "bn": answer in Bangla; "banglish": Bangla in English letters
 
 
 @app.post("/api/cases/{key}/ask")
@@ -291,7 +295,8 @@ def ask(key: str, q: Question, request: Request) -> dict:
     known = {s["result"].get("evidence_id") for s in t["steps"] if isinstance(s.get("result"), dict) and s["result"].get("evidence_id")}
     known |= {k["id"] for k in (t.get("final") or {}).get("key_evidence", [])}
     known |= {d["id"] for d in load_bundle(_view_folder(key)).documents}
-    messages = [{"role": "system", "content": GUIDE + (GUIDE_BANGLA if q.lang == "bn" else "") + "\n\n" + _compact(t)}]
+    extra = {"bn": GUIDE_BANGLA, "banglish": GUIDE_BANGLISH}.get(q.lang, "")
+    messages = [{"role": "system", "content": GUIDE + extra + "\n\n" + _compact(t)}]
     for h in q.history[-6:]:
         if h.get("role") in ("user", "assistant") and isinstance(h.get("content"), str):
             messages.append({"role": h["role"], "content": h["content"][:1500]})
@@ -302,7 +307,7 @@ def ask(key: str, q: Question, request: Request) -> dict:
     unknown = [c for c in cited if c not in known]
     for c in unknown:  # a citation the record does not contain is removed, never shown as evidence
         text = text.replace(f"[{c}]", "")
-    return {"answer": text.strip(), "lang": "bn" if q.lang == "bn" else "en", "cited": [c for c in cited if c in known], "removed_citations": unknown,
+    return {"answer": text.strip(), "lang": q.lang if q.lang in ("bn", "banglish") else "en", "cited": [c for c in cited if c in known], "removed_citations": unknown,
             "model": reply_model(), "usage": reply.usage}
 
 
