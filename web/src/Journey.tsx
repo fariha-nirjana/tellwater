@@ -1,24 +1,13 @@
 // Iteration 02's journey: arrival, hero, chapter bar, the origin story with its walking route,
 // the footer, and the one companion that docks beside explanations and walks the story path.
 import { useEffect, useRef, useState } from 'react'
+import { art, MOODS, type Cloth, type Mood } from './companion'
 
 export function Symbols() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
       <defs>
         <pattern id="weave" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 1H7M1 0V7" stroke="#171735" strokeOpacity=".13" strokeWidth="1" /></pattern>
-        <symbol id="friend" viewBox="0 0 120 140">
-          <g className="limbs" fill="none" stroke="var(--limb-color,#4945ff)" strokeWidth="5" strokeLinecap="round">
-            <path d="M29 74Q6 63 12 48M91 74Q110 90 114 68" /><path className="leg-left" d="M43 110Q37 130 24 126" /><path className="leg-right" d="M77 110Q82 130 94 125" />
-          </g>
-          <path className="body" d="M31 20Q60 10 92 23L96 104Q64 119 25 103Z" fill="#e5ff52" stroke="#171735" strokeWidth="2" />
-          <path d="M31 20Q60 10 92 23L96 104Q64 119 25 103Z" fill="url(#weave)" />
-          <path d="M37 28Q63 21 84 29L87 97Q62 107 34 97Z" fill="none" stroke="#4945ff" strokeWidth="2" strokeDasharray="4 4" />
-          <path d="M53 18Q41 1 54 3Q69 4 65 17" fill="none" stroke="#4945ff" strokeWidth="3" />
-          <g className="eyes" fill="#171735"><ellipse cx="47" cy="61" rx="4" ry="6" /><ellipse cx="73" cy="59" rx="4" ry="6" /></g>
-          <path d="M51 77Q61 87 71 75" fill="none" stroke="#171735" strokeWidth="3" strokeLinecap="round" />
-          <ellipse cx="38" cy="73" rx="5" ry="3" fill="#ff705b" /><ellipse cx="82" cy="71" rx="5" ry="3" fill="#ff705b" />
-        </symbol>
         <symbol id="shirt" viewBox="0 0 440 470">
           <path d="M137 55L76 89 14 180 98 225 125 185 112 415Q218 443 331 415L318 185 345 225 427 180 367 88 304 55Q220 113 137 55Z" fill="#f9f9ed" stroke="#171735" strokeWidth="3" />
           <path d="M137 55Q160 141 220 140Q281 139 304 55M150 66Q174 127 220 126Q267 125 292 66M128 180L147 86M317 180L293 84M123 402Q220 427 321 402" fill="none" stroke="#c8c8b9" strokeWidth="2" />
@@ -35,36 +24,68 @@ export function Symbols() {
   )
 }
 
-/** The thread-and-weave arrival; two panels then leave in opposite directions. */
+// the folded gamchha the thread weaves in the arrival: a front panel woven row by row, a rolled fold, a fringe
+const X0 = 196, Y0 = 300, W = 208, H = 120, ROWS = 6, ROW = H / ROWS
+const range = (from: number, to: number, step: number) => Array.from({ length: Math.max(0, Math.ceil((to - from) / step)) }, (_, i) => from + i * step)
+const BANDS_Y = range(Y0 + 10, Y0 + H, 38), BANDS_X = range(X0 + 12, X0 + W, 38)
+const WEFT = `M${X0} ${Y0 + ROW / 2}` + range(0, ROWS - 1, 1).map((i) => `H${i % 2 ? X0 : X0 + W}V${Y0 + (i + 1.5) * ROW}`).join('') + `H${X0 + W}`
+
+function Spark({ x, y, s, delay }: { x: number; y: number; s: number; delay: number }) {
+  const k = s * 0.18
+  return <g transform={`translate(${x} ${y})`}><path className="arr-spark" style={{ animationDelay: `${delay}s` }} d={`M0 ${-s}Q${k} ${-k} ${s} 0Q${k} ${k} 0 ${s}Q${-k} ${k} ${-s} 0Q${-k} ${-k} 0 ${-s}Z`} fill="#8a87ff" /></g>
+}
+
+/**
+ * The arrival, on acid: a thread draws in and weaves the gamchha check row by row into a folded cloth,
+ * which jumps and lands as the companion; then purple sweeps over the left half and the halves part.
+ */
 export function Arrival({ motion, onDone, replay }: { motion: boolean; onDone: () => void; replay: number }) {
   const [state, setState] = useState<'on' | 'departing' | 'off'>(motion ? 'on' : 'off')
   useEffect(() => {
     if (!motion) { setState('off'); onDone(); return }
     setState('on'); document.body.classList.add('arriving')
-    const t = setTimeout(finish, 1950)
+    const t = setTimeout(finish, 4050)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replay, motion])
   function finish() {
     setState('departing'); document.body.classList.remove('arriving')
-    setTimeout(() => { setState('off'); onDone() }, 1100)
+    setTimeout(() => { setState('off'); onDone() }, 1600)
   }
   if (state === 'off') return null
   return (
     <div id="arrival" aria-hidden="true" className={state === 'departing' ? 'departing' : ''}>
       <div className="arrival-half left" /><div className="arrival-half right" />
-      <div className="arrival-center">
-        <span className="micro">A LITTLE THREAD. A BIG QUESTION.</span>
-        <svg className="assembly" viewBox="0 0 180 180">
-          <path className="loose-thread" d="M5 150C80 180 160 130 125 90S35 30 50 85S145 150 125 55S40 20 40 105L125 105L125 40L45 40" />
-          <g className="weaving" fill="none" stroke="#171735" strokeWidth="3">
-            <path d="M62 42H120M60 53H122M59 64H123M58 75H124M57 86H125M56 97H125M55 108H126M57 119H123" />
-            <path d="M65 38V120M77 36V123M89 35V125M101 36V124M113 39V122" />
+      <svg className="arrival-art" viewBox="0 40 600 520" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <mask id="arr-weave">{range(0, ROWS, 1).map((i) => <rect key={i} className={`arr-weft ${i % 2 ? 'from-r' : 'from-l'}`} style={{ animationDelay: `${1 + i * 0.12}s` }} x={X0} y={Y0 + i * ROW} width={W} height={ROW + 0.6} fill="#fff" />)}</mask>
+          <clipPath id="arr-front"><rect x={X0} y={Y0} width={W} height={H} rx="6" /></clipPath>
+        </defs>
+        <ellipse className="arr-shadow" cx="300" cy="432" rx="118" ry="9" fill="#171735" opacity=".1" />
+        <path className="arr-thread" pathLength={1} d={`M-30 200C70 130 130 280 220 196S332 104 302 186S150 262 ${X0} ${Y0 + ROW / 2}`} fill="none" stroke="#4945ff" strokeWidth="6" strokeLinecap="round" />
+        <g className="arr-folded">
+          <g className="arr-fringe">{range(Y0 + 6, Y0 + H, 9).map((y) => <path key={y} d={`M${X0 + W} ${y}h12`} stroke="#aeacff" strokeWidth="4" strokeLinecap="round" />)}</g>
+          <g clipPath="url(#arr-front)"><g mask="url(#arr-weave)">
+            <rect x={X0} y={Y0} width={W} height={H} fill="#fff" />
+            {BANDS_Y.map((y) => <rect key={`h${y}`} x={X0} y={y} width={W} height="14" fill="#aeacff" />)}
+            {BANDS_X.map((x) => <rect key={`v${x}`} x={x} y={Y0} width="14" height={H} fill="#aeacff" />)}
+            {BANDS_X.flatMap((x) => BANDS_Y.map((y) => <rect key={`c${x}-${y}`} x={x} y={y} width="14" height="14" fill="#7774ff" />))}
+            {BANDS_Y.map((y) => <path key={`lh${y}`} d={`M${X0} ${y + 26}H${X0 + W}`} stroke="#ff8a78" strokeWidth="2.5" />)}
+            {range(X0 + 12, X0 + W - 25, 38).map((x) => <path key={`lv${x}`} d={`M${x + 25} ${Y0}V${Y0 + H}`} stroke="#ff8a78" strokeWidth="2.5" />)}
+          </g></g>
+          <rect className="arr-outline" x={X0} y={Y0} width={W} height={H} rx="6" fill="none" stroke="#c9c8fb" strokeWidth="3" />
+          <path className="arr-weft-thread" pathLength={1} d={WEFT} fill="none" stroke="#4945ff" strokeWidth="3.5" strokeLinejoin="round" />
+          <g className="arr-roll">
+            <rect x={X0 - 6} y={Y0 - 16} width={W + 12} height="28" rx="14" fill="#fff" />
+            {BANDS_X.map((x) => <rect key={x} x={x} y={Y0 - 16} width="14" height="28" fill="#aeacff" />)}
+            <rect x={X0 - 6} y={Y0 - 2} width={W + 12} height="14" rx="7" fill="#7774ff" opacity=".22" />
+            <rect x={X0 - 6} y={Y0 - 16} width={W + 12} height="28" rx="14" fill="none" stroke="#c9c8fb" strokeWidth="3" />
           </g>
-          <g className="assemble-friend"><use href="#friend" x="30" y="15" width="120" height="140" /></g>
-        </svg>
-        <p>Every story starts<br />with a thread.</p>
-      </div>
+        </g>
+        <g className="arr-companion"><image href={art('g1', 'calm', true)} x="140" y="118" width="320" height="320" /></g>
+        <Spark x={140} y={210} s={18} delay={2.86} /><Spark x={468} y={168} s={14} delay={2.94} /><Spark x={122} y={300} s={11} delay={3.02} />
+        <text className="arr-line" x="300" y="500" textAnchor="middle">Every story starts with a thread.</text>
+      </svg>
       <button id="skipArrival" onClick={finish}>Skip intro ↗</button>
     </div>
   )
@@ -175,6 +196,19 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
  */
 export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion: boolean; onClick: () => void }) {
   const ref = useRef<HTMLButtonElement>(null)
+  const [cloth, setCloth] = useState<Cloth>('g1')  // acid cloth while it walks the purple story
+  const [walking, setWalking] = useState(false)
+  const [caseMood, setCaseMood] = useState<Mood | null>(null)
+  const [guideBusy, setGuideBusy] = useState(false)
+  useEffect(() => {
+    const m = (e: Event) => setCaseMood((e as CustomEvent<Mood | null>).detail)
+    const g = (e: Event) => setGuideBusy((e as CustomEvent<boolean>).detail)
+    addEventListener('tw:mood', m); addEventListener('tw:guide-busy', g)
+    return () => { removeEventListener('tw:mood', m); removeEventListener('tw:guide-busy', g) }
+  }, [])
+  useEffect(() => {  // every pose loaded up front, so a change of mood never flashes empty
+    for (const c of ['g1', 'g2'] as Cloth[]) for (const m of MOODS) new Image().src = art(c, m, motion)
+  }, [motion])
   useEffect(() => {
     const f = ref.current
     if (!f) return
@@ -182,7 +216,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
     const $ = (s: string) => document.querySelector(s) as (SVGPathElement & HTMLElement) | null
     const setFriend = (x: number, y: number, m: string) => {
       if (m !== mode) {
-        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence')
+        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence'); setCloth(m === 'road' ? 'g2' : 'g1')
         f.classList.add('traveling'); clearTimeout(travelTimer); travelTimer = window.setTimeout(() => f.classList.remove('traveling'), 650)
         mode = m
       }
@@ -226,7 +260,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(() => { position(); frame = 0 })
-      if (mode === 'road' && motion) { f.classList.add('walking'); clearTimeout(walkTimer); walkTimer = window.setTimeout(() => f.classList.remove('walking'), 140) }
+      if (mode === 'road' && motion) { setWalking(true); clearTimeout(walkTimer); walkTimer = window.setTimeout(() => setWalking(false), 450) }
     }
     const onResize = () => { setupRoad(); position() }
     setupRoad(); position()
@@ -238,10 +272,11 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
   const [introduce, setIntroduce] = useState(() => { try { return !localStorage.getItem('tw:guide-opened') } catch { return true } })
   useEffect(() => { const t = setTimeout(() => setIntroduce(false), 10_000); return () => clearTimeout(t) }, [])  // it doesn't sit over the page for long
   if (hidden) return null
+  const mood: Mood = walking ? 'walk' : guideBusy ? 'reading' : caseMood ?? 'calm'
   const open = () => { setIntroduce(false); try { localStorage.setItem('tw:guide-opened', '1') } catch { /* private window */ } onClick() }
   return (
     <button ref={ref} className={`companion${introduce ? ' introduce' : ''}`} aria-label="Ask the guide about the evidence" onClick={open}>
-      <svg viewBox="0 0 120 140"><use href="#friend" /></svg>
+      <img src={art(cloth, mood, motion)} alt="" draggable={false} />
       <span className="friend-tooltip">Ask me about this case. I explain the evidence.</span>
     </button>
   )

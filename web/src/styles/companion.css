@@ -1,0 +1,42 @@
+/* The gamchha companion (public/companion, drawn by design/mascot/moods.py) and the arrival that weaves it. */
+
+/* the companion: the art carries its own shadow and motion */
+.companion { filter: none }
+.companion > img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; user-select: none; transition: transform .2s }
+.companion:hover > img { transform: rotate(-6deg) }
+.companion.traveling > img { animation: none }
+
+/* the arrival: plays on acid; purple sweeps over the left half, then the halves part */
+#arrival .arrival-half { background: var(--acid); overflow: hidden; transition: transform 1s cubic-bezier(.76, 0, .24, 1) .5s }
+#arrival .arrival-half.left::before { content: ''; position: absolute; inset: 0; background: var(--purple); transform: scaleX(0); transform-origin: left center; transition: transform .4s cubic-bezier(.76, 0, .24, 1) }
+#arrival.departing .arrival-half.left::before { transform: scaleX(1) }
+#arrival.departing .arrival-half { box-shadow: 0 12px 40px rgba(23, 23, 53, .18) }
+#arrival .arrival-art { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .3s ease-in, transform .3s ease-in }
+#arrival.departing .arrival-art { opacity: 0; transform: scale(.96) }
+
+.arr-thread { stroke-dasharray: 1; stroke-dashoffset: 1; animation: arr-draw .95s ease-in-out .1s both, arr-fade-out .25s ease-in 2.05s both }
+.arr-weft-thread { stroke-dasharray: 1; stroke-dashoffset: 1; animation: arr-draw .75s linear 1s both, arr-fade-out .3s ease-in 1.85s both }
+@keyframes arr-draw { from { stroke-dashoffset: 1; opacity: 0 } 6% { opacity: 1 } to { stroke-dashoffset: 0; opacity: 1 } }
+@keyframes arr-fade-out { to { opacity: 0 } }
+.arr-weft { transform-box: fill-box; transform: scaleX(0); animation: arr-weft .2s ease-out both }
+.arr-weft.from-l { transform-origin: left center }
+.arr-weft.from-r { transform-origin: right center }
+@keyframes arr-weft { to { transform: scaleX(1) } }
+.arr-outline, .arr-fringe { opacity: 0; animation: arr-fade-in .3s ease-out 1.75s both }
+@keyframes arr-fade-in { to { opacity: 1 } }
+.arr-roll { transform-box: fill-box; transform-origin: center bottom; transform: scaleY(0); animation: arr-roll .35s cubic-bezier(.34, 1.56, .64, 1) 1.8s both }
+@keyframes arr-roll { to { transform: scaleY(1) } }
+.arr-folded { transform-box: view-box; transform-origin: 300px 422px; animation: arr-jump .55s ease-in-out 2.1s both }
+@keyframes arr-jump { 0% { transform: none } 45% { transform: scale(1.1, .8) } 85% { transform: translateY(-120px) scale(.9, 1.14); opacity: 1 } 100% { transform: translateY(-140px) scale(.8, 1.2); opacity: 0 } }
+.arr-companion { transform-box: view-box; transform-origin: 300px 432px; opacity: 0; animation: arr-land .7s ease-out 2.6s both }
+@keyframes arr-land { 0% { opacity: 0; transform: translateY(-150px) scale(.7, .95) } 4% { opacity: 1 } 45% { transform: translateY(0) scale(1.12, .86) } 70% { transform: scale(.96, 1.05) } 100% { opacity: 1; transform: none } }
+.arr-shadow { transform-box: fill-box; transform-origin: center; transform: scaleX(0); animation: arr-shadow-in .3s ease-out 1.8s both, arr-shadow-jump .9s ease-in-out 2.1s forwards }
+@keyframes arr-shadow-in { to { transform: scaleX(1) } }
+@keyframes arr-shadow-jump { 0% { transform: scaleX(1); opacity: .1 } 50% { transform: scaleX(.6) } 85% { transform: scaleX(1.1); opacity: .1 } 100% { transform: scaleX(1.1); opacity: 0 } }
+.arr-spark { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: arr-spark .7s cubic-bezier(.34, 1.56, .64, 1) both }
+@keyframes arr-spark { 0% { transform: scale(0) rotate(0) } 50% { transform: scale(1.15) rotate(45deg) } 70% { transform: scale(1) rotate(45deg); opacity: 1 } 100% { transform: scale(0) rotate(90deg); opacity: 0 } }
+.arr-line { font: 700 30px/1 Manrope, var(--font); letter-spacing: -.04em; fill: var(--ink); opacity: 0; animation: arr-line .5s ease-out 3.2s both }
+@keyframes arr-line { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+
+/* the gamchha has more detail than the old companion: a little larger on the story road on desktop */
+@media (min-width: 761px) { .companion.road-mode { width: 80px; height: 92px } }

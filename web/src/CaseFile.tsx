@@ -3,6 +3,7 @@
 // to the signals, the explanations board, the full investigation trail, and the human decision.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type ViewKey, type Series, type Status, type Step, type Trace } from './api'
+import { setMood, toolMood, type Mood } from './companion'
 import { Dialogs, type DialogKind } from './Dialogs'
 import { Guide } from './Guide'
 import { dayHm, docLabel, hm, parseEvidence, wall, type Target } from './evidence'
@@ -122,6 +123,26 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
     const last = steps.slice(0, at + 1).filter((s) => s.tool === 'update_hypotheses').at(-1)
     return (last?.args.explanations as Explanation[] | undefined) ?? []
   }, [complete, final, steps, at])
+
+  // the companion follows the investigation: reading or checking with each step, a hop when a step reaches
+  // a key record, then asking (a record is missing) or can't-tell (a person decides) once the case rests there
+  const watching = playing || live === 'running'
+  const keySet = useMemo(() => new Set((final?.key_evidence ?? []).map((k) => k.id)), [final])
+  const [found, setFound] = useState(false)
+  const foundTimer = useRef(0), lastFound = useRef(0)
+  useEffect(() => {
+    const id = step?.result?.evidence_id as string | undefined
+    if (!watching || phase !== 'result' || !id || !keySet.has(id)) return
+    if (Date.now() - lastFound.current < 5000) return  // key records come in runs; one hop, then back to the work
+    lastFound.current = Date.now()
+    setFound(true); clearTimeout(foundTimer.current); foundTimer.current = window.setTimeout(() => setFound(false), 1800)
+  }, [step, phase, watching, keySet])
+  useEffect(() => () => clearTimeout(foundTimer.current), [])
+  const resting = live === 'running' ? null : trace?.status
+  const mood: Mood | null = found ? 'found' : watching ? (step ? toolMood(step.tool) : 'reading')
+    : resting === 'insufficient' ? 'asking' : resting === 'review_required' ? 'cant-tell' : null
+  useEffect(() => setMood(mood), [mood])
+  useEffect(() => () => setMood(null), [])
 
   // the thread: from the line on the page to the record that tests it (one connection at a time)
   const grid = useRef<HTMLDivElement>(null)

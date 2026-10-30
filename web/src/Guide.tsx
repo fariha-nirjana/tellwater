@@ -2,6 +2,7 @@
 // Citations in an answer become chips that thread to their record.
 import { useEffect, useRef, useState } from 'react'
 import { api, type Allowance, type ViewKey } from './api'
+import { setGuideBusy } from './companion'
 import { docLabel, parseEvidence } from './evidence'
 
 type Lang = 'en' | 'bn' | 'banglish'
@@ -27,6 +28,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
   useEffect(() => { if (open) api.limits().then((l) => setLeft(l.questions)).catch(() => setLeft(null)) }, [open, msgs.length])
   useEffect(() => setMsgs([]), [caseKey])
   useEffect(() => end.current?.scrollIntoView({ block: 'nearest' }), [msgs, busy])
+  useEffect(() => setGuideBusy(busy), [busy])  // the companion reads while an answer is written
   if (!open) return null
 
   const ask = async (question: string) => {
