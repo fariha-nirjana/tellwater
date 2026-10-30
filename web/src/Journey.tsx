@@ -196,6 +196,14 @@ const OBSTACLES = '.story-quote'  // the road crosses the quote card; everything
 // asking at the missing connection, a hop at the clearer picture
 const ROAD_MOODS: [string, Mood][] = [['.stop-two', 'checking'], ['.story-quote', 'reading'], ['.stop-three', 'asking'], ['.road-finish', 'found']]
 const rectOf = (sel: string) => document.querySelector(sel)?.getBoundingClientRect()
+// whether the page behind a point is one of the purple sections (the companion and its thread don't count)
+const onPurple = (x: number, y: number, self: Element) => {
+  for (let el = document.elementsFromPoint(x, y).find((e) => !self.contains(e) && !e.closest('.companion-thread')) ?? null; el; el = el.parentElement) {
+    const bg = getComputedStyle(el).backgroundColor
+    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg === 'rgb(73, 69, 255)'
+  }
+  return false
+}
 
 /**
  * The one companion, and the way into the guide. Docks in the hero,
@@ -225,7 +233,7 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
     const $ = (s: string) => document.querySelector(s) as (SVGPathElement & HTMLElement) | null
     const setFriend = (x: number, y: number, m: string) => {
       if (m !== mode) {
-        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence'); setCloth(m === 'road' ? 'g2' : 'g1')
+        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence')
         f.classList.toggle('hanging', m !== 'road'); thread.current?.parentElement?.classList.toggle('let-go', m === 'road')
         f.classList.add('traveling'); clearTimeout(travelTimer); travelTimer = window.setTimeout(() => f.classList.remove('traveling'), 650)
         mode = m
@@ -234,6 +242,7 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
       }
       lastY = y
       f.style.left = `${x}px`; f.style.top = `${y}px`
+      setCloth(m === 'road' || onPurple(x, y, f) ? 'g2' : 'g1')  // acid cloth on purple, white cloth everywhere else
       // the section in the middle of the screen, not where it stands (it steps off the quote to keep it readable)
       setRoadMood(m === 'road' ? [...ROAD_MOODS].reverse().find(([sel]) => { const r = rectOf(sel); return r && r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.25 })?.[1] ?? null : null)
     }
@@ -287,7 +296,8 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
         // garment while that's on screen, then at a steady height, and it stops above the footer
         let y = innerHeight * 0.6
         if (hero && hero.top + hero.height / 2 > y) y = hero.top + hero.height / 2
-        if (footer && footer.top - 60 < y) y = Math.max(60, footer.top - 60)
+        if (footer && footer.top - 60 < y) y = footer.top - 60
+        y = Math.min(Math.max(y, 90), innerHeight - 70)  // always on screen, whatever the zoom or layout
         setFriend(innerWidth - Math.max(60, innerWidth * 0.05), y, 'hang')
       }
     }
@@ -301,8 +311,9 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
       const t = thread.current
       if (t && mode !== 'road') {
         const r = f.getBoundingClientRect(), side = Math.min(r.width, r.height)
-        const x = r.left + (r.width - side) / 2 + (112 / 512) * side, y = r.top + (r.height - side) / 2 + (30 / 512) * side
-        t.setAttribute('d', `M${x + 10} 0Q${x - 6} ${y * 0.55} ${x} ${y}`)
+        // the top of its mill ring (160, 115 in the 512 drawing): the thread is tied through it
+        const x = r.left + (r.width - side) / 2 + (160 / 512) * side, y = r.top + (r.height - side) / 2 + (115 / 512) * side
+        t.setAttribute('d', `M${x + 8} 0Q${x - 4} ${y * 0.55} ${x} ${y}`)
       }
       tie = requestAnimationFrame(tieThread)
     }
