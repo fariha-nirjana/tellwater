@@ -83,7 +83,7 @@ export function App() {
       </main>
       {(home || caseKey) && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
       {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide ↗</button>}
-      {!caseKey && <ChatLauncher home={home} hidden={chat} onOpen={ask} />}
+      {!caseKey && <ChatLauncher page={passport ? 'passport' : report ? 'report' : results ? 'results' : how ? 'how' : trace ? 'trace' : 'home'} hidden={chat} motion={motion} onOpen={ask} />}
       {!caseKey && <Guide key={passport ?? 'site'} caseKey={passport ?? 'B'} scope={passport ? 'passport' : 'site'} focus={null} open={chat} onClose={() => setChat(false)} onCite={cite} />}
     </>
   )

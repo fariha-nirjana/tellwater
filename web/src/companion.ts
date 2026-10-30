@@ -1,5 +1,8 @@
 // What the companion is doing, told by the page that knows: the case file (which step the investigation is on)
 // and the guide (while it writes an answer). The art lives in public/companion, drawn by design/mascot/moods.py.
+/** The companion's name, once it has one: the corner chat then reads "Ask <name>". */
+export const NAME = ''
+
 export type Mood = 'calm' | 'reading' | 'checking' | 'asking' | 'found' | 'cant-tell' | 'walk'
 export type Cloth = 'g1' | 'g2'  // white gamchha, or acid gamchha for purple sections
 

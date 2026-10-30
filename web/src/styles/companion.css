@@ -119,14 +119,16 @@
 .reduced .companion.hanging > img { animation: none }
 .guide-pill { position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 9; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; padding: 11px 16px; border-radius: 999px; box-shadow: 0 6px 16px #17173530 }
 
-/* the chat in the corner (ChatLauncher.tsx): the companion's face in a speech bubble */
-.chat-launcher { position: fixed; z-index: 20; right: max(22px, env(safe-area-inset-right, 0px)); bottom: max(22px, env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; padding: 0; animation: cl-in .5s cubic-bezier(.34, 1.56, .64, 1) both }
-.cl-face { position: relative; width: 66px; height: 66px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 4px 5px 0 #17173530; overflow: hidden; display: grid; place-items: center }
-.cl-face::after { content: ''; position: absolute; right: 4px; bottom: -1px; width: 14px; height: 14px; background: var(--paper); border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(45deg) translate(2px, 2px); display: none }
-.cl-face img { width: 118%; height: 118%; object-fit: cover; object-position: 50% 42% }
-.cl-label { background: var(--ink); color: #fff; font-size: 12px; font-weight: 650; padding: 9px 14px; border-radius: 999px 999px 4px 999px; box-shadow: 0 6px 16px #17173525 }
-.chat-launcher:hover .cl-face { transform: rotate(-6deg) }
-.cl-face { transition: transform .2s }
-@keyframes cl-in { from { opacity: 0; transform: translateY(14px) scale(.8) } to { opacity: 1; transform: none } }
+/* the chat in the corner (ChatLauncher.tsx): the whole companion in a soft tile, with a card beside it (after Bunbun's) */
+.chat-launcher { position: fixed; z-index: 20; right: max(22px, env(safe-area-inset-right, 0px)); bottom: max(22px, env(safe-area-inset-bottom, 0px)); display: flex; align-items: flex-end; gap: 10px; padding: 0; text-align: left; animation: cl-in .5s cubic-bezier(.34, 1.56, .64, 1) both }
+.cl-tile { position: relative; width: 70px; height: 70px; border-radius: 20px; background: #ecebff; border: 1px solid #d8d6fb; box-shadow: 0 8px 22px #17173526; display: grid; place-items: center; transition: transform .2s }
+.cl-tile img { width: 84%; height: 84%; object-fit: contain; margin-top: 4px }
+.cl-online { position: absolute; right: -3px; bottom: -3px; width: 14px; height: 14px; border-radius: 50%; background: #2fb36b; border: 2.5px solid #fff }
+.cl-card { display: grid; gap: 2px; background: #fff; border: 1px solid #e4e2ec; border-radius: 12px; padding: 10px 14px; margin-bottom: 6px; box-shadow: 0 8px 22px #1717351c }
+.cl-card b { font: 650 13px/1.2 Manrope, var(--font); letter-spacing: -.01em; color: var(--ink) }
+.cl-card small { font-size: 11px; color: #85818e }
+.chat-launcher:hover .cl-tile { transform: translateY(-2px) rotate(-3deg) }
+@keyframes cl-in { from { opacity: 0; transform: translateY(14px) scale(.85) } to { opacity: 1; transform: none } }
+@media (max-width: 560px) { .cl-card { display: none } }
 @media print { .chat-launcher { display: none !important } }
 body:has(.chat-launcher) footer > div { margin-right: 130px }  /* the corner chat never covers the footer's switches */
