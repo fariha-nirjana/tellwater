@@ -31,7 +31,7 @@ from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
 from api import limits, translate
-from api.demo import CARE, CATALOG, COMPOSITION, DEMO, DEMO_ROOT
+from api.demo import BANGLA, CARE, CATALOG, COMPOSITION, DEMO, DEMO_ROOT
 from core.physics import treatment_interval
 from passport import record as passport_record
 from sim.baseline import power_model
@@ -56,6 +56,13 @@ def _folder(key: str) -> Path:
     return DEMO_ROOT / key / "case"
 
 
+def _view_folder(key: str) -> Path:
+    """A case, or its Bangla-logbook view ("C-bn"): read-only, so reviews, uploads and live runs keep _folder."""
+    if key.endswith("-bn") and key[:-3] in BANGLA:
+        return DEMO_ROOT / key[:-3] / "bangla" / "case"
+    return _folder(key)
+
+
 def _state() -> dict:
     try:
         return json.loads(STATE.read_text())
@@ -71,6 +78,9 @@ def _save_state(s: dict) -> None:
 def _trace(key: str, which: str = "saved") -> dict | None:
     """A run written while the demo was live wins over the one shipped with the repo."""
     name = "trace.json" if which == "saved" else f"trace-{which}.json"
+    if key.endswith("-bn"):
+        path = _view_folder(key).parent / name
+        return json.loads(path.read_text()) if path.exists() else None
     for path in (RUNTIME / key / name, DEMO_ROOT / key / name):
         if path.exists():
             return json.loads(path.read_text())
@@ -87,7 +97,7 @@ def _basis(key: str) -> tuple[dict | None, dict | None]:
 
 def _bundle(key: str) -> Bundle:
     """The case as the investigator sees it, plus any record the factory has submitted."""
-    bundle = load_bundle(_folder(key))
+    bundle = load_bundle(_view_folder(key))
     sub = _state()["submissions"].get(key)
     if sub:
         uploaded = pd.read_json(io.StringIO(json.dumps(sub["series"])), typ="series")
@@ -104,9 +114,16 @@ def _bundle(key: str) -> Bundle:
 
 
 def _lines(folder: Path) -> dict[str, list[dict]]:
-    """Where each logbook line sits on its photo (0 to 1000 grid), for highlighting. Layout only, no labels."""
+    """Where each logbook line sits on its photo (0 to 1000 grid), for highlighting. Layout only, no labels.
+    A Bangla page's lines also carry the English each entry was written from (`en`), for the translation beside it."""
     full = json.loads((folder / "hidden" / "documents_full.json").read_text())
-    return {d["id"]: d["meta"]["lines"] for d in full if d["type"] == "logbook" and d.get("meta", {}).get("lines")}
+    out = {}
+    for d in full:
+        if d["type"] == "logbook" and d.get("meta", {}).get("lines"):
+            entries = d["content"]["entries"]
+            out[d["id"]] = [{**ln, "en": entries[ln["index"]]["source_en"]} if "source_en" in entries[ln["index"]] else ln
+                            for ln in d["meta"]["lines"]]
+    return out
 
 
 # ---- cases
@@ -128,15 +145,17 @@ def case(key: str) -> dict:
     bundle = _bundle(key)
     tools = CaseTools(bundle, power_model(bundle.factory_config))
     overview = tools.tool_get_case_overview()
-    lines = _lines(_folder(key))
+    lines = _lines(_view_folder(key))
     docs = []
     for d in bundle.documents:
         docs.append({"id": d["id"], "type": d["type"], "author": d["author"], "is_claim": d["is_claim"],
                      "covers": d["covers"], "received_at": d["received_at"],
                      "image": f"/api/cases/{key}/documents/{d['id']}/image" if d.get("image") else None,
                      "content": d.get("content"), "lines": lines.get(d["id"])})
+    base = key.removesuffix("-bn")
     return {"key": key, "overview": overview, "documents": docs, "signals": SIGNAL_INFO,
-            "submission": _state()["submissions"].get(key), "review": _state()["reviews"].get(key)}
+            "submission": _state()["submissions"].get(key), "review": _state()["reviews"].get(key),
+            "logbook_language": "bn" if key != base else "en", "bangla_view": base in BANGLA}
 
 
 @app.get("/api/cases/{key}/signals")
@@ -159,7 +178,7 @@ def signals(key: str, start: str | None = None, end: str | None = None, step: in
 
 @app.get("/api/cases/{key}/documents/{doc_id}/image")
 def document_image(key: str, doc_id: str) -> FileResponse:
-    folder = _folder(key)
+    folder = _view_folder(key)
     d = next((d for d in load_bundle(folder).documents if d["id"] == doc_id), None)
     if not d or not d.get("image"):
         raise HTTPException(404, "no image for that document")
@@ -169,7 +188,7 @@ def document_image(key: str, doc_id: str) -> FileResponse:
 @app.get("/api/cases/{key}/trace")
 def trace(key: str, which: str = "saved") -> dict:
     """The saved investigation ('saved'), or the one run after the factory's submission ('after')."""
-    _folder(key)
+    _view_folder(key)
     t = _trace(key, which)
     if t is None:
         raise HTTPException(404, "no investigation saved yet")
@@ -190,6 +209,7 @@ def limits_left(request: Request) -> dict:
 def investigate_live(key: str, request: Request) -> StreamingResponse:
     """Run Muse Spark on the case now. Streams each step as a server-sent event, then the final trace.
     Capped per visitor and per day (api/limits.py); past a cap the answer is 429 with the reason."""
+    _folder(key)  # not on the Bangla view: its saved run is the one shown
     bundle = _bundle(key)
     if not limits.start_run():
         raise HTTPException(429, "Two live investigations are already running. Try again in a minute; "
@@ -265,7 +285,7 @@ def ask(key: str, q: Question, request: Request) -> dict:
         raise HTTPException(429, reason)
     known = {s["result"].get("evidence_id") for s in t["steps"] if isinstance(s.get("result"), dict) and s["result"].get("evidence_id")}
     known |= {k["id"] for k in (t.get("final") or {}).get("key_evidence", [])}
-    known |= {d["id"] for d in load_bundle(_folder(key)).documents}
+    known |= {d["id"] for d in load_bundle(_view_folder(key)).documents}
     messages = [{"role": "system", "content": GUIDE + "\n\n" + _compact(t)}]
     for h in q.history[-6:]:
         if h.get("role") in ("user", "assistant") and isinstance(h.get("content"), str):

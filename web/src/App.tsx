@@ -7,7 +7,7 @@ import { HowItWorks } from './How'
 import { Results } from './Pages'
 import { Passport } from './Passport'
 
-// Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file),
+// Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file; #/case/C/bn with its logbook in Bangla),
 // #/passport/A, #/results
 function useHash() {
   const [hash, setHash] = useState(location.hash || '#/')
@@ -26,7 +26,7 @@ export function App() {
   const [motion, setMotion] = useState(prefersMotion)
   const [replay, setReplay] = useState(0)
   const { curtain, run } = useCurtain(motion)
-  const caseKey = hash.match(/^#\/case\/([ABC])$/)?.[1] as CaseKey | undefined
+  const [, caseKey, bangla] = (hash.match(/^#\/case\/([ABC])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([ABC])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const results = hash === '#/results'
   const how = hash === '#/how'
@@ -59,7 +59,7 @@ export function App() {
         <button className="menu-chat" onClick={ask}>Ask a thread ↗</button>
       </header>
       <main>
-        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey} caseKey={caseKey} /> : (
+        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
             <ScanLabel />

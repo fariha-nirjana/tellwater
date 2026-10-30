@@ -1,0 +1,25 @@
+{
+  "case_id": "factory-a-6e86676d",
+  "batch_id": "factory-a-6e86676d-B04",
+  "treatment_interval": [
+    "2026-10-13 10:00:00+06:00",
+    "2026-10-14 14:00:00+06:00"
+  ],
+  "underlying": "maintenance",
+  "justified": "insufficient",
+  "window": [
+    "2026-10-13 13:10:00+06:00",
+    "2026-10-13 21:40:00+06:00"
+  ],
+  "established_by": null,
+  "evidence_request": {
+    "type": "equalization tank level log",
+    "items": [
+      "T1"
+    ],
+    "interval": [
+      "2026-10-13 13:10:00+06:00",
+      "2026-10-13 21:40:00+06:00"
+    ]
+  }
+}

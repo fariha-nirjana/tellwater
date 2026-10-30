@@ -1,7 +1,7 @@
 // The thread guide: iteration 02's chat panel, answered by Muse Spark from this case's investigation only.
 // Citations in an answer become chips that thread to their record.
 import { useEffect, useRef, useState } from 'react'
-import { api, type Allowance, type CaseKey } from './api'
+import { api, type Allowance, type ViewKey } from './api'
 import { docLabel, parseEvidence } from './evidence'
 
 type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[] }
@@ -9,7 +9,7 @@ type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[] }
 const PROMPTS = ['Explain this simply', 'Why not the factory’s explanation?', 'What would change the finding?']
 
 export function Guide({ caseKey, focus, open, onClose, onCite }: {
-  caseKey: CaseKey; focus: string | null; open: boolean; onClose: () => void; onCite: (id: string) => void
+  caseKey: ViewKey; focus: string | null; open: boolean; onClose: () => void; onCite: (id: string) => void
 }) {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [input, setInput] = useState('')
@@ -41,7 +41,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
         <div><span className="micro">YOUR THREAD FRIEND</span><h3>Let’s untangle it.</h3></div>
         <button className="close" onClick={onClose} aria-label="Close thread guide">×</button>
       </div>
-      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : `Case ${caseKey}: ask about anything in this investigation.`}</p>
+      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : `Case ${caseKey.replace('-bn', ', Bangla logbook')}: ask about anything in this investigation.`}</p>
       <div className="messages" aria-live="polite">
         {msgs.length === 0 && <div className="message">Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.</div>}
         {msgs.map((m, i) => (

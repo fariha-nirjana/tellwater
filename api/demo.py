@@ -26,6 +26,9 @@ DEMO = {
     "B": ("dev", "factory-a-460f93ca"),
     "C": ("dev", "factory-a-6e86676d"),
 }
+# Cases also shown with their logbook pages in Bangla (eval.caseset's bangla set: same records, same answer),
+# with the investigation Muse Spark ran on the Bangla pages.
+BANGLA = {"C": ("bangla", "factory-a-6e86676d")}
 # What each demo batch became. A batch is one dye run: one fabric in one colour, cut into several garments,
 # all of which carry the batch's assessment. The simulated plant is a knit dyehouse, so knit fabrics only.
 # What a shopper reads on the label (demo values for cotton knits).
@@ -49,6 +52,13 @@ def build() -> None:
         run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
         (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
         print(f"{key}: {case_id} -> {run['status']}")
+    for key, (set_name, case_id) in BANGLA.items():
+        dst = DEMO_ROOT / key / "bangla"
+        shutil.rmtree(dst, ignore_errors=True)
+        shutil.copytree(ROOT / "data" / "generated" / set_name / case_id, dst / "case")
+        run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
+        (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
+        print(f"{key} (Bangla logbook): {case_id} -> {run['status']}")
     snapshot_results()
 
 

@@ -2,8 +2,10 @@
 
 export type Status = 'supports' | 'contradicts' | 'review_required' | 'insufficient'
 export type CaseKey = 'A' | 'B' | 'C'
+// a case, or its view with the logbook pages in Bangla (read-only)
+export type ViewKey = CaseKey | `${CaseKey}-bn`
 
-export type Line = { index: number; time: string; text: string; crossed_out: boolean; box: { x_min: number; y_min: number; x_max: number; y_max: number } }
+export type Line = { index: number; time: string; text: string; en?: string; crossed_out: boolean; box: { x_min: number; y_min: number; x_max: number; y_max: number } }
 export type Doc = {
   id: string; type: string; author: string; is_claim: boolean; covers: [string, string]; received_at: string
   image: string | null; content: Record<string, unknown> | null; lines: Line[] | null
@@ -19,7 +21,10 @@ export type Overview = {
 }
 export type Submission = { signal: string; file: string; note: string; at: string; covers: [string, string] }
 export type Review = { action: 'approve' | 'change' | 'return'; status: Status | null; reason: string; reviewer: string; at: string }
-export type CaseFile = { key: CaseKey; overview: Overview; documents: Doc[]; signals: SignalInfo; submission: Submission | null; review: Review[] | null }
+export type CaseFile = {
+  key: ViewKey; overview: Overview; documents: Doc[]; signals: SignalInfo; submission: Submission | null; review: Review[] | null
+  logbook_language: 'en' | 'bn'; bangla_view: boolean
+}
 
 export type Explanation = { id: string; label: string; supporting: string[]; contradicting: string[]; missing: string[]; status: 'open' | 'supported' | 'contradicted' }
 export type Step = { n: number; tool: string; args: Record<string, unknown>; why: string | null; result: Record<string, unknown>; t: number }
@@ -65,10 +70,10 @@ async function get<T>(path: string): Promise<T> {
 
 export const api = {
   cases: () => get<{ key: CaseKey; case_id: string; batch: string; status: Status; summary: string }[]>('/api/cases'),
-  case: (k: CaseKey) => get<CaseFile>(`/api/cases/${k}`),
-  signals: (k: CaseKey, start?: string, end?: string, step = 15) =>
+  case: (k: ViewKey) => get<CaseFile>(`/api/cases/${k}`),
+  signals: (k: ViewKey, start?: string, end?: string, step = 15) =>
     get<Series>(`/api/cases/${k}/signals?step=${step}${start ? `&start=${start}` : ''}${end ? `&end=${end}` : ''}`),
-  trace: (k: CaseKey, which: 'saved' | 'after' = 'saved') => get<Trace>(`/api/cases/${k}/trace?which=${which}`),
+  trace: (k: ViewKey, which: 'saved' | 'after' = 'saved') => get<Trace>(`/api/cases/${k}/trace?which=${which}`),
   passport: (k: CaseKey, gtin?: string) => get<Passport>(`/api/passport/${k}${gtin ? `?gtin=${gtin}` : ''}`),
   catalog: () => get<CatalogBatch[]>('/api/catalog'),
   languages: () => get<Record<string, string>>('/api/passport-languages'),

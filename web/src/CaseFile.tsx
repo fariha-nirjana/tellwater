@@ -2,7 +2,7 @@
 // status stamp and finding, the gap in the story (or the evidence request), documents threaded
 // to the signals, the explanations board, the full investigation trail, and the human decision.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type Series, type Status, type Step, type Trace } from './api'
+import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type ViewKey, type Series, type Status, type Step, type Trace } from './api'
 import { Dialogs, type DialogKind } from './Dialogs'
 import { Guide } from './Guide'
 import { dayHm, docLabel, hm, parseEvidence, wall, type Target } from './evidence'
@@ -34,7 +34,9 @@ export function Stamp({ status, label }: { status: Status; label?: string }) {
   return <span className={`stamp stamp-${n}`}><span className="stamp-mark">{mark}</span><span>{label ?? STATUS_LABEL[status]}</span></span>
 }
 
-export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
+export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla?: boolean }) {
+  // the Bangla view reads the same case with its logbook pages in Bangla, and the investigation run on those pages
+  const src: ViewKey = bangla ? `${caseKey}-bn` : caseKey
   const [data, setData] = useState<CF | null>(null)
   const [series, setSeries] = useState<Series | null>(null)
   const [trace, setTrace] = useState<Trace | null>(null)
@@ -63,18 +65,18 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
   const abort = useRef<AbortController | null>(null)
 
   const load = useCallback(async (w: 'saved' | 'after') => {
-    const [c, t] = await Promise.all([api.case(caseKey), api.trace(caseKey, w)])
+    const [c, t] = await Promise.all([api.case(src), api.trace(src, w)])
     const ti = c.overview.treatment_interval
     const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${hm(d)}`
-    setSeries(await api.signals(caseKey, iso(new Date(wall(ti.start).getTime() - 2 * 3600_000)), iso(wall(ti.end)), 15))
+    setSeries(await api.signals(src, iso(new Date(wall(ti.start).getTime() - 2 * 3600_000)), iso(wall(ti.end)), 15))
     setData(c); setTrace(t); setWhich(w); setAt(t.steps.length - 1); setPhase('result'); setActive(null); setPlaying(false)
     setDoc(c.documents.find((d) => d.type === 'logbook')?.id ?? c.documents[0]?.id ?? '')
-  }, [caseKey])
+  }, [src])
   // a case whose factory already answered opens on the investigation after the answer
   useEffect(() => {
     abort.current?.abort(); setLive('idle'); setData(null)
-    api.case(caseKey).then((c) => load(c.submission ? 'after' : 'saved'))
-  }, [caseKey, load])
+    api.case(src).then((c) => load(c.submission ? 'after' : 'saved'))
+  }, [src, load])
 
   const stepCount = trace?.steps.length ?? 0
   useEffect(() => {
@@ -241,6 +243,13 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
         <div className="case-switch" role="group" aria-label="Choose case">
           {CASES.map((c) => <button key={c.key} aria-pressed={c.key === caseKey} onClick={() => { location.hash = `#/case/${c.key}` }}><b>{c.key}</b><span>{c.label}</span></button>)}
         </div>
+        {data.bangla_view && (
+          <div className="logbook-language" role="group" aria-label="Language of the logbook pages">
+            <span className="micro">LOGBOOK WRITTEN IN</span>
+            <button aria-pressed={!bangla} onClick={() => { location.hash = `#/case/${caseKey}` }}>English</button>
+            <button aria-pressed={bangla} lang="bn" onClick={() => { location.hash = `#/case/${caseKey}/bn` }}>বাংলা</button>
+          </div>
+        )}
       </header>
 
       <section className="case-finding">
@@ -273,7 +282,7 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
           <span className="request-icon">?</span>
           <div><span className="micro">A GAP, NOT A VERDICT</span>
             <p>Requested: {(request.items ?? []).join(', ')}{request.interval ? `, ${spanText(request.interval)}` : ''}. Why: {request.reason}</p></div>
-          {caseKey === 'C' && which === 'saved' && <button className="button acid small" onClick={() => setDialog('factory')}>Respond as factory ↗</button>}
+          {caseKey === 'C' && !bangla && which === 'saved' && <button className="button acid small" onClick={() => setDialog('factory')}>Respond as factory ↗</button>}
         </section>
       )}
       {which === 'after' && data.submission && (
@@ -375,6 +384,7 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
             <button className="button ink small" onClick={() => { if (playing) return setPlaying(false); setAt(0); setPhase('reason'); setPlaying(true) }} disabled={live === 'running'}>
               {playing ? 'Pause replay' : 'Watch the investigation'} <span>{playing ? 'Ⅱ' : '▶'}</span>
             </button>
+            {bangla ? <small className="runs-left">The investigation Muse Spark ran on the Bangla pages. Live runs and reviews are on the English case.</small> : <>
             <button className="text-btn" onClick={runLive} disabled={live === 'running' || runs?.left === 0}>
               {live === 'running' ? 'Muse Spark is investigating…'
                 : runs && !runs.live ? 'Live runs are off in this demo'
@@ -382,6 +392,7 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
                 : 'Run it live with Muse Spark ↗'}
             </button>
             {runs?.live && runs.left > 0 && live !== 'running' && <small className="runs-left">{runs.left} of {runs.per_visitor} live runs left today</small>}
+            </>}
           </div>
         </div>
         {live === 'error' && <p className="live-error">The live run stopped: {liveError}</p>}
@@ -409,7 +420,8 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
       <section className="review-bar">
         <div><span className="micro">THE HUMAN DECISION</span>
           <p>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : 'The evidence is ready for a reviewer.'}</p></div>
-        <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>
+        {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
+          : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
       </section>
       {reviews.length > 0 && (
         <section className="audit-trail"><h3>Decision history</h3>
@@ -422,7 +434,7 @@ export function CaseFile({ caseKey }: { caseKey: CaseKey }) {
       <div className="case-footer"><span>Prototype · records from the Tellwater simulator · real Muse Spark investigations</span><a href={`#/passport/${caseKey}`}>Open batch passport ↗</a></div>
 
       {enlargedDoc?.image && <Enlarged doc={enlargedDoc} caseKey={caseKey} close={() => setEnlarged(null)} />}
-      <Guide caseKey={caseKey} focus={active} open={guideOpen} onClose={() => setGuideOpen(false)} onCite={follow} />
+      <Guide caseKey={src} focus={active} open={guideOpen} onClose={() => setGuideOpen(false)} onCite={follow} />
       <Dialogs kind={dialog} close={() => setDialog(null)} caseKey={caseKey} status={status} reviews={reviews}
         limitations={final?.limitations ?? []} onReviewed={() => load(which === 'after' ? 'after' : 'saved')}
         onSubmitted={async () => { setDialog(null); await load('after'); setAt(0); setPhase('reason'); setPlaying(true) }}
@@ -466,6 +478,26 @@ function DocView({ doc, lit, focused, onEnlarge }: { doc: CF['documents'][number
         </div>
       )}
       <div className="doc-caption"><span>{caption}</span>{doc.image && <button onClick={onEnlarge}>Enlarge ↗</button>}</div>
+      {doc.lines?.some((l) => l.en) && <Translation lines={doc.lines} lit={lit} />}
+    </div>
+  )
+}
+
+/** A Bangla page with the English each entry was written from, line by line. The investigator never sees this:
+ * it read the handwritten Bangla on the photo itself. */
+function Translation({ lines, lit }: { lines: NonNullable<CF['documents'][number]['lines']>; lit: ReturnType<typeof linesIn> }) {
+  const shown = new Set(lit.map((l) => l.index))
+  return (
+    <div className="translation">
+      <div className="translation-head"><span className="micro">ENGLISH, LINE BY LINE</span>
+        <small>The page is in Bangla. Muse Spark read the handwriting itself and was never given this English.</small></div>
+      <ol>
+        {lines.map((l) => (
+          <li key={l.index} className={`${shown.has(l.index) ? 'lit' : ''} ${l.crossed_out ? 'crossed' : ''}`}>
+            <time>{l.time}</time><span lang="bn">{l.text}</span><span>{l.en}{l.crossed_out ? ' (crossed out on the page)' : ''}</span>
+          </li>
+        ))}
+      </ol>
     </div>
   )
 }
