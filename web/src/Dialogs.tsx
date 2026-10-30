@@ -4,7 +4,7 @@ import QRCode from 'qrcode'
 import { api, STATUS_LABEL, type CaseKey, type Review, type Status } from './api'
 import { dayHm, wall } from './evidence'
 
-export type DialogKind = 'factory' | 'review' | 'limits' | 'qr' | null
+export type DialogKind = 'factory' | 'review' | 'limits' | 'qr' | 'letter' | null
 
 type Props = {
   kind: DialogKind; close: () => void; caseKey: CaseKey; status: Status | null; reviews: Review[]; limitations: string[]
@@ -25,6 +25,7 @@ export function Dialogs({ kind, close, ...p }: Props) {
       {kind === 'factory' && <Factory {...p} close={close} />}
       {kind === 'review' && <ReviewForm {...p} close={close} />}
       {kind === 'qr' && <PassportQR {...p} />}
+      {kind === 'letter' && <Letter caseKey={p.caseKey} />}
       {kind === 'limits' && (
         <div>
           <span className="micro">THE FINDING’S LIMITS</span>
@@ -55,6 +56,35 @@ function PassportQR({ caseKey }: { caseKey: CaseKey }) {
       <p>Scan to open the phone passport, or open it here.</p>
       <a className="button acid" href={`#/passport/${caseKey}`}>Open passport <span>↗</span></a>
       <p className="scope">The QR holds the product’s GS1 Digital Link. A reviewer’s decision signs the passport; until then it shows the investigator’s assessment, unsigned.</p>
+    </div>
+  )
+}
+
+type LetterDraft = { en: string; bn: string; note: string }
+
+/** The evidence request as a message to the factory: Bangla for the factory, the English beside it. */
+function Letter({ caseKey }: { caseKey: CaseKey }) {
+  const [draft, setDraft] = useState<LetterDraft | null>(null)
+  const [error, setError] = useState('')
+  useEffect(() => {
+    fetch(`/api/cases/${caseKey}/letter`, { method: 'POST' })
+      .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.detail ?? r.status); setDraft(d) })
+      .catch((e) => setError((e as Error).message))
+  }, [caseKey])
+  const copy = (text: string) => navigator.clipboard?.writeText(text).catch(() => {})
+  return (
+    <div className="letter">
+      <span className="micro">THE REQUEST, FOR THE FACTORY</span>
+      <h2>A message to send the factory.</h2>
+      {error ? <p className="form-error">{error}</p> : !draft ? <p>Muse Spark is drafting the message…</p> : (
+        <>
+          <div className="letter-pair">
+            <div lang="bn"><span className="micro" lang="en">বাংলা · FOR THE FACTORY</span><p>{draft.bn}</p><button className="text-btn" onClick={() => copy(draft.bn)}>Copy ↗</button></div>
+            <div><span className="micro">ENGLISH · FOR YOUR RECORDS</span><p>{draft.en}</p><button className="text-btn" onClick={() => copy(draft.en)}>Copy ↗</button></div>
+          </div>
+          <p className="scope">{draft.note}</p>
+        </>
+      )}
     </div>
   )
 }

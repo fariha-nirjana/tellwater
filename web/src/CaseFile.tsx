@@ -282,7 +282,10 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           <span className="request-icon">?</span>
           <div><span className="micro">A GAP, NOT A VERDICT</span>
             <p>Requested: {(request.items ?? []).join(', ')}{request.interval ? `, ${spanText(request.interval)}` : ''}. Why: {request.reason}</p></div>
-          {caseKey === 'C' && !bangla && which === 'saved' && <button className="button acid small" onClick={() => setDialog('factory')}>Respond as factory ↗</button>}
+          <div className="request-actions">
+            <button className="text-btn" onClick={() => setDialog('letter')}>Draft it for the factory <span lang="bn">(বাংলা)</span> ↗</button>
+            {caseKey === 'C' && !bangla && which === 'saved' && <button className="button acid small" onClick={() => setDialog('factory')}>Respond as factory ↗</button>}
+          </div>
         </section>
       )}
       {which === 'after' && data.submission && (
