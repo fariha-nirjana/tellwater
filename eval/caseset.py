@@ -20,6 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
+from sim.bangla import localize_logbook
 from sim.config import load_factory
 from sim.generator import generate
 from sim.oracle import label
@@ -53,6 +54,10 @@ SETS["tune_replay"] = [("factory", 30_000, 20)]
 SETS["check"] = [("factory", 40_000, 8)]
 # Fresh factory B cases for a sanity check before the frozen test (half of which is factory B). Never the test set.
 SETS["check_b"] = [("factory_b", 70_000, 10)]
+# The first 20 dev scenarios with their logbook pages in the approved Bangla (sim/bangla.py),
+# so the English C4 results on the same cases are the comparison. Never the test set.
+SETS["bangla"] = [("factory", 10_000, 20)]
+BANGLA_SETS = {"bangla"}
 
 
 def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> list[dict]:
@@ -90,6 +95,10 @@ def build(name: str) -> list[dict]:
             sc = build_scenario(spec["kind"], spec["seed"], cfg, missing=tuple(spec["missing"]),
                                 tank_level_available=spec["tank_level_available"], history_days=SCALE_HISTORY.get(name, 0))
             case = generate(sc, cfg)
+            if name in BANGLA_SETS:
+                for doc in case.documents:
+                    if doc.type == "logbook":
+                        localize_logbook(doc)
             folder = save_case(case, label(case, cfg), root, factory_name=factory)
             rows.append({"case_id": sc.id, **spec, "sha256": _hash_folder(folder)})
     return rows
