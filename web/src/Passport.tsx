@@ -89,7 +89,7 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
   const ui = (key: string, en: string) => t(`ui.${key}`, en)
   const status = (p.status ?? 'insufficient') as Status
   const shade = SHADE[p.batch.shade]?.name ?? p.batch.shade
-  const factory = p.garment.factory
+  const factory = t('factory', p.garment.factory)
   const records: { doc: Doc; why: string }[] = []
   for (const k of p.key_evidence) {
     const sig = k.id.match(/reading_vs_feed:(\w+)@/)?.[1]

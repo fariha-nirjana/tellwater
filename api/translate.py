@@ -7,7 +7,10 @@ string survives in its translation: readings, limits, times and IDs must never c
 in translation. Each translation is stored against a hash of its source, so it is
 paid for once and redone only if the passport changes.
 
-Bangla is not offered here: Bangla wording is reviewed by a person first (sim/bangla.py).
+Bangla is different: only the passport's fixed wording (labels, the four answers, garment
+facts) is shown in Bangla, from a list a person has reviewed (api/bangla_passport.json, drafted
+once by Muse Spark with `python -m api.translate bangla-draft`). Nothing is translated into
+Bangla on demand, and a case's own findings stay in English.
 """
 
 from __future__ import annotations
@@ -15,6 +18,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import sys
+from pathlib import Path
 
 LANGUAGES = {  # buyers' languages: the EU's main garment markets, and Japan
     "de": "German", "fr": "French", "es": "Spanish", "it": "Italian", "nl": "Dutch",
@@ -86,6 +91,36 @@ Return only the JSON object."""
 
 NUMBER = re.compile(r"\d+(?:\.\d+)?")
 
+BANGLA_FILE = Path(__file__).with_name("bangla_passport.json")
+BANGLA_PROMPT = """
+For Bangla: write everyday Bangladeshi Bangla a garment worker or a shopper in Dhaka would use. Keep English digits (0-9),
+and keep ETP, pH, BOD, units, GTIN, lot and other codes in English letters."""
+
+
+def fixed_strings() -> list[str]:
+    """Every English string the passport shows that is the same for any case: the only text shown in Bangla."""
+    from api.demo import CARE, CATALOG, COMPOSITION
+    names = [n for _, items in CATALOG.values() for _, n in items]
+    fabrics = [f for f, _ in CATALOG.values()]
+    out = [*STATUS.values(), *HEADLINE.values(), *WARM.values(), *UI.values(), *CARE, *COMPOSITION.values(),
+           "Bangladesh", "Factory A (demo), a knit dyehouse", *names, *fabrics, "light", "medium", "dark"]
+    return list(dict.fromkeys(out))
+
+
+def bangla() -> dict[str, str]:
+    """The reviewed English -> Bangla wording; empty until a person has approved it."""
+    try:
+        data = json.loads(BANGLA_FILE.read_text())
+    except FileNotFoundError:
+        return {}
+    return data["strings"] if data.get("approved") else {}
+
+
+def bangla_fields(src: dict[str, str]) -> dict[str, str]:
+    """The passport's fields that have reviewed Bangla wording; the rest stay English."""
+    bn = bangla()
+    return {k: bn[v] for k, v in src.items() if v in bn}
+
 
 def source(p: dict) -> dict[str, str]:
     """The passport's English text, flattened to keyed strings."""
@@ -111,7 +146,7 @@ def source(p: dict) -> dict[str, str]:
         out[f"headline.{status}"], out[f"warm.{status}"] = HEADLINE[status], WARM[status]
     g = p.get("garment") or {}
     if g:
-        out["composition"], out["origin"] = g["composition"], g["origin"]
+        out["composition"], out["origin"], out["factory"] = g["composition"], g["origin"], g["factory"]
         out |= {f"care.{i}": c for i, c in enumerate(g.get("care", []))}
     out |= {f"ui.{k}": v for k, v in UI.items()}
     return {k: v for k, v in out.items() if v}
@@ -134,7 +169,8 @@ def problems(src: dict[str, str], out: dict) -> list[str]:
 
 def translate(src: dict[str, str], lang: str, client) -> dict[str, str]:
     """Translate with Muse Spark; one retry that names what was wrong; raises if still unusable."""
-    messages = [{"role": "system", "content": PROMPT.format(language=LANGUAGES[lang])},
+    system = PROMPT.format(language=LANGUAGES.get(lang, "Bangla")) + (BANGLA_PROMPT if lang == "bn" else "")
+    messages = [{"role": "system", "content": system},
                 {"role": "user", "content": json.dumps(src, ensure_ascii=False)}]
     issues: list[str] = []
     for _ in range(2):
@@ -151,3 +187,20 @@ def translate(src: dict[str, str], lang: str, client) -> dict[str, str]:
         messages += [{"role": "assistant", "content": text},
                      {"role": "user", "content": "Fix these and return the whole JSON object again:\n- " + "\n- ".join(issues)}]
     raise ValueError("; ".join(issues))
+
+
+def draft_bangla() -> None:
+    """Muse Spark's draft of the fixed wording in Bangla, written unapproved for a person to review."""
+    from agent.models import ModelClient, ModelEndpoint
+
+    src = {str(i): text for i, text in enumerate(fixed_strings())}
+    out = translate(src, "bn", ModelClient(ModelEndpoint.muse_spark()))
+    BANGLA_FILE.write_text(json.dumps({"approved": False, "reviewed_by": None,
+                                       "note": "Drafted by Muse Spark; shown only after a person approves every line.",
+                                       "strings": {src[k]: out[k] for k in src}}, ensure_ascii=False, indent=1))
+    print(f"{len(src)} strings drafted into {BANGLA_FILE}")
+
+
+if __name__ == "__main__":
+    if sys.argv[1:] == ["bangla-draft"]:
+        draft_bangla()

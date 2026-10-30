@@ -465,9 +465,13 @@ def passport(key: str, gtin: str | None = None) -> dict:
 def passport_translation(key: str, lang: str, request: Request, gtin: str | None = None) -> dict:
     """The passport's text in a buyer's language, machine-translated by Muse Spark (api/translate.py).
     Cached per source text; a new translation counts against the visitor's guide allowance."""
+    src = translate.source(passport(key, gtin))
+    if lang == "bn" and translate.bangla():
+        return {"lang": "bn", "language": "বাংলা", "model": None, "fields": translate.bangla_fields(src),
+                "note": "Labels in Bangla, reviewed by a person. This case's own findings stay in English; "
+                        "the signed record is the English original."}
     if lang not in translate.LANGUAGES:
         raise HTTPException(400, f"choose one of: {', '.join(translate.LANGUAGES)}")
-    src = translate.source(passport(key, gtin))
     path = RUNTIME / "translations" / f"{key}-{lang}-{translate.digest(src)}.json"
     if path.exists():
         return json.loads(path.read_text())
@@ -486,7 +490,7 @@ def passport_translation(key: str, lang: str, request: Request, gtin: str | None
 
 @app.get("/api/passport-languages")
 def passport_languages() -> dict:
-    return translate.LANGUAGES
+    return {**translate.LANGUAGES, **({"bn": "বাংলা"} if translate.bangla() else {})}
 
 
 @app.get("/api/passport/{key}/record")
