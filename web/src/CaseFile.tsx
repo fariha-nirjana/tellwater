@@ -362,7 +362,6 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
       </div>
 
       <section className="case-explanation">
-        <div id="caseDock" />
         <div>
           <span className="micro">{complete ? 'LET ME CONNECT THE DOTS'
             : !step && live === 'running' ? 'LIVE RUN · MUSE SPARK'

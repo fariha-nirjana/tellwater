@@ -170,7 +170,7 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
 }
 
 /**
- * The one companion. Docks in the hero, beside the case file's explanation strip (#caseDock),
+ * The one companion, and the way into the guide. Docks in the hero,
  * then walks the stitched route through the origin story as the page scrolls.
  */
 export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion: boolean; onClick: () => void }) {
@@ -234,11 +234,15 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
     addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onResize)
     return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onResize); clearInterval(settle); cancelAnimationFrame(frame) }
   }, [motion])
+  // until the guide has been opened once, a bubble says what the companion is for
+  const [introduce, setIntroduce] = useState(() => { try { return !localStorage.getItem('tw:guide-opened') } catch { return true } })
+  useEffect(() => { const t = setTimeout(() => setIntroduce(false), 10_000); return () => clearTimeout(t) }, [])  // it doesn't sit over the page for long
   if (hidden) return null
+  const open = () => { setIntroduce(false); try { localStorage.setItem('tw:guide-opened', '1') } catch { /* private window */ } onClick() }
   return (
-    <button ref={ref} className="companion" aria-label="Your thread friend" onClick={onClick}>
+    <button ref={ref} className={`companion${introduce ? ' introduce' : ''}`} aria-label="Ask the guide about the evidence" onClick={open}>
       <svg viewBox="0 0 120 140"><use href="#friend" /></svg>
-      <span className="friend-tooltip">I’m here if you need me.</span>
+      <span className="friend-tooltip">Ask me about this case. I explain the evidence.</span>
     </button>
   )
 }

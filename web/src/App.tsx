@@ -56,7 +56,6 @@ export function App() {
           <a href="#/results" aria-current={results ? 'page' : undefined}>Results</a>
         </nav>
         <span className="prototype"><i /> Prototype · records from the Tellwater simulator</span>
-        <button className="menu-chat" onClick={ask}>Ask a thread ↗</button>
       </header>
       <main>
         {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
