@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { api, type Allowance, type ViewKey } from './api'
 import { docLabel, parseEvidence } from './evidence'
 
-type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[] }
+type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[]; lang?: 'en' | 'bn' }
 
 const PROMPTS = ['Explain this simply', 'Why not the factory’s explanation?', 'What would change the finding?']
 
@@ -14,6 +14,8 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  // Bangla answers are written live by Muse Spark; on the Bangla logbook view they are the default
+  const [lang, setLang] = useState<'en' | 'bn'>(caseKey.endsWith('-bn') ? 'bn' : 'en')
   const [left, setLeft] = useState<Allowance | null>(null)
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => { if (open) api.limits().then((l) => setLeft(l.questions)).catch(() => setLeft(null)) }, [open, msgs.length])
@@ -27,9 +29,9 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
     setMsgs((m) => [...m, { role: 'user', content: question }]); setInput(''); setBusy(true)
     try {
       const r = await fetch(`/api/cases/${caseKey}/ask`, { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ question, focus, history }) })
+        body: JSON.stringify({ question, focus, history, lang }) })
       const d = await r.json()
-      setMsgs((m) => [...m, r.ok ? { role: 'assistant', content: d.answer, cited: d.cited } : { role: 'assistant', content: `I couldn’t answer that: ${d.detail ?? r.status}` }])
+      setMsgs((m) => [...m, r.ok ? { role: 'assistant', content: d.answer, cited: d.cited, lang: d.lang } : { role: 'assistant', content: `I couldn’t answer that: ${d.detail ?? r.status}` }])
     } catch (e) {
       setMsgs((m) => [...m, { role: 'assistant', content: `I couldn’t reach the investigator: ${(e as Error).message}` }])
     } finally { setBusy(false) }
@@ -45,10 +47,18 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
       <div className="messages" aria-live="polite">
         {msgs.length === 0 && <div className="message">Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.</div>}
         {msgs.map((m, i) => (
-          <div key={i} className={`message ${m.role === 'user' ? 'user' : ''}`}>{m.role === 'assistant' ? <Answer text={m.content} onCite={onCite} /> : m.content}</div>
+          <div key={i} className={`message ${m.role === 'user' ? 'user' : ''}`} lang={m.lang}>
+            {m.role === 'assistant' ? <Answer text={m.content} onCite={onCite} /> : m.content}
+            {m.lang === 'bn' && <small className="machine-note" lang="en">Written in Bangla by Muse Spark · not checked by a person</small>}
+          </div>
         ))}
         {busy && <div className="message thinking">Reading the records…</div>}
         <div ref={end} />
+      </div>
+      <div className="answer-language" role="group" aria-label="Language of the answers">
+        <span>Answer in</span>
+        <button aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
+        <button aria-pressed={lang === 'bn'} lang="bn" onClick={() => setLang('bn')}>বাংলা</button>
       </div>
       <div className="prompts">{PROMPTS.map((p) => <button key={p} onClick={() => ask(p)} disabled={busy}>{p}</button>)}</div>
       <form onSubmit={(e) => { e.preventDefault(); ask(input) }}>
