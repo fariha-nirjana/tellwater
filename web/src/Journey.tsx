@@ -282,9 +282,14 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
         setFriend(...avoid(intro.left + (p.x / 1200) * intro.width, intro.top + (p.y / 500) * intro.height), 'road')
         $('#introProgress')!.style.strokeDashoffset = String(il - prog); $('#roadProgress')!.style.strokeDashoffset = String(roadLength)
       } else if (ev && ev.top > 60 && ev.bottom < innerHeight - 15) setFriend(ev.left + ev.width / 2, ev.top + ev.height / 2, 'evidence')
-      else if (hero && hero.top > 70 && hero.top < innerHeight - 50) setFriend(hero.left + hero.width / 2, hero.top + hero.height / 2, 'hero')
-      else if (footer && footer.top < innerHeight) setFriend(innerWidth - 65, Math.max(60, footer.top - 55), 'rest')
-      else setFriend(innerWidth - 45, innerHeight - 60, 'rest')
+      else {
+        // off the road it hangs on its thread at the right and travels down the page with you: level with the hero's
+        // garment while that's on screen, then at a steady height, and it stops above the footer
+        let y = innerHeight * 0.6
+        if (hero && hero.top + hero.height / 2 > y) y = hero.top + hero.height / 2
+        if (footer && footer.top - 60 < y) y = Math.max(60, footer.top - 60)
+        setFriend(innerWidth - Math.max(60, innerWidth * 0.05), y, 'hang')
+      }
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(() => { position(); frame = 0 })
