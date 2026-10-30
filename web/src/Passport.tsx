@@ -250,6 +250,7 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
                 <a className="button ink small" href={`#/case/${caseKey}`}>{ui('open_case', 'Open case file')} <span>↗</span></a>
                 <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} ↗</a>
                 <a className="text-btn" href="/api/passport-key" target="_blank" rel="noreferrer">{ui('public_key', 'The public key that checks it')} ↗</a>
+                <a className="text-btn" href={`#/report/${caseKey}`}>Audit report (print or PDF) ↗</a>
               </div>
             </div>
           )}

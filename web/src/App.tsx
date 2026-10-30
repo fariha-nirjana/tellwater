@@ -6,9 +6,10 @@ import { HowTeaser, ScanLabel } from './Home'
 import { HowItWorks } from './How'
 import { Results } from './Pages'
 import { Passport } from './Passport'
+import { Report } from './Report'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file; #/case/C/bn with its logbook in Bangla),
-// #/passport/A, #/results
+// #/passport/A, #/report/A (the audit report), #/results
 function useHash() {
   const [hash, setHash] = useState(location.hash || '#/')
   useEffect(() => {
@@ -28,9 +29,10 @@ export function App() {
   const { curtain, run } = useCurtain(motion)
   const [, caseKey, bangla] = (hash.match(/^#\/case\/([ABC])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([ABC])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
+  const report = hash.match(/^#\/report\/([ABC])$/)?.[1] as CaseKey | undefined
   const results = hash === '#/results'
   const how = hash === '#/how'
-  const home = !caseKey && !passport && !results && !how
+  const home = !caseKey && !passport && !report && !results && !how
   const [arrived] = useState(home && hash !== '#/story') // only a first visit to the garment plays the arrival
 
   useEffect(() => { document.body.classList.toggle('reduced', !motion) }, [motion])
@@ -58,7 +60,7 @@ export function App() {
         <span className="prototype"><i /> Prototype · records from the Tellwater simulator</span>
       </header>
       <main>
-        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
+        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
             <ScanLabel />

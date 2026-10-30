@@ -11,7 +11,7 @@ import { ORDER, Timeline } from './Timeline'
 const CASES: { key: CaseKey; label: string }[] = [
   { key: 'A', label: 'Maintenance' }, { key: 'B', label: 'Contradiction' }, { key: 'C', label: 'Missing record' },
 ]
-const TOOL: Record<string, string> = {
+export const TOOL: Record<string, string> = {
   get_case_overview: 'Opened the case', update_hypotheses: 'Updated the stories', get_signal_window: 'Looked at a record',
   compute_water_balance: 'Balanced the water', check_power_vs_load: 'Checked power against load',
   compare_similar_windows: 'Checked for a replayed feed', read_document: 'Read a document',
@@ -419,6 +419,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
       <section className="review-bar">
         <div><span className="micro">THE HUMAN DECISION</span>
           <p>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : 'The evidence is ready for a reviewer.'}</p></div>
+        {!bangla && <a className="text-btn" href={`#/report/${caseKey}`}>Audit report ↗</a>}
         {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
           : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
       </section>
