@@ -118,3 +118,15 @@
 @keyframes hang-sway { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(2.5deg) } }
 .reduced .companion.hanging > img { animation: none }
 .guide-pill { position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 9; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; padding: 11px 16px; border-radius: 999px; box-shadow: 0 6px 16px #17173530 }
+
+/* the chat in the corner (ChatLauncher.tsx): the companion's face in a speech bubble */
+.chat-launcher { position: fixed; z-index: 20; right: max(22px, env(safe-area-inset-right, 0px)); bottom: max(22px, env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; padding: 0; animation: cl-in .5s cubic-bezier(.34, 1.56, .64, 1) both }
+.cl-face { position: relative; width: 66px; height: 66px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 4px 5px 0 #17173530; overflow: hidden; display: grid; place-items: center }
+.cl-face::after { content: ''; position: absolute; right: 4px; bottom: -1px; width: 14px; height: 14px; background: var(--paper); border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(45deg) translate(2px, 2px); display: none }
+.cl-face img { width: 118%; height: 118%; object-fit: cover; object-position: 50% 42% }
+.cl-label { background: var(--ink); color: #fff; font-size: 12px; font-weight: 650; padding: 9px 14px; border-radius: 999px 999px 4px 999px; box-shadow: 0 6px 16px #17173525 }
+.chat-launcher:hover .cl-face { transform: rotate(-6deg) }
+.cl-face { transition: transform .2s }
+@keyframes cl-in { from { opacity: 0; transform: translateY(14px) scale(.8) } to { opacity: 1; transform: none } }
+@media print { .chat-launcher { display: none !important } }
+body:has(.chat-launcher) footer > div { margin-right: 130px }  /* the corner chat never covers the footer's switches */

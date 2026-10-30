@@ -1,4 +1,5 @@
-// The thread guide: iteration 02's chat panel, answered by Muse Spark from this case's investigation only.
+// The thread guide: iteration 02's chat panel, answered by Muse Spark. In a case file and on a batch passport it answers from
+// that case's investigation only; elsewhere on the site from a short brief, the three cases' findings and the measured results.
 // Citations in an answer become chips that thread to their record.
 import { useEffect, useRef, useState } from 'react'
 import { api, type Allowance, type ViewKey } from './api'
@@ -13,10 +14,20 @@ const BANGLA_SCRIPT = /[\u0980-\u09FF]/
 const BANGLISH = /\b(ki|keno|kno|kivabe|kothay|ache|achhe|chilo|silo|hoyeche|hoise|hoyni|bondho|bondo|pani|kintu|eta|ota|oita|amake|bolo|bolen|bujhi|bujhlam|kemon|kokhon|kotokkhon|thik|naki|tahole)\b/i
 const langOf = (q: string, chosen: Lang): Lang => BANGLA_SCRIPT.test(q) ? 'bn' : chosen === 'en' && BANGLISH.test(q) ? 'banglish' : chosen
 
-const PROMPTS = ['Explain this simply', 'Why not the factory’s explanation?', 'What would change the finding?']
+export type GuideScope = 'case' | 'passport' | 'site'
+const PROMPTS: Record<GuideScope, string[]> = {
+  case: ['Explain this simply', 'Why not the factory’s explanation?', 'What would change the finding?'],
+  passport: ['What does this mean for my shirt?', 'Who checked this?', 'Can I trust it?'],
+  site: ['What does Tellwater do?', 'How is the water checked?', 'How accurate is it?'],
+}
+const INTRO: Record<GuideScope, string> = {
+  case: 'Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.',
+  passport: 'Ask me about the water behind this garment. I answer from the investigation of the dye run it was cut from.',
+  site: 'Ask me about Tellwater: what it checks, how it works, the three cases or the results.',
+}
 
-export function Guide({ caseKey, focus, open, onClose, onCite }: {
-  caseKey: ViewKey; focus: string | null; open: boolean; onClose: () => void; onCite: (id: string) => void
+export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case' }: {
+  caseKey: ViewKey; focus: string | null; open: boolean; onClose: () => void; onCite: (id: string) => void; scope?: GuideScope
 }) {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [input, setInput] = useState('')
@@ -36,8 +47,8 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
     const history = msgs.map(({ role, content }) => ({ role, content }))
     setMsgs((m) => [...m, { role: 'user', content: question }]); setInput(''); setBusy(true)
     try {
-      const r = await fetch(`/api/cases/${caseKey}/ask`, { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ question, focus, history, lang: langOf(question, lang) }) })
+      const r = await fetch(scope === 'site' ? '/api/ask' : `/api/cases/${caseKey}/ask`, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ question, focus, history, lang: langOf(question, lang), reader: scope === 'passport' ? 'shopper' : 'reviewer' }) })
       const d = await r.json()
       setMsgs((m) => [...m, r.ok ? { role: 'assistant', content: d.answer, cited: d.cited, lang: d.lang } : { role: 'assistant', content: `I couldn’t answer that: ${d.detail ?? r.status}` }])
     } catch (e) {
@@ -51,9 +62,10 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
         <div><span className="micro">YOUR THREAD FRIEND</span><h3>Let’s untangle it.</h3></div>
         <button className="close" onClick={onClose} aria-label="Close thread guide">×</button>
       </div>
-      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : `Case ${caseKey.replace('-bn', ', Bangla logbook')}: ask about anything in this investigation.`}</p>
+      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : scope === 'site' ? 'Tellwater: how it works, the three cases and the results.'
+        : scope === 'passport' ? `This garment’s dye run (case ${caseKey}): ask about its water.` : `Case ${caseKey.replace('-bn', ', Bangla logbook')}: ask about anything in this investigation.`}</p>
       <div className="messages" aria-live="polite">
-        {msgs.length === 0 && <div className="message">Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.</div>}
+        {msgs.length === 0 && <div className="message">{INTRO[scope]}</div>}
         {msgs.map((m, i) => (
           <div key={i} className={`message ${m.role === 'user' ? 'user' : ''}`} lang={m.lang === 'banglish' ? 'bn-Latn' : m.lang}>
             {m.role === 'assistant' ? <Answer text={m.content} onCite={onCite} /> : m.content}
@@ -69,12 +81,12 @@ export function Guide({ caseKey, focus, open, onClose, onCite }: {
         <button aria-pressed={lang === 'bn'} lang="bn" onClick={() => setLang('bn')}>বাংলা</button>
         <button aria-pressed={lang === 'banglish'} onClick={() => setLang('banglish')}>Banglish</button>
       </div>
-      <div className="prompts">{PROMPTS.map((p) => <button key={p} onClick={() => ask(p)} disabled={busy}>{p}</button>)}</div>
+      <div className="prompts">{PROMPTS[scope].map((p) => <button key={p} onClick={() => ask(p)} disabled={busy}>{p}</button>)}</div>
       <form onSubmit={(e) => { e.preventDefault(); ask(input) }}>
-        <input value={input} onChange={(e) => setInput(e.target.value)} aria-label="Ask about the evidence" placeholder="Ask about this evidence…" maxLength={600} autoComplete="off" />
+        <input value={input} onChange={(e) => setInput(e.target.value)} aria-label="Ask about the evidence" placeholder={scope === 'site' ? 'Ask about Tellwater…' : scope === 'passport' ? 'Ask about this garment’s water…' : 'Ask about this evidence…'} maxLength={600} autoComplete="off" />
         <button aria-label="Send question" disabled={busy}>↗</button>
       </form>
-      <small className="chat-disclosure">Answered by Muse Spark from this case’s records only · citations are checked against them
+      <small className="chat-disclosure">{scope === 'site' ? 'Answered by Muse Spark from the site’s brief, the three cases and the results' : 'Answered by Muse Spark from this case’s records only'} · citations are checked against them
         {left && (left.live ? ` · ${left.left} of ${left.per_visitor} questions left today` : ' · questions are off in this demo')}</small>
     </aside>
   )
@@ -94,6 +106,8 @@ function Answer({ text, onCite }: { text: string; onCite: (id: string) => void }
 }
 
 function chipName(id: string) {
+  if (id === 'results') return 'Results'
+  if (id.startsWith('case:')) return `Case ${id.slice(5)}`
   const t = parseEvidence(id)
   if (t.kind === 'doc') return docLabel(id)
   const hm = (d: Date) => d.toTimeString().slice(0, 5)

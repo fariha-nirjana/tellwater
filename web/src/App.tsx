@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { CaseKey } from './api'
 import { CaseFile } from './CaseFile'
+import { ChatLauncher } from './ChatLauncher'
+import { Guide } from './Guide'
 import { Arrival, Companion, Footer, Hero, Story, Symbols, useCurtain } from './Journey'
 import { HowTeaser, PhoneStory, ScanLabel } from './Home'
 import { HowItWorks } from './How'
@@ -46,7 +48,11 @@ export function App() {
   }, [hash])
 
   const openCase = (k: CaseKey = 'B') => run(() => { location.hash = `#/case/${k}` })
-  const ask = () => { if (caseKey) dispatchEvent(new Event('tw:guide')); else { location.hash = '#/case/B'; setTimeout(() => dispatchEvent(new Event('tw:guide')), 400) } }
+  // the guide opens where you are: in a case file its own panel, on a passport about that batch, elsewhere about Tellwater
+  const [chat, setChat] = useState(false)
+  useEffect(() => setChat(false), [hash])
+  const ask = () => { if (caseKey) dispatchEvent(new Event('tw:guide')); else setChat(true) }
+  const cite = (id: string) => { location.hash = id === 'results' ? '#/results' : id.startsWith('case:') ? `#/case/${id.slice(5)}` : `#/case/${passport ?? 'B'}` }
 
   return (
     <>
@@ -77,6 +83,8 @@ export function App() {
       </main>
       {(home || caseKey) && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
       {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide ↗</button>}
+      {!caseKey && <ChatLauncher home={home} hidden={chat} onOpen={ask} />}
+      {!caseKey && <Guide key={passport ?? 'site'} caseKey={passport ?? 'B'} scope={passport ? 'passport' : 'site'} focus={null} open={chat} onClose={() => setChat(false)} onCite={cite} />}
     </>
   )
 }
