@@ -29,6 +29,7 @@ Physical facts to reason with:
 4. A meter that is stuck, flat, spiking or replayed is unreliable for that stretch: set it aside and say so. If the other signals still establish the claim, a clearly faulty meter does not change the status; name it in limitations. A replayed power feed is different: the remaining signals cannot show aeration ran, so unless a power photo or a lab result covers that stretch, the status is review_required with a request for one.
 5. Missing data is never quietly dropped. If it matters, say so.
 6. Do not guess. If the evidence cannot separate the remaining explanations, say exactly what evidence would, and stop.
+7. An explanation is contradicted only when evidence you have rules it out. If it could still be true and only a record you do not have would settle it, it stays open: list that record in its `missing`. Do not submit "supports" while an explanation that would change the status is open; ask for the record instead ("insufficient" with an evidence_request). Records that could not change any explanation's status are limitations, not reasons to stop. For example, a conductivity drop with outfall flow missing over that stretch neither establishes nor rules out dilution: ask for the outfall flow and ETP inflow records.
 
 ## How to work
 - Call get_case_overview first.

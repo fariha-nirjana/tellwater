@@ -57,10 +57,16 @@ SETS["check_b"] = [("factory_b", 70_000, 10)]
 # The first 20 dev scenarios with their logbook pages in the approved Bangla (sim/bangla.py),
 # so the English C4 results on the same cases are the comparison. Never the test set.
 SETS["bangla"] = [("factory", 10_000, 20)]
+# Fresh cases with a flow record missing, for the rule that a gap which could change the answer means
+# "insufficient", not "supports"; half of them should still be "supports". Never dev, never the test set.
+FIXED_KINDS["tune_gaps"] = ["dilution"] * 4 + ["bypass"] * 2 + ["normal"] * 4 + ["maintenance"] * 2
+FIXED_MISSING = {"tune_gaps": [["S4a"], ["S2"]] * 6}
+SETS["tune_gaps"] = [("factory", 80_000, 12)]
 BANGLA_SETS = {"bangla"}
 
 
-def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> list[dict]:
+def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None,
+          fixed_missing: list[list[str]] | None = None) -> list[dict]:
     rng = np.random.default_rng(seed0)
     kinds = list(KIND_WEIGHTS)
     weights = np.array([KIND_WEIGHTS[k] for k in kinds])
@@ -73,6 +79,8 @@ def specs(factory: str, seed0: int, n: int, fixed: list[str] | None = None) -> l
         if rng.random() < 0.35:
             k = 1 if rng.random() < 0.7 else 2
             missing = tuple(rng.choice(DROPPABLE, size=k, replace=False, p=DROP_WEIGHTS / DROP_WEIGHTS.sum()).tolist())
+        if fixed_missing:
+            missing = tuple(fixed_missing[i])
         tank = not (rng.random() < (0.35 if kind is EventType.MAINTENANCE else 0.25))
         out.append({"factory": factory, "kind": kind.value, "seed": seed0 + i, "missing": list(missing), "tank_level_available": tank})
     return out
@@ -91,7 +99,7 @@ def build(name: str) -> list[dict]:
     rows = []
     for factory, seed0, n in SETS[name]:
         cfg = load_factory(factory)
-        for spec in specs(factory, seed0, n, FIXED_KINDS.get(name)):
+        for spec in specs(factory, seed0, n, FIXED_KINDS.get(name), FIXED_MISSING.get(name)):
             sc = build_scenario(spec["kind"], spec["seed"], cfg, missing=tuple(spec["missing"]),
                                 tank_level_available=spec["tank_level_available"], history_days=SCALE_HISTORY.get(name, 0))
             case = generate(sc, cfg)
