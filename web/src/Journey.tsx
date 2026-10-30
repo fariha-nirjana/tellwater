@@ -120,7 +120,7 @@ export function Hero({ onEnter }: { onEnter: () => void }) {
           <span className="micro object-label">EXHIBIT 001 / A VERY ORDINARY SHIRT</span>
           <div className="orbit orbit-one" /><div className="orbit orbit-two" />
           <button className="garment-entry" onClick={onEnter} aria-label="Follow the thread from the garment label">
-            <svg className="big-shirt" viewBox="0 0 440 470" aria-label="Illustrated cotton shirt with a Tellwater label" role="img"><use href="#shirt" /></svg>
+            <img className="hero-photo" src={`${import.meta.env.BASE_URL}garments/hero.jpg`} alt="An undyed cotton T-shirt on a hanger, its blank tag tied on with a purple thread" />
           </button>
           <div className="label-note"><span>pull here</span><svg viewBox="0 0 100 55"><path d="M90 4Q80 53 12 32M12 32L27 28M12 32L20 45" /></svg></div>
           <div id="heroDock" className="hero-friend-anchor" />
@@ -190,6 +190,12 @@ export function Footer({ motion, setMotion, replay }: { motion: boolean; setMoti
   )
 }
 
+const OBSTACLES = '.story-quote, .story-stop h3, .story-stop p, .story-stop .micro, .photo-frame, .connection-art, .road-finish h3, .road-finish .button, .story-intro h2, .story-intro p, .scroll-prompt'
+// resting in a story section, the companion acts it out: looking into the water, reading the quote,
+// asking at the missing connection, a hop at the clearer picture
+const ROAD_MOODS: [string, Mood][] = [['.stop-two', 'checking'], ['.story-quote', 'reading'], ['.stop-three', 'asking'], ['.road-finish', 'found']]
+const rectOf = (sel: string) => document.querySelector(sel)?.getBoundingClientRect()
+
 /**
  * The one companion, and the way into the guide. Docks in the hero,
  * then walks the stitched route through the origin story as the page scrolls.
@@ -200,6 +206,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
   const [walking, setWalking] = useState(false)
   const [caseMood, setCaseMood] = useState<Mood | null>(null)
   const [guideBusy, setGuideBusy] = useState(false)
+  const [roadMood, setRoadMood] = useState<Mood | null>(null)  // what the story section it rests in is about
   useEffect(() => {
     const m = (e: Event) => setCaseMood((e as CustomEvent<Mood | null>).detail)
     const g = (e: Event) => setGuideBusy((e as CustomEvent<boolean>).detail)
@@ -212,15 +219,33 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
   useEffect(() => {
     const f = ref.current
     if (!f) return
-    let mode = '', frame = 0, walkTimer = 0, travelTimer = 0, roadLength = 0
+    let mode = '', frame = 0, walkTimer = 0, travelTimer = 0, hopTimer = 0, roadLength = 0, lastY = 0
     const $ = (s: string) => document.querySelector(s) as (SVGPathElement & HTMLElement) | null
     const setFriend = (x: number, y: number, m: string) => {
       if (m !== mode) {
         f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence'); setCloth(m === 'road' ? 'g2' : 'g1')
         f.classList.add('traveling'); clearTimeout(travelTimer); travelTimer = window.setTimeout(() => f.classList.remove('traveling'), 650)
         mode = m
+      } else if (m === 'road' && Math.abs(y - lastY) > 70) {  // cleared something on the road: hop across it
+        f.classList.add('hopping'); clearTimeout(hopTimer); hopTimer = window.setTimeout(() => f.classList.remove('hopping'), 600)
       }
+      lastY = y
       f.style.left = `${x}px`; f.style.top = `${y}px`
+      // the section in the middle of the screen, not where it stands (it steps off the quote to keep it readable)
+      setRoadMood(m === 'road' ? [...ROAD_MOODS].reverse().find(([sel]) => { const r = rectOf(sel); return r && r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.25 })?.[1] ?? null : null)
+    }
+    // never stand on the quote, a photo or a line of text: wait at its near edge, then hop to the far one
+    const avoid = (x: number, y: number): [number, number] => {
+      const w = f.offsetWidth / 2 + 8, h = f.offsetHeight / 2 + 8
+      let dir = 0
+      for (let i = 0; i < 8; i++) {
+        const hit = [...document.querySelectorAll(OBSTACLES)].map((el) => el.getBoundingClientRect())
+          .find((r) => r.height && x + w > r.left && x - w < r.right && y + h > r.top && y - h < r.bottom)
+        if (!hit) break
+        dir ||= y > (hit.top + hit.bottom) / 2 ? 1 : -1
+        y = dir > 0 ? hit.bottom + h : hit.top - h
+      }
+      return [x, y]
     }
     const setupRoad = () => {
       const mobile = innerWidth <= 760
@@ -244,14 +269,14 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
         let lo = 0, hi = roadLength
         for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2; if (rb.getPointAtLength(mid).y < desired) lo = mid; else hi = mid }
         const len = (lo + hi) / 2, p = rb.getPointAtLength(len)
-        setFriend(road.left + (p.x / 1200) * road.width, road.top + (p.y / 1550) * road.height, 'road')
+        setFriend(...avoid(road.left + (p.x / 1200) * road.width, road.top + (p.y / 1550) * road.height), 'road')
         $('#roadProgress')!.style.strokeDashoffset = String(roadLength - len)
       } else if (intro && ib && intro.top < innerHeight * 0.65 && intro.bottom > 0) {
         const il = ib.getTotalLength(), target = Math.max(0, Math.min(500, ((focus - intro.top) / intro.height) * 500))
         let lo = 0, hi = il
         for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2; if (ib.getPointAtLength(mid).y < target) lo = mid; else hi = mid }
         const prog = (lo + hi) / 2, p = ib.getPointAtLength(prog)
-        setFriend(intro.left + (p.x / 1200) * intro.width, intro.top + (p.y / 500) * intro.height, 'road')
+        setFriend(...avoid(intro.left + (p.x / 1200) * intro.width, intro.top + (p.y / 500) * intro.height), 'road')
         $('#introProgress')!.style.strokeDashoffset = String(il - prog); $('#roadProgress')!.style.strokeDashoffset = String(roadLength)
       } else if (ev && ev.top > 60 && ev.bottom < innerHeight - 15) setFriend(ev.left + ev.width / 2, ev.top + ev.height / 2, 'evidence')
       else if (hero && hero.top > 70 && hero.top < innerHeight - 50) setFriend(hero.left + hero.width / 2, hero.top + hero.height / 2, 'hero')
@@ -272,7 +297,7 @@ export function Companion({ hidden, motion, onClick }: { hidden: boolean; motion
   const [introduce, setIntroduce] = useState(() => { try { return !localStorage.getItem('tw:guide-opened') } catch { return true } })
   useEffect(() => { const t = setTimeout(() => setIntroduce(false), 10_000); return () => clearTimeout(t) }, [])  // it doesn't sit over the page for long
   if (hidden) return null
-  const mood: Mood = walking ? 'walk' : guideBusy ? 'reading' : caseMood ?? 'calm'
+  const mood: Mood = walking ? 'walk' : guideBusy ? 'reading' : roadMood ?? caseMood ?? 'calm'
   const open = () => { setIntroduce(false); try { localStorage.setItem('tw:guide-opened', '1') } catch { /* private window */ } onClick() }
   return (
     <button ref={ref} className={`companion${introduce ? ' introduce' : ''}`} aria-label="Ask the guide about the evidence" onClick={open}>

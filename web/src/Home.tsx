@@ -1,9 +1,11 @@
-// The home page's middle: scanning a garment's label (batch -> garment -> its tag's QR), and how it works in three beats.
-import { useEffect, useState } from 'react'
+// Scanning a garment's label: the full picker on its own page (#/trace: batch -> garment -> its tag's QR), and on the home page
+// a phone that shows the same thing in three taps; then how it works in three beats.
+import { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { api, type CatalogBatch } from './api'
 import { dayHm, wall } from './evidence'
 import { Garment, SHADE } from './Garments'
+import TAGS from './tags.json'
 
 export function ScanLabel() {
   const [log, setLog] = useState<CatalogBatch[]>([])
@@ -40,7 +42,7 @@ export function ScanLabel() {
           <div className="product-row">
             {batch.products.map((p) => (
               <button key={p.gtin} aria-pressed={p.gtin === product.gtin} onClick={() => setGtin(p.gtin)}>
-                <Garment kind={p.kind} shade={batch.batch.shade} /><span>{p.name}</span>
+                <Garment kind={p.kind} /><span>{p.name}</span>
               </button>
             ))}
           </div>
@@ -48,7 +50,7 @@ export function ScanLabel() {
         <div className="scan-tag">
           <span className="scan-step">3 · SCAN ITS TAG</span>
           <div className="tag-stage">
-            <Garment kind={product.kind} shade={batch.batch.shade} tag className="tag-garment" />
+            <Garment kind={product.kind} tag qr={qr} className="tag-garment" />
             <span className="tag-pointer">the QR lives here,<br />on the hang tag<svg viewBox="0 0 80 50" aria-hidden="true"><path d="M74 6Q24 2 10 44M10 44L22 37M10 44L5 30" /></svg></span>
           </div>
           <div className="tag-qr">
@@ -58,6 +60,78 @@ export function ScanLabel() {
               <p>Opens the batch passport for this {product.name.toLowerCase()}.</p>
               <a className="button acid small" href={`#/passport/${batch.key}/${product.gtin}`}>Or open it here <span>↗</span></a>
               <code>GTIN {product.gtin} · Lot {product.lot}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// the photo (4:5) fills the phone's height (9:19.5), so it is this much wider than the screen
+const WIDE = (19.5 / 9) * 0.8 * 100
+
+const STORY = [
+  { title: 'Find the hang tag', text: 'Every garment cut from a dye run carries the same code on its tag.' },
+  { title: 'Scan it with your phone', text: 'Any camera opens it. There is nothing to install.' },
+  { title: 'Read the run’s answer', text: 'The batch passport: what was checked, what was found, and who reviewed it.' },
+]
+
+/** The home page's look at scanning: a phone that steps through tag, camera and the real passport page. */
+export function PhoneStory() {
+  const [batch, setBatch] = useState<CatalogBatch | null>(null)
+  const [step, setStep] = useState(0)
+  const [auto, setAuto] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [seen, setSeen] = useState(false)  // the passport loads into the phone once it is first shown
+  const [qr, setQr] = useState('')
+  useEffect(() => { api.catalog().then((l) => setBatch(l.find((b) => b.key === 'B') ?? l[0] ?? null)).catch(() => setBatch(null)) }, [])
+  const product = batch?.products[0]
+  useEffect(() => { if (product) QRCode.toDataURL(`${location.origin}${product.link}`, { margin: 1, width: 240, color: { dark: '#171735', light: '#f9f9ed' } }).then(setQr) }, [product])
+  const ref = useRef<HTMLElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [batch])
+  useEffect(() => {  // steps on by itself while it's on screen, until someone picks a step
+    if (!auto || !inView) return
+    const t = setInterval(() => setStep((s) => (s + 1) % STORY.length), 4200)
+    return () => clearInterval(t)
+  }, [auto, inView])
+  useEffect(() => { if (step === 2) setSeen(true) }, [step])
+  if (!batch || !product) return null
+  const box = (TAGS as Record<string, { x: number; y: number; w: number; h: number }>)[product.kind]
+  const go = (i: number) => { setAuto(false); setStep(i) }
+  // where the tag sits on the phone's screen, in % of it: the camera zooms in around it and brings it to the middle
+  const ox = 50 + (box.x + box.w / 2 - 0.5) * WIDE, oy = (box.y + box.h / 2) * 100
+  return (
+    <section className="phone-story" ref={ref} aria-label="Scanning a garment's tag">
+      <div className="ps-copy">
+        <span className="micro">THE PASSPORT ON THE LABEL</span>
+        <h2>Scan the tag.<br /><span className="serif">Read the water behind it.</span></h2>
+        <p>Garments don’t make wastewater; dye runs do. So every garment cut from a run carries that run’s answer, one scan away.</p>
+        <ol className="ps-steps">
+          {STORY.map((s, i) => (
+            <li key={s.title}><button aria-pressed={i === step} onClick={() => go(i)}><b>{String(i + 1).padStart(2, '0')} · {s.title}</b><span>{s.text}</span></button></li>
+          ))}
+        </ol>
+        <a className="button ink" href="#/trace">Trace a garment <span>↗</span></a>
+        <small className="ps-note">Pick a run, pick a garment and scan its real code on the next page. Garment photos are generated with Muse Image.</small>
+      </div>
+      <div className="ps-phone" aria-hidden={step !== 2}>
+        <div className="phone">
+          <div className="phone-screen" data-step={step}>
+            <div className="ps-screen ps-tag"><Garment kind={product.kind} tag qr={qr} /></div>
+            <div className="ps-screen ps-camera">
+              {/* the camera framed on the tag: the same photo, close in on it */}
+              <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${46 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} tag qr={qr} /></div>
+              <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport ↗</span>
+            </div>
+            <div className="ps-screen ps-passport">
+              {seen && <iframe title="The batch passport, as it opens on a phone" src={`#/passport/${batch.key}/${product.gtin}`} loading="lazy" />}
             </div>
           </div>
         </div>

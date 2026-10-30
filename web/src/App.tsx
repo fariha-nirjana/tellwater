@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react'
 import type { CaseKey } from './api'
 import { CaseFile } from './CaseFile'
 import { Arrival, Companion, Footer, Hero, Story, Symbols, useCurtain } from './Journey'
-import { HowTeaser, ScanLabel } from './Home'
+import { HowTeaser, PhoneStory, ScanLabel } from './Home'
 import { HowItWorks } from './How'
 import { Results } from './Pages'
 import { Passport } from './Passport'
 import { Report } from './Report'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file; #/case/C/bn with its logbook in Bangla),
-// #/passport/A, #/report/A (the audit report), #/results
+// #/passport/A, #/report/A (the audit report), #/results, #/trace (pick a run and a garment, scan its tag)
 function useHash() {
   const [hash, setHash] = useState(location.hash || '#/')
   useEffect(() => {
@@ -32,7 +32,8 @@ export function App() {
   const report = hash.match(/^#\/report\/([ABC])$/)?.[1] as CaseKey | undefined
   const results = hash === '#/results'
   const how = hash === '#/how'
-  const home = !caseKey && !passport && !report && !results && !how
+  const trace = hash === '#/trace'
+  const home = !caseKey && !passport && !report && !results && !how && !trace
   const [arrived] = useState(home && hash !== '#/story') // only a first visit to the garment plays the arrival
 
   useEffect(() => { document.body.classList.toggle('reduced', !motion) }, [motion])
@@ -53,6 +54,7 @@ export function App() {
         <a className="wordmark" href="#/" aria-label="Tellwater home"><svg viewBox="0 0 40 20"><path d="M2 16C8 0 10 25 19 7S29 20 38 3" /></svg>tellwater</a>
         <nav aria-label="Main navigation">
           <a href="#/case/B" aria-current={caseKey ? 'page' : undefined}>The investigation</a>
+          <a href="#/trace" aria-current={trace ? 'page' : undefined}>Trace a garment</a>
           <a href="#/how" aria-current={how ? 'page' : undefined}>How it works</a>
           <a href="#/story">Why I was born</a>
           <a href="#/results" aria-current={results ? 'page' : undefined}>Results</a>
@@ -60,10 +62,10 @@ export function App() {
         <span className="prototype"><i /> Prototype · records from the Tellwater simulator</span>
       </header>
       <main>
-        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
+        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
-            <ScanLabel />
+            <PhoneStory />
             <HowTeaser />
             <Story />
           </>
