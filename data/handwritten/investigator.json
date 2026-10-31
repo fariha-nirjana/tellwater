@@ -1,0 +1,214 @@
+{
+ "what": "Honest cases built around each real handwritten page (eval/handwriting_cases.py); C4 (muse-spark-1.3) run on a typed copy and on the photo copy of the same page. Justified answer for every case: supports.",
+ "runs": {
+  "hw_typed/run1": {
+   "hw-5119a854": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1246,
+    "limitations": [
+     "No lab BOD result or power meter photo covers the interval, so organic removal is shown by power and flow records, not by direct effluent quality.",
+     "Power confirms flow only roughly because the expected band is wide; small flow errors cannot be ruled out.",
+     "Factory logbook entries are claims, not physical evidence, though consistent with the signals."
+    ]
+   },
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1913,
+    "limitations": [
+     "Factory logbook and maintenance record are claims only and were tested against signals.",
+     "No lab BOD result exists for the period, so organic removal is shown by power-load match, not direct sampling.",
+     "Flat zero readings on ETP inflow and outfall flow during the stop are expected for stopped pumps and are corroborated by separate signals."
+    ]
+   },
+   "hw-906d458b": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1363,
+    "limitations": [
+     "No lab BOD result was available in the case period, so organic removal is shown by power and pH/flow rather than direct sampling.",
+     "Factory logbook was treated as a claim and checked against signals, not used as evidence.",
+     "Flow and pH confirm routing through the ETP; aeration is shown by power within its wide expected band."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1979,
+    "limitations": [
+     "No lab BOD result or meter photo was examined; assessment rests on separate flow, power, pH and conductivity records.",
+     "Boundary and tank balances for 16:10-17:30 were outside tolerance with residual beyond tolerance, indicating intake estimate or timing error; ETP balance, power and pH still show flow through working ETP.",
+     "S2 and S4a flat zero stretches during the stop were flagged by the tool; this matches the stopped period with tank rise, not a separate fault.",
+     "S3 window flagged isolated spikes; mean power still matched expected load band."
+    ]
+   }
+  },
+  "hw_photo/run1": {
+   "hw-5119a854": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.166,
+    "limitations": [
+     "No lab BOD result or power meter photo covers the interval; assessment relies on separate signals from feeds.",
+     "Logbook entries are factory claims, not physical evidence; pH entries checked against feed for consistency only.",
+     "Conductivity varies with source water; assessment uses it with flow and pH, not alone.",
+     "Tank never neared full, which does not rule out bypass on its own; bypass ruled out by pH and water balances."
+    ]
+   },
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.2181,
+    "limitations": [
+     "No lab BOD result or power meter photo covers the interval; assessment relies on separate signals from feeds.",
+     "S2 and S4a show a flat zero stretch during the 11:40-14:20 stop, flagged automatically; zeros resume to normal levels after restart and are corroborated by tank rise and balances, so treated as true stopped flow, not a stuck meter.",
+     "Outfall pH during zero-flow stop measures stagnant water at the probe, but whole-interval pH with flow present remains neutral.",
+     "Factory logbook and maintenance record were treated as claims only; their timing is consistent with signals.",
+     "Conductivity and pH do not measure every pollutant such as BOD or colour."
+    ]
+   },
+   "hw-906d458b": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1227,
+    "limitations": [
+     "No lab BOD result or power meter photo was available to confirm organics removal beyond feed records.",
+     "Logbook entries are factory claims, not physical evidence, though consistent with signals.",
+     "No meter was found stuck, flat or replayed; all signals varied normally over the interval."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1835,
+    "limitations": [
+     "Flat zero stretches on S2 and S4a 12:30-15:35 are flagged but are expected true zeros during a stopped ETP, confirmed by separate tank and power signals.",
+     "No lab BOD result or power meter photo was needed because power was live and inside band; chemistry beyond pH and conductivity is not measured by these signals.",
+     "Factory logbook and maintenance record were treated as claims only; timing was verified against signals."
+    ]
+   }
+  },
+  "hw_photo/run2": {
+   "hw-5119a854": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1562,
+    "limitations": [
+     "No lab BOD result in this period, so organic pollutant removal is inferred from power, flow and pH, not directly measured.",
+     "No meter photos; feeds checked by separate signals and cross-check of logbook pH claim, not by physical display.",
+     "Logbook and production plan are factory claims, used only as tested against signals.",
+     "Conductivity varied through the interval but low values coincided with low outfall flow, not extra flow, so not dilution."
+    ]
+   },
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1558,
+    "limitations": [
+     "ETP inflow and outfall flow were flat at zero through the stop; treated as expected stopped flow, with containment established by separate signals of tank level, power and pH.",
+     "No lab BOD result or meter photo was available in this period; assessment relies on online signals.",
+     "Outfall flow record flagged isolated spikes across the full interval; pH and conductivity show they were not raw-water bypass or dilution."
+    ]
+   },
+   "hw-906d458b": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1277,
+    "limitations": [
+     "No lab BOD result covers this interval, so organic removal is shown by separate signals for power and flow, not by sampling.",
+     "Logbook doc:logbook-1016 is a factory claim, not physical evidence.",
+     "No meter photos cover this interval."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1798,
+    "limitations": [
+     "No lab BOD result or power meter photo was examined; assessment relies on separate signals of flow, power, pH, conductivity and tank level.",
+     "S2 and S4a were flat at 0.0 during the 12:30-15:40 stop; this is expected for a stopped plant and the tank rise plus balances still establish storage, but a clearly faulty flat meter alone would not change the status.",
+     "Factory logbook and maintenance record are claims only; timing was tested against signals.",
+     "Pre-stop pH window 10:00-12:30 and lab results were not checked before tool budget was spent."
+    ]
+   }
+  },
+  "hw_typed_norecord/run1": {
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.175,
+    "limitations": [
+     "No lab BOD result was available in the case period, so organic removal is shown by power-load match and outfall chemistry, not by direct effluent sampling.",
+     "S2 and S4a were flat at zero through the stop and flagged as flat; this is expected for a stopped plant and is corroborated by separate tank and balance signals.",
+     "Logbook doc:logbook-1015 is a factory claim and was not used as physical evidence; its timing is consistent with signals but does not prove them."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.2189,
+    "limitations": [
+     "No lab BOD result or power meter photo was available; assessment rests on separate signals for flow, power, pH, conductivity and tank level.",
+     "Outfall pH and conductivity during zero-flow stop reflect stagnant water at the probe, but zero flow plus rising tank level and tank balance still show water was held.",
+     "Logbook entries are factory claims only and were tested against signals; the 16:10 feed-pump servicing entry was not reflected as a dip in ETP inflow, which stayed continuous, but on its own this single signal does not change the status.",
+     "Flat zero stretches on ETP inflow and outfall flow during the stop are expected for a stopped plant that resumed normally, not treated as meter faults."
+    ]
+   }
+  },
+  "hw_photo_norecord/run1": {
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1574,
+    "limitations": [
+     "Logbook doc:logbook-1015 treated as claim only; stop timing tested against separate signals.",
+     "No lab BOD result or power meter photo covered the interval.",
+     "Flow and pH show routing through the ETP, not removal of every pollutant.",
+     "Outfall flow record flagged 3 isolated spikes outside the stop; full-interval balances remain within tolerance."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.2071,
+    "limitations": [
+     "Logbook doc:logbook-1017 is handwritten in Bengali and is a factory claim, not relied on as fact.",
+     "No lab BOD results were available in the case period, so organics removal is shown by power, flow and pH, not by lab analysis.",
+     "S2 and S4a were flat at zero through the stop, which is expected for a stopped ETP with no discharge; the finding rests on separate signals including tank rise and water balance.",
+     "Opening stretch 10:00-12:30 power was checked against load but outfall pH and conductivity for that short stretch were not separately retrieved before the check budget was spent."
+    ]
+   }
+  },
+  "hw_photo_norecord/run2": {
+   "hw-8f4a8c24": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.1646,
+    "limitations": [
+     "No lab BOD result covers the interval, so organics removal is inferred from separate signals of power, flow and pH, not directly measured.",
+     "Tank level after 2026-10-15 16:00 was not retrieved before checks were spent; overflow after restart is inferred from continued ETP inflow and neutral outfall pH, not a full level trace.",
+     "S2 and S4a show a flat zero stretch 11:40-14:15, set aside as the stopped period; the finding rests on separate signals of power, tank rise, balance and pH.",
+     "Factory logbook entries about planned maintenance and tank taking inflow were treated as claims and tested against signals, not taken as fact."
+    ]
+   },
+   "hw-ee603d33": {
+    "status": "supports",
+    "valid": true,
+    "cost_usd_list": 0.2201,
+    "limitations": [
+     "Logbook doc:logbook-1017 is a factory claim, not physical evidence; its stop timing was tested against signals and matches.",
+     "No lab BOD result covers the interval, so organic removal is inferred from power, flow and pH, not directly measured.",
+     "S3 window flagged isolated spikes and S2/S4a flagged flat zero during the stop; zero is corroborated by tank rise and water balance, and spikes do not change the power-vs-load result.",
+     "Conductivity after restart shows no dilution pattern, but no separate groundwater tracer was available."
+    ]
+   }
+  }
+ },
+ "pages": {
+  "hw-5119a854": "page1",
+  "hw-8f4a8c24": "page2",
+  "hw-906d458b": "page3",
+  "hw-ee603d33": "page4"
+ }
+}
