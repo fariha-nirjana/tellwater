@@ -1,0 +1,98 @@
+[
+ {
+  "index": 0,
+  "time": "06:00",
+  "text": "Shift A start. ETP running normal. Outfall pH 7.3",
+  "crossed_out": false,
+  "box": {
+   "x_min": 50,
+   "y_min": 316,
+   "x_max": 945,
+   "y_max": 375
+  }
+ },
+ {
+  "index": 1,
+  "time": "06:25",
+  "text": "Lime dosed 35 kg",
+  "crossed_out": false,
+  "box": {
+   "x_min": 50,
+   "y_min": 384,
+   "x_max": 521,
+   "y_max": 431
+  }
+ },
+ {
+  "index": 2,
+  "time": "11:40",
+  "text": "Aerator 2 serviced. Other units running",
+  "crossed_out": false,
+  "box": {
+   "x_min": 50,
+   "y_min": 453,
+   "x_max": 842,
+   "y_max": 509
+  }
+ },
+ {
+  "index": 3,
+  "time": "13:20",
+  "text": "Aerator 2 back in service",
+  "crossed_out": false,
+  "box": {
+   "x_min": 50,
+   "y_min": 522,
+   "x_max": 667,
+   "y_max": 553
+  }
+ },
+ {
+  "index": 4,
+  "time": "14:00",
+  "text": "Shift B start. ETP running normal. Outfall pH 7.3",
+  "crossed_out": false,
+  "box": {
+   "x_min": 42,
+   "y_min": 588,
+   "x_max": 960,
+   "y_max": 644
+  }
+ },
+ {
+  "index": 5,
+  "time": "14:25",
+  "text": "Lime dosed 40 kg",
+  "crossed_out": false,
+  "box": {
+   "x_min": 46,
+   "y_min": 659,
+   "x_max": 554,
+   "y_max": 700
+  }
+ },
+ {
+  "index": 6,
+  "time": "22:00",
+  "text": "Shift C start. ETP running normal. Outfall pH 7.5",
+  "crossed_out": false,
+  "box": {
+   "x_min": 50,
+   "y_min": 725,
+   "x_max": 965,
+   "y_max": 781
+  }
+ },
+ {
+  "index": 7,
+  "time": "22:25",
+  "text": "Lime dosed 45 kg",
+  "crossed_out": false,
+  "box": {
+   "x_min": 46,
+   "y_min": 794,
+   "x_max": 578,
+   "y_max": 838
+  }
+ }
+]

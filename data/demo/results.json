@@ -1,4 +1,65 @@
 {
+ "bangla": {
+  "C4": {
+   "cases": 20,
+   "agreement": 18,
+   "missed_problems": 0,
+   "problems": 9,
+   "false_escalations": 1,
+   "supported_cases": 7,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 3,
+   "insufficient_cases": 4,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 3,
+   "requests_scored": 3,
+   "injection_cases": 2,
+   "injection_followed": 0,
+   "mean_cost": 0.2026,
+   "mean_seconds": 78.56,
+   "mean_checks": 15.15,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 6,
+     "review_required": 1
+    },
+    "contradicts": {
+     "contradicts": 5
+    },
+    "review_required": {
+     "review_required": 4
+    },
+    "insufficient": {
+     "insufficient": 3,
+     "supports": 1
+    }
+   },
+   "agreement_by_kind": {
+    "bypass": "1/1",
+    "dilution": "4/5",
+    "low_production": "2/2",
+    "maintenance": "4/5",
+    "normal": "2/2",
+    "sensor_fault": "1/1",
+    "shutdown": "4/4"
+   },
+   "agreement_ci95": [
+    0.75,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.429
+   ],
+   "condition": "C4"
+  }
+ },
  "check": {
   "C6": {
    "cases": 8,
@@ -110,6 +171,50 @@
     0.0,
     0.0
    ],
+   "condition": "C4"
+  }
+ },
+ "demo_real": {
+  "C4": {
+   "cases": 1,
+   "agreement": 1,
+   "missed_problems": 0,
+   "problems": 1,
+   "false_escalations": 0,
+   "supported_cases": 0,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1673,
+   "mean_seconds": 51.6,
+   "mean_checks": 15.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {},
+    "contradicts": {
+     "contradicts": 1
+    },
+    "review_required": {},
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "aerators_down": "1/1"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
+   ],
+   "false_escalation_ci95": null,
    "condition": "C4"
   }
  },
@@ -430,6 +535,184 @@
     0.125
    ],
    "condition": "C5"
+  }
+ },
+ "hw_photo": {
+  "C4": {
+   "cases": 4,
+   "agreement": 4,
+   "missed_problems": 0,
+   "problems": 0,
+   "false_escalations": 0,
+   "supported_cases": 4,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1549,
+   "mean_seconds": 50.2,
+   "mean_checks": 14.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 4
+    },
+    "contradicts": {},
+    "review_required": {},
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "maintenance": "2/2",
+    "normal": "2/2"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": null,
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "hw_photo_norecord": {
+  "C4": {
+   "cases": 2,
+   "agreement": 2,
+   "missed_problems": 0,
+   "problems": 0,
+   "false_escalations": 0,
+   "supported_cases": 2,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1923,
+   "mean_seconds": 64.6,
+   "mean_checks": 16.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 2
+    },
+    "contradicts": {},
+    "review_required": {},
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "maintenance": "2/2"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": null,
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "hw_typed": {
+  "C4": {
+   "cases": 4,
+   "agreement": 4,
+   "missed_problems": 0,
+   "problems": 0,
+   "false_escalations": 0,
+   "supported_cases": 4,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.1625,
+   "mean_seconds": 47.05,
+   "mean_checks": 14.0,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 4
+    },
+    "contradicts": {},
+    "review_required": {},
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "maintenance": "2/2",
+    "normal": "2/2"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": null,
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "hw_typed_norecord": {
+  "C4": {
+   "cases": 2,
+   "agreement": 2,
+   "missed_problems": 0,
+   "problems": 0,
+   "false_escalations": 0,
+   "supported_cases": 2,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 0,
+   "insufficient_cases": 0,
+   "unnecessary_abstentions": 0,
+   "no_result": 0,
+   "request_hits": 0,
+   "requests_scored": 0,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.197,
+   "mean_seconds": 60.85,
+   "mean_checks": 15.5,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "supports": 2
+    },
+    "contradicts": {},
+    "review_required": {},
+    "insufficient": {}
+   },
+   "agreement_by_kind": {
+    "maintenance": "2/2"
+   },
+   "agreement_ci95": [
+    1.0,
+    1.0
+   ],
+   "missed_ci95": null,
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
   }
  },
  "scale_14": {
@@ -792,6 +1075,63 @@
    "missed_ci95": [
     0.0,
     0.3
+   ],
+   "false_escalation_ci95": [
+    0.0,
+    0.0
+   ],
+   "condition": "C4"
+  }
+ },
+ "tune_gaps": {
+  "C4": {
+   "cases": 12,
+   "agreement": 7,
+   "missed_problems": 0,
+   "problems": 2,
+   "false_escalations": 0,
+   "supported_cases": 5,
+   "unsupported_accusations": 0,
+   "appropriate_abstentions": 2,
+   "insufficient_cases": 5,
+   "unnecessary_abstentions": 2,
+   "no_result": 0,
+   "request_hits": 2,
+   "requests_scored": 2,
+   "injection_cases": 0,
+   "injection_followed": 0,
+   "mean_cost": 0.2085,
+   "mean_seconds": 84.0833,
+   "mean_checks": 15.9167,
+   "valid_share": 1.0,
+   "confusion": {
+    "supports": {
+     "insufficient": 2,
+     "supports": 3
+    },
+    "contradicts": {
+     "contradicts": 2
+    },
+    "review_required": {},
+    "insufficient": {
+     "insufficient": 2,
+     "review_required": 2,
+     "supports": 1
+    }
+   },
+   "agreement_by_kind": {
+    "bypass": "2/2",
+    "dilution": "2/4",
+    "maintenance": "1/2",
+    "normal": "2/4"
+   },
+   "agreement_ci95": [
+    0.333,
+    0.833
+   ],
+   "missed_ci95": [
+    0.0,
+    0.0
    ],
    "false_escalation_ci95": [
     0.0,

@@ -11,6 +11,7 @@ Photos here are 2048 px on the long side, the size Muse Spark is sent. Readings 
 | page3.jpg | 3 | 16/10/2026 | M. Hossain | Bangla |
 | page4.jpg | 4 | 17/10/2026 | N. Islam | Bangla |
 | page5.jpg | 4, dim light, angled | 17/10/2026 | N. Islam | Bangla |
+| page6.jpg | 6, demo case B's logbook | 13/10/2026 | R. Karim | English |
 
 `[struck: …]` marks writing that is crossed out on the page.
 
@@ -74,3 +75,18 @@ Differs from the script: the struck line is 06:25 and 35 kg (script 06:20 and 25
 Differs from the script: a stray "ETP" inside the bracket is struck. The late note's time is written over; the writer confirmed it is 18:05.
 
 Hard to read: the restart is 15:40 (confirmed by the writer), but the 5 is shaped like a 6 and it looks like 16:40. A reading of 16:40 counts as a misread, though an understandable one; it is worth noting whether the model flags it as out of order next to 16:10.
+
+## Page 6 (English, demo case B's logbook)
+
+Copied by hand from case B's simulated page, every entry the same, no slips. It replaces the rendered page in demo case B (`python -m api.demo real`); its line boxes for highlighting are in `page6-lines.json`. Page 6 is not part of the reading measurement above.
+
+| Time | Remarks |
+|---|---|
+| 06:00 | Shift A start. ETP running normal. Outfall pH 7.3 |
+| 06:25 | Lime dosed 35 kg |
+| 11:40 | Aerator 2 serviced. Other units running |
+| 13:20 | Aerator 2 back in service |
+| 14:00 | Shift B start. ETP running normal. Outfall pH 7.3 |
+| 14:25 | Lime dosed 40 kg |
+| 22:00 | Shift C start. ETP running normal. Outfall pH 7.5 |
+| 22:25 | Lime dosed 45 kg |

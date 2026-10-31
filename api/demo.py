@@ -3,6 +3,7 @@ the app runs from a fresh clone without regenerating anything.
 
     .venv/bin/python -m api.demo            (case copies, saved investigations and the results snapshot)
     .venv/bin/python -m api.demo results    (the results snapshot only)
+    .venv/bin/python -m api.demo real       (cases with a handwritten page, before their run and the build)
 
 A  maintenance, cleared: the tank log shows the water was held
 B  aeration cut: the photo confirms low power, the lab shows treatment failed
@@ -12,10 +13,16 @@ E  factory B again: extra outfall water with falling conductivity, possible dilu
 
 A to C are development cases; D and E are from the factory B check set (results page, "a second factory").
 Nothing here comes from the held-out test set.
+
+Case B's logbook page is a real handwritten page (data/handwritten/page6.jpg,
+copied by hand from the simulated page, same entries). Its case is made with
+`python -m api.demo real` into data/generated/demo_real/ and investigated
+there (`python -m eval.run_set demo_real C4`) before the build copies it.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -26,11 +33,14 @@ from store.cases import ROOT
 DEMO_ROOT = ROOT / "data" / "demo"
 DEMO = {
     "A": ("dev", "factory-a-54b2c9cb"),
-    "B": ("dev", "factory-a-460f93ca"),
+    "B": ("demo_real", "factory-a-460f93ca"),
     "C": ("dev", "factory-a-6e86676d"),
     "D": ("check_b", "factory-b-e257c871"),
     "E": ("check_b", "factory-b-50fe9672"),
 }
+# Demo cases whose simulated logbook page is replaced by the same page written by hand and photographed:
+# key -> (source set, page photo in data/handwritten/, logbook document). Line boxes: <page>-lines.json beside it.
+REAL_PAGES = {"B": ("dev", "page6", "doc:logbook-1013")}
 # Cases also shown with their logbook pages in Bangla (eval.caseset's bangla set: same records, same answer),
 # with the investigation Muse Spark ran on the Bangla pages.
 BANGLA = {"C": ("bangla", "factory-a-6e86676d")}
@@ -69,6 +79,27 @@ def build() -> None:
     snapshot_results()
 
 
+def real_pages() -> None:
+    """Copy each case with a handwritten page into data/generated/demo_real/, the photo in place of the rendered page."""
+    pages = ROOT / "data" / "handwritten"
+    for key, (source, page, doc_id) in REAL_PAGES.items():
+        case_id = DEMO[key][1]
+        dst = ROOT / "data" / "generated" / "demo_real" / case_id
+        shutil.rmtree(dst, ignore_errors=True)
+        shutil.copytree(ROOT / "data" / "generated" / source / case_id, dst)
+        lines = json.loads((pages / f"{page}-lines.json").read_text())
+        for name in ("documents.json", "hidden/documents_full.json"):
+            docs = json.loads((dst / name).read_text())
+            for d in docs:
+                if d["id"] == doc_id:
+                    shutil.copy(pages / f"{page}.jpg", dst / d["image"])
+                    d["sha256"] = hashlib.sha256((dst / d["image"]).read_bytes()).hexdigest()
+                    if "meta" in d:
+                        d["meta"]["lines"] = lines
+            (dst / name).write_text(json.dumps(docs, indent=2))
+        print(f"{key}: {case_id} with the handwritten {page} -> data/generated/demo_real/")
+
+
 def snapshot_results() -> None:
     # evaluation summaries, so the results page works without the (gitignored) run folders
     results: dict = {}
@@ -84,4 +115,4 @@ def snapshot_results() -> None:
 
 
 if __name__ == "__main__":
-    snapshot_results() if sys.argv[1:] == ["results"] else build()
+    {"results": snapshot_results, "real": real_pages}.get(sys.argv[1] if sys.argv[1:] else "", build)()

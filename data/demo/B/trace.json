@@ -6,7 +6,7 @@
    "n": 1,
    "tool": "get_case_overview",
    "args": {},
-   "why": "Establish batch interval, signals, alerts and documents to focus checks.",
+   "why": "Establish batch interval, signal coverage, alerts and documents to scope competing explanations.",
    "result": {
     "case_id": "factory-a-460f93ca",
     "claim": "The factory states this batch's wastewater was treated in its ETP before discharge.",
@@ -155,7 +155,7 @@
      "checks_allowed": 16
     }
    },
-   "t": 1.76
+   "t": 2.23
   },
   {
    "n": 2,
@@ -163,44 +163,36 @@
    "args": {
     "explanations": [
      {
+      "contradicting": [],
       "id": "normal",
-      "label": "Normal operation: ETP treated batch wastewater",
-      "supporting": [],
-      "contradicting": [],
+      "label": "Normal operation with working treatment",
       "missing": [],
-      "status": "open"
+      "status": "open",
+      "supporting": []
      },
      {
+      "contradicting": [],
       "id": "aeration_cut",
-      "label": "Aeration cut: ETP power cut while inflow normal",
-      "supporting": [],
-      "contradicting": [],
+      "label": "Aeration cut during power-below-load alert",
       "missing": [],
-      "status": "open"
+      "status": "open",
+      "supporting": []
      },
      {
-      "id": "meter_fault",
-      "label": "Power meter fault: low reading not real cut",
-      "supporting": [],
       "contradicting": [],
+      "id": "power_meter_fault",
+      "label": "Power meter reads wrong, treatment actually ran",
       "missing": [],
-      "status": "open"
+      "status": "open",
+      "supporting": []
      },
      {
+      "contradicting": [],
       "id": "bypass",
-      "label": "Bypass around ETP during stop",
-      "supporting": [],
-      "contradicting": [],
+      "label": "Bypass around ETP discharging untreated water",
       "missing": [],
-      "status": "open"
-     },
-     {
-      "id": "replay",
-      "label": "Replayed power feed hiding real operation",
-      "supporting": [],
-      "contradicting": [],
-      "missing": [],
-      "status": "open"
+      "status": "open",
+      "supporting": []
      }
     ]
    },
@@ -210,15 +202,37 @@
     "checks_used": 0,
     "checks_left": 16
    },
-   "t": 4.08
+   "t": 3.76
   },
   {
    "n": 3,
+   "tool": "check_power_vs_load",
+   "args": {
+    "end": "2026-10-13T16:45",
+    "start": "2026-10-13T11:40"
+   },
+   "why": "Confirm whether power was far below expected band with normal inflow, separating aeration cut from meter fault.",
+   "result": {
+    "evidence_id": "calc:power_vs_load@1013-1140..1013-1645",
+    "start": "2026-10-13 11:40:00+06:00",
+    "end": "2026-10-13 16:45:00+06:00",
+    "observed_mean_kw": 39.2,
+    "expected_mean_kw": 59.9,
+    "band_half_width_kw": 12.4,
+    "share_below_band": 1.0,
+    "share_above_band": 0.0,
+    "observed_as_share_of_expected": 0.65,
+    "note": "Expected band fitted on the factory's normal-operation baseline from ETP inflow; with the ETP off, expected is standby power."
+   },
+   "t": 6.74
+  },
+  {
+   "n": 4,
    "tool": "read_document",
    "args": {
     "doc_id": "doc:maintenance-1013-1140"
    },
-   "why": "Maintenance claim covers alert start; test its timing against power and flow.",
+   "why": "Test factory maintenance claim timing against signals separating planned work from cut.",
    "result": {
     "evidence_id": "doc:maintenance-1013-1140",
     "type": "maintenance_record",
@@ -232,15 +246,15 @@
     "image": "docs/maintenance-1013-1140.jpg",
     "note": "The image follows. Read it yourself; no transcription is provided."
    },
-   "t": 8.23
+   "t": 6.74
   },
   {
-   "n": 4,
+   "n": 5,
    "tool": "read_document",
    "args": {
     "doc_id": "doc:statement-1014-1030"
    },
-   "why": "Operator claim covers full alert window; test against signals.",
+   "why": "Test operator claim about alert stretch against physical signals.",
    "result": {
     "evidence_id": "doc:statement-1014-1030",
     "type": "operator_statement",
@@ -255,29 +269,7 @@
      "text": "Production was mostly light shades that day, so the ETP needed less aeration."
     }
    },
-   "t": 8.23
-  },
-  {
-   "n": 5,
-   "tool": "read_document",
-   "args": {
-    "doc_id": "doc:logbook-1013"
-   },
-   "why": "Logbook covers alert day; check for claims about operation vs signals.",
-   "result": {
-    "evidence_id": "doc:logbook-1013",
-    "type": "logbook",
-    "author": "R. Karim",
-    "factory_claim": true,
-    "covers": [
-     "2026-10-13 00:00:00+06:00",
-     "2026-10-14 00:00:00+06:00"
-    ],
-    "received_at": "2026-10-14 02:00:00+06:00",
-    "image": "docs/logbook-1013.jpg",
-    "note": "The image follows. Read it yourself; no transcription is provided."
-   },
-   "t": 8.23
+   "t": 6.74
   },
   {
    "n": 6,
@@ -285,7 +277,7 @@
    "args": {
     "doc_id": "doc:photo-S3-1013-1530"
    },
-   "why": "Meter photo is physical evidence for power during alert; compare to feed.",
+   "why": "Physical power meter display can confirm whether low feed is real aeration cut or meter fault.",
    "result": {
     "evidence_id": "doc:photo-S3-1013-1530",
     "type": "meter_photo",
@@ -299,7 +291,7 @@
     "image": "docs/photo-S3-1013-1530.jpg",
     "note": "The image follows. Read it yourself; no transcription is provided."
    },
-   "t": 8.23
+   "t": 6.74
   },
   {
    "n": 7,
@@ -307,7 +299,7 @@
    "args": {
     "doc_id": "doc:lab-1013-1610"
    },
-   "why": "Lab BOD is physical evidence whether treatment worked around alert.",
+   "why": "Lab BOD shows whether treatment worked near alert end, separating cut from meter error.",
    "result": {
     "evidence_id": "doc:lab-1013-1610",
     "type": "lab_report",
@@ -330,29 +322,57 @@
     "image": "docs/lab-1013-1610.jpg",
     "note": "The image follows. Read it yourself; no transcription is provided."
    },
-   "t": 8.23
+   "t": 6.74
   },
   {
    "n": 8,
-   "tool": "check_power_vs_load",
+   "tool": "update_hypotheses",
    "args": {
-    "end": "2026-10-13T16:45",
-    "start": "2026-10-13T11:40"
+    "explanations": [
+     {
+      "contradicting": [],
+      "id": "normal",
+      "label": "Normal operation with working treatment",
+      "missing": [],
+      "status": "open",
+      "supporting": []
+     },
+     {
+      "contradicting": [],
+      "id": "aeration_cut",
+      "label": "Aeration cut (or prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+      "missing": [],
+      "status": "open",
+      "supporting": [
+       "calc:power_vs_load@1013-1140..1013-1645",
+       "doc:lab-1013-1610"
+      ]
+     },
+     {
+      "contradicting": [],
+      "id": "power_meter_fault",
+      "label": "Power meter reads wrong, treatment actually ran",
+      "missing": [],
+      "status": "open",
+      "supporting": []
+     },
+     {
+      "contradicting": [],
+      "id": "bypass",
+      "label": "Bypass around ETP discharging untreated water",
+      "missing": [],
+      "status": "open",
+      "supporting": []
+     }
+    ]
    },
-   "why": "Separates aeration cut with normal inflow from low production or meter fault.",
+   "why": null,
    "result": {
-    "evidence_id": "calc:power_vs_load@1013-1140..1013-1645",
-    "start": "2026-10-13 11:40:00+06:00",
-    "end": "2026-10-13 16:45:00+06:00",
-    "observed_mean_kw": 39.2,
-    "expected_mean_kw": 59.9,
-    "band_half_width_kw": 12.4,
-    "share_below_band": 1.0,
-    "share_above_band": 0.0,
-    "observed_as_share_of_expected": 0.65,
-    "note": "Expected band fitted on the factory's normal-operation baseline from ETP inflow; with the ETP off, expected is standby power."
+    "recorded": true,
+    "checks_used": 5,
+    "checks_left": 11
    },
-   "t": 15.06
+   "t": 12.5
   },
   {
    "n": 9,
@@ -362,7 +382,7 @@
     "timestamp": "2026-10-13T15:31",
     "value": 39.4
    },
-   "why": "Tests whether digital power feed matches physical meter photo during alert.",
+   "why": "Photo confirms low power is real meter display, separating true aeration cut from power feed fault.",
    "result": {
     "evidence_id": "calc:reading_vs_feed:S3@1013-1531",
     "signal": "S3",
@@ -382,13 +402,13 @@
     "reading_vs_expected_band": "below",
     "reading_as_share_of_expected": 0.65
    },
-   "t": 15.07
+   "t": 20.02
   },
   {
    "n": 10,
    "tool": "get_lab_results",
    "args": {},
-   "why": "Lab BOD is physical evidence whether treatment worked during low-power stretch.",
+   "why": "Confirm BOD exceedance as physical evidence treatment failed, separating cut from meter fault.",
    "result": {
     "lab_results": [
      {
@@ -404,82 +424,17 @@
     ],
     "note": "Grab samples from an accredited lab. None means no sample falls in this case's period."
    },
-   "t": 15.07
+   "t": 20.02
   },
   {
    "n": 11,
-   "tool": "get_production",
-   "args": {
-    "end": "2026-10-14T14:00",
-    "start": "2026-10-13T10:00"
-   },
-   "why": "Tests operator claim of light shades needing less aeration.",
-   "result": {
-    "evidence_id": "plan:production@1013-1000..1014-1400",
-    "note": "The factory's production plan (a factory record, not a measurement).",
-    "batches": [
-     {
-      "id": "factory-a-460f93ca-B07",
-      "start": "2026-10-13 10:00:00+06:00",
-      "end": "2026-10-13 14:00:00+06:00",
-      "shade": "light",
-      "planned_wastewater_m3": 257.1
-     },
-     {
-      "id": "factory-a-460f93ca-B08",
-      "start": "2026-10-13 14:00:00+06:00",
-      "end": "2026-10-13 18:00:00+06:00",
-      "shade": "light",
-      "planned_wastewater_m3": 248.0
-     },
-     {
-      "id": "factory-a-460f93ca-B09",
-      "start": "2026-10-13 18:00:00+06:00",
-      "end": "2026-10-13 22:00:00+06:00",
-      "shade": "light",
-      "planned_wastewater_m3": 249.4
-     },
-     {
-      "id": "factory-a-460f93ca-B10",
-      "start": "2026-10-13 22:00:00+06:00",
-      "end": "2026-10-14 02:00:00+06:00",
-      "shade": "dark",
-      "planned_wastewater_m3": 188.3
-     },
-     {
-      "id": "factory-a-460f93ca-B11",
-      "start": "2026-10-14 02:00:00+06:00",
-      "end": "2026-10-14 06:00:00+06:00",
-      "shade": "dark",
-      "planned_wastewater_m3": 201.8
-     },
-     {
-      "id": "factory-a-460f93ca-B12",
-      "start": "2026-10-14 06:00:00+06:00",
-      "end": "2026-10-14 10:00:00+06:00",
-      "shade": "medium",
-      "planned_wastewater_m3": 307.3
-     },
-     {
-      "id": "factory-a-460f93ca-B13",
-      "start": "2026-10-14 10:00:00+06:00",
-      "end": "2026-10-14 14:00:00+06:00",
-      "shade": "dark",
-      "planned_wastewater_m3": 296.4
-     }
-    ]
-   },
-   "t": 15.07
-  },
-  {
-   "n": 12,
    "tool": "get_signal_window",
    "args": {
     "end": "2026-10-13T16:45",
     "signal": "S2",
     "start": "2026-10-13T11:40"
    },
-   "why": "Confirms inflow was normal while power was low, separating cut from low production.",
+   "why": "Check whether inflow was normal during low power, separating aeration cut from low-production explanation.",
    "result": {
     "evidence_id": "sig:S2@1013-1140..1013-1645",
     "signal": "S2",
@@ -628,17 +583,17 @@
      "note": "the same signal over the rest of the case data, for comparison"
     }
    },
-   "t": 22.86
+   "t": 20.03
   },
   {
-   "n": 13,
+   "n": 12,
    "tool": "get_signal_window",
    "args": {
     "end": "2026-10-13T16:45",
     "signal": "S4b",
     "start": "2026-10-13T11:40"
    },
-   "why": "Outfall pH shows whether raw wastewater bypassed during low-power stretch.",
+   "why": "Outfall pH above 9 would show raw bypass; neutral pH separates bypass from aeration cut.",
    "result": {
     "evidence_id": "sig:S4b@1013-1140..1013-1645",
     "signal": "S4b",
@@ -787,17 +742,17 @@
      "note": "the same signal over the rest of the case data, for comparison"
     }
    },
-   "t": 22.87
+   "t": 20.04
   },
   {
-   "n": 14,
+   "n": 13,
    "tool": "get_signal_window",
    "args": {
     "end": "2026-10-13T16:45",
     "signal": "S4a",
     "start": "2026-10-13T11:40"
    },
-   "why": "Outfall flow plus pH separates bypass from aeration cut.",
+   "why": "Extra outfall flow with pH checks dilution vs bypass vs normal through-ETP flow.",
    "result": {
     "evidence_id": "sig:S4a@1013-1140..1013-1645",
     "signal": "S4a",
@@ -946,17 +901,17 @@
      "note": "the same signal over the rest of the case data, for comparison"
     }
    },
-   "t": 22.87
+   "t": 20.04
   },
   {
-   "n": 15,
+   "n": 14,
    "tool": "get_signal_window",
    "args": {
     "end": "2026-10-13T16:45",
     "signal": "S4c",
     "start": "2026-10-13T11:40"
    },
-   "why": "Conductivity checks for dilution versus treatment failure.",
+   "why": "Conductivity with extra flow and pH separates dilution from bypass and normal operation.",
    "result": {
     "evidence_id": "sig:S4c@1013-1140..1013-1645",
     "signal": "S4c",
@@ -1105,181 +1060,17 @@
      "note": "the same signal over the rest of the case data, for comparison"
     }
    },
-   "t": 22.88
+   "t": 27.51
   },
   {
-   "n": 16,
-   "tool": "get_signal_window",
-   "args": {
-    "end": "2026-10-13T16:45",
-    "signal": "T1",
-    "start": "2026-10-13T11:40"
-   },
-   "why": "Tank level shows whether water was held or bypassed around ETP.",
-   "result": {
-    "evidence_id": "sig:T1@1013-1140..1013-1645",
-    "signal": "T1",
-    "name": "Equalization tank level",
-    "unit": "fraction of volume",
-    "start": "2026-10-13 11:40",
-    "end": "2026-10-13 16:45",
-    "coverage": 1.0,
-    "gaps": [],
-    "mean": 0.4,
-    "min": 0.38,
-    "max": 0.42,
-    "std": 0.01,
-    "resolution_minutes": 10,
-    "series": [
-     [
-      "10-13 11:40",
-      0.39
-     ],
-     [
-      "10-13 12:00",
-      0.39
-     ],
-     [
-      "10-13 12:10",
-      0.39
-     ],
-     [
-      "10-13 12:30",
-      0.38
-     ],
-     [
-      "10-13 12:40",
-      0.41
-     ],
-     [
-      "10-13 13:00",
-      0.39
-     ],
-     [
-      "10-13 13:10",
-      0.41
-     ],
-     [
-      "10-13 13:30",
-      0.39
-     ],
-     [
-      "10-13 13:40",
-      0.42
-     ],
-     [
-      "10-13 14:00",
-      0.4
-     ],
-     [
-      "10-13 14:10",
-      0.4
-     ],
-     [
-      "10-13 14:30",
-      0.41
-     ],
-     [
-      "10-13 14:40",
-      0.4
-     ],
-     [
-      "10-13 15:00",
-      0.4
-     ],
-     [
-      "10-13 15:10",
-      0.38
-     ],
-     [
-      "10-13 15:30",
-      0.41
-     ],
-     [
-      "10-13 15:40",
-      0.39
-     ],
-     [
-      "10-13 16:00",
-      0.4
-     ],
-     [
-      "10-13 16:10",
-      0.4
-     ],
-     [
-      "10-13 16:30",
-      0.38
-     ]
-    ],
-    "flags": [],
-    "outside_this_window": {
-     "median": 0.41,
-     "p10": 0.34,
-     "p90": 0.48,
-     "note": "the same signal over the rest of the case data, for comparison"
-    }
-   },
-   "t": 22.88
-  },
-  {
-   "n": 17,
-   "tool": "compute_water_balance",
-   "args": {
-    "end": "2026-10-13T16:45",
-    "start": "2026-10-13T11:40"
-   },
-   "why": "Separates bypass/unaccounted water from in-plant treatment failure.",
-   "result": {
-    "evidence_id": "calc:water_balance@1013-1140..1013-1645",
-    "start": "2026-10-13 11:40:00+06:00",
-    "end": "2026-10-13 16:45:00+06:00",
-    "hours": 5.08,
-    "coverage": {
-     "S1": 1.0,
-     "S2": 1.0,
-     "S4a": 1.0,
-     "T1": 1.0
-    },
-    "etp": {
-     "etp_inflow_m3": 316.9,
-     "treated_to_outfall_m3": 265.3,
-     "outfall_m3": 265.9,
-     "residual_m3": 0.7,
-     "tolerance_m3": 21.3,
-     "within_tolerance": true
-    },
-    "boundary": {
-     "intake_m3": 308.5,
-     "outfall_m3": 265.9,
-     "process_losses_m3": 35.5,
-     "sludge_water_m3": 4.8,
-     "storage_change_m3": -8.0,
-     "residual_m3": 10.2,
-     "tolerance_m3": 24.7,
-     "within_tolerance": true
-    },
-    "tank": {
-     "wastewater_arriving_m3": 319.7,
-     "etp_inflow_m3": 316.9,
-     "storage_change_m3": -8.0,
-     "unaccounted_m3": 10.9,
-     "tolerance_m3": 32.0,
-     "within_tolerance": true
-    },
-    "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). Tank balance: wastewater arriving (estimated from intake) vs ETP inflow + storage change; unaccounted water left the tank another way, or was intake water that never became wastewater. null means a required signal is under 80% coverage."
-   },
-   "t": 22.88
-  },
-  {
-   "n": 18,
+   "n": 15,
    "tool": "get_signal_window",
    "args": {
     "end": "2026-10-13T16:45",
     "signal": "S3",
     "start": "2026-10-13T11:40"
    },
-   "why": "Shows power stayed low beyond maintenance window, separating extended cut from brief service.",
+   "why": "Power shape over alert confirms sustained cut versus brief maintenance dip.",
    "result": {
     "evidence_id": "sig:S3@1013-1140..1013-1645",
     "signal": "S3",
@@ -1428,395 +1219,485 @@
      "note": "the same signal over the rest of the case data, for comparison"
     }
    },
-   "t": 29.0
+   "t": 27.52
+  },
+  {
+   "n": 16,
+   "tool": "compute_water_balance",
+   "args": {
+    "end": "2026-10-13T16:45",
+    "start": "2026-10-13T11:40"
+   },
+   "why": "Balance of tank inflow versus ETP flow plus storage separates bypass from through-ETP poor treatment.",
+   "result": {
+    "evidence_id": "calc:water_balance@1013-1140..1013-1645",
+    "start": "2026-10-13 11:40:00+06:00",
+    "end": "2026-10-13 16:45:00+06:00",
+    "hours": 5.08,
+    "coverage": {
+     "S1": 1.0,
+     "S2": 1.0,
+     "S4a": 1.0,
+     "T1": 1.0
+    },
+    "etp": {
+     "etp_inflow_m3": 316.9,
+     "treated_to_outfall_m3": 265.3,
+     "outfall_m3": 265.9,
+     "residual_m3": 0.7,
+     "tolerance_m3": 21.3,
+     "within_tolerance": true
+    },
+    "boundary": {
+     "intake_m3": 308.5,
+     "outfall_m3": 265.9,
+     "process_losses_m3": 35.5,
+     "sludge_water_m3": 4.8,
+     "storage_change_m3": -8.0,
+     "residual_m3": 10.2,
+     "tolerance_m3": 24.7,
+     "within_tolerance": true
+    },
+    "tank": {
+     "wastewater_arriving_m3": 319.7,
+     "etp_inflow_m3": 316.9,
+     "storage_change_m3": -8.0,
+     "unaccounted_m3": 10.9,
+     "tolerance_m3": 32.0,
+     "within_tolerance": true
+    },
+    "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). Tank balance: wastewater arriving (estimated from intake) vs ETP inflow + storage change; unaccounted water left the tank another way, or was intake water that never became wastewater. null means a required signal is under 80% coverage."
+   },
+   "t": 27.52
+  },
+  {
+   "n": 17,
+   "tool": "get_production",
+   "args": {
+    "end": "2026-10-13T16:45",
+    "start": "2026-10-13T11:40"
+   },
+   "why": "Production shades and volumes test operator claim of light load needing less aeration.",
+   "result": {
+    "evidence_id": "plan:production@1013-1140..1013-1645",
+    "note": "The factory's production plan (a factory record, not a measurement).",
+    "batches": [
+     {
+      "id": "factory-a-460f93ca-B07",
+      "start": "2026-10-13 10:00:00+06:00",
+      "end": "2026-10-13 14:00:00+06:00",
+      "shade": "light",
+      "planned_wastewater_m3": 257.1
+     },
+     {
+      "id": "factory-a-460f93ca-B08",
+      "start": "2026-10-13 14:00:00+06:00",
+      "end": "2026-10-13 18:00:00+06:00",
+      "shade": "light",
+      "planned_wastewater_m3": 248.0
+     }
+    ]
+   },
+   "t": 27.52
+  },
+  {
+   "n": 18,
+   "tool": "read_document",
+   "args": {
+    "doc_id": "doc:logbook-1013"
+   },
+   "why": "Logbook claims about ETP operation timing must be tested against power and lab signals.",
+   "result": {
+    "evidence_id": "doc:logbook-1013",
+    "type": "logbook",
+    "author": "R. Karim",
+    "factory_claim": true,
+    "covers": [
+     "2026-10-13 00:00:00+06:00",
+     "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "image": "docs/logbook-1013.jpg",
+    "note": "The image follows. Read it yourself; no transcription is provided."
+   },
+   "t": 27.52
   },
   {
    "n": 19,
-   "tool": "compare_similar_windows",
-   "args": {
-    "end": "2026-10-13T16:45",
-    "signal": "S3",
-    "start": "2026-10-13T11:40"
-   },
-   "why": "Shows power stayed low beyond maintenance window, separating extended cut from brief service.",
-   "result": {
-    "error": "tool budget of 16 checks is spent; submit an assessment or an evidence request now"
-   },
-   "t": 29.0
-  },
-  {
-   "n": 20,
    "tool": "update_hypotheses",
    "args": {
     "explanations": [
      {
-      "id": "normal",
-      "label": "Normal operation: ETP treated batch wastewater",
-      "supporting": [],
       "contradicting": [
+       "calc:reading_vs_feed:S3@1013-1531",
+       "doc:lab-1013-1610",
        "calc:power_vs_load@1013-1140..1013-1645",
-       "doc:lab-1013-1610"
+       "sig:S2@1013-1140..1013-1645"
       ],
+      "id": "normal",
+      "label": "Normal operation with working treatment",
       "missing": [],
-      "status": "contradicted"
+      "status": "contradicted",
+      "supporting": []
      },
      {
+      "contradicting": [],
       "id": "aeration_cut",
-      "label": "Aeration cut: ETP power cut while inflow normal",
+      "label": "Aeration cut (prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+      "missing": [],
+      "status": "supported",
       "supporting": [
        "calc:power_vs_load@1013-1140..1013-1645",
-       "calc:reading_vs_feed:S3@1013-1531",
        "sig:S2@1013-1140..1013-1645",
-       "doc:lab-1013-1610"
-      ],
-      "contradicting": [],
-      "missing": [],
-      "status": "supported"
+       "calc:reading_vs_feed:S3@1013-1531",
+       "doc:lab-1013-1610",
+       "sig:S3@1013-1140..1013-1645"
+      ]
      },
      {
-      "id": "meter_fault",
-      "label": "Power meter fault: low reading not real cut",
-      "supporting": [],
       "contradicting": [
        "calc:reading_vs_feed:S3@1013-1531",
        "doc:lab-1013-1610"
       ],
+      "id": "power_meter_fault",
+      "label": "Power meter reads wrong, treatment actually ran",
       "missing": [],
-      "status": "contradicted"
+      "status": "contradicted",
+      "supporting": []
      },
      {
-      "id": "bypass",
-      "label": "Bypass around ETP during stop",
-      "supporting": [],
       "contradicting": [
        "sig:S4b@1013-1140..1013-1645",
        "calc:water_balance@1013-1140..1013-1645",
-       "sig:T1@1013-1140..1013-1645"
+       "sig:S4a@1013-1140..1013-1645",
+       "sig:S4c@1013-1140..1013-1645"
       ],
+      "id": "bypass",
+      "label": "Bypass around ETP discharging untreated water",
       "missing": [],
-      "status": "contradicted"
-     },
-     {
-      "id": "replay",
-      "label": "Replayed power feed hiding real operation",
-      "supporting": [],
-      "contradicting": [
-       "calc:reading_vs_feed:S3@1013-1531"
-      ],
-      "missing": [
-       "compare_similar_windows:S3"
-      ],
-      "status": "open"
+      "status": "contradicted",
+      "supporting": []
      }
     ]
    },
    "why": null,
    "result": {
     "recorded": true,
-    "checks_used": 16,
-    "checks_left": 0
+    "checks_used": 15,
+    "checks_left": 1
    },
-   "t": 36.07
+   "t": 40.86
   },
   {
-   "n": 21,
+   "n": 20,
    "tool": "submit_assessment",
    "args": {
+    "evidence_request": "null",
     "explanations": [
      {
-      "id": "normal",
-      "label": "Normal operation: ETP treated batch wastewater",
-      "supporting": [],
       "contradicting": [
        "calc:power_vs_load@1013-1140..1013-1645",
+       "sig:S2@1013-1140..1013-1645",
+       "calc:reading_vs_feed:S3@1013-1531",
        "doc:lab-1013-1610"
       ],
+      "id": "normal",
+      "label": "Normal operation with working treatment",
       "missing": [],
-      "status": "contradicted"
+      "status": "contradicted",
+      "supporting": []
      },
      {
+      "contradicting": [],
       "id": "aeration_cut",
-      "label": "Aeration cut: ETP power cut while inflow normal",
+      "label": "Aeration cut (prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+      "missing": [],
+      "status": "supported",
       "supporting": [
        "calc:power_vs_load@1013-1140..1013-1645",
-       "calc:reading_vs_feed:S3@1013-1531",
        "sig:S2@1013-1140..1013-1645",
+       "sig:S3@1013-1140..1013-1645",
+       "calc:reading_vs_feed:S3@1013-1531",
        "doc:lab-1013-1610"
-      ],
-      "contradicting": [],
-      "missing": [],
-      "status": "supported"
+      ]
      },
      {
-      "id": "meter_fault",
-      "label": "Power meter fault: low reading not real cut",
-      "supporting": [],
       "contradicting": [
        "calc:reading_vs_feed:S3@1013-1531",
        "doc:lab-1013-1610"
       ],
+      "id": "power_meter_fault",
+      "label": "Power meter reads wrong, treatment actually ran",
       "missing": [],
-      "status": "contradicted"
+      "status": "contradicted",
+      "supporting": []
      },
      {
-      "id": "bypass",
-      "label": "Bypass around ETP during stop",
-      "supporting": [],
       "contradicting": [
        "sig:S4b@1013-1140..1013-1645",
-       "calc:water_balance@1013-1140..1013-1645",
-       "sig:T1@1013-1140..1013-1645"
+       "sig:S4a@1013-1140..1013-1645",
+       "sig:S4c@1013-1140..1013-1645",
+       "calc:water_balance@1013-1140..1013-1645"
       ],
+      "id": "bypass",
+      "label": "Bypass around ETP discharging untreated water",
       "missing": [],
-      "status": "contradicted"
-     },
-     {
-      "id": "replay",
-      "label": "Replayed power feed hiding real operation",
-      "supporting": [],
-      "contradicting": [
-       "calc:reading_vs_feed:S3@1013-1531"
-      ],
-      "missing": [],
-      "status": "contradicted"
+      "status": "contradicted",
+      "supporting": []
      }
     ],
     "key_evidence": [
      {
       "id": "calc:power_vs_load@1013-1140..1013-1645",
-      "why": "Power stayed below expected band for whole 11:40-16:45 stretch while inflow normal."
+      "why": "Power sustained far below expected band with normal inflow, showing aeration was cut."
      },
      {
       "id": "calc:reading_vs_feed:S3@1013-1531",
-      "why": "Photo reading matches feed and is below expected band, proving low power is real."
+      "why": "Meter photo matches the low feed, proving the low power is real, not a feed fault."
      },
      {
       "id": "doc:lab-1013-1610",
-      "why": "BOD above limit shows treatment did not work at time of low power."
+      "why": "BOD above limit is physical proof treatment did not work for water discharged in the interval."
      },
      {
       "id": "sig:S4b@1013-1140..1013-1645",
-      "why": "Neutral pH rules out raw wastewater bypass as cause."
+      "why": "Neutral pH with no high values rules out raw wastewater bypass."
      },
      {
       "id": "calc:water_balance@1013-1140..1013-1645",
-      "why": "Balances within tolerance show flow went through ETP, not around it."
+      "why": "Balances close within tolerance, showing flow went through the ETP rather than around it."
      }
     ],
     "limitations": [
-     "Replay comparison for S3 was not completed because the check budget was spent; the photo match and lab result already confirm low power was real and treatment failed, so this does not change the finding.",
-     "Meter photo covers only the 15:30-15:35 instant and lab covers the 16:10 grab; continuous low power is shown by the feed over 11:40-16:45.",
-     "No evidence was available for pollutants other than BOD, pH and conductivity."
+     "Assessment covers the 11:40-16:45 stretch inside the treatment interval where physical evidence is strongest; it does not measure every pollutant.",
+     "Factory logbook, maintenance record and operator statement are claims, not facts; where they claim normal operation after 13:20 they are contradicted by continued low power and high BOD.",
+     "Power confirms flow only roughly, but flow exactness is not needed here because photo and lab confirm the finding."
     ],
-    "scope_line": "Based on flow, power, pH and conductivity records and tank balance for 2026-10-13 11:40 to 16:45 within treatment interval 2026-10-13 10:00 to 2026-10-14 14:00, plus power meter photo and lab BOD. Does not measure every pollutant.",
+    "scope_line": "Based on ETP inflow, power, outfall flow, pH and conductivity records for 2026-10-13 11:40 to 16:45 inside the treatment interval, plus a power meter photo and a lab BOD result. Does not measure every pollutant.",
     "status": "contradicts",
-    "summary": "Power averaged 39.2 kW against 59.9 kW expected with all readings below the band while inflow stayed normal, and the meter photo reading of 39.4 kW matched the feed. A final-outfall sample at 16:10 had BOD 60.9 mg/L against a 30 mg/L limit with pH 7.37. Outfall pH stayed near neutral, showing water went through the under-aerated plant rather than around it."
+    "summary": "Wastewater was passed through the ETP but with aeration cut for hours inside the batch treatment interval, and the discharge was poorly treated. The low power reading is confirmed by a meter photo, and a lab sample from the outfall exceeds the BOD limit. Outfall chemistry shows the water went through the plant rather than bypassing it, so the failure was poor treatment, not a bypass.",
+    "unresolved": []
    },
    "why": null,
    "result": {
     "recorded": true
    },
-   "t": 44.68
+   "t": 51.64
   }
  ],
  "ledger": [
   [
    {
+    "contradicting": [],
     "id": "normal",
-    "label": "Normal operation: ETP treated batch wastewater",
-    "supporting": [],
-    "contradicting": [],
+    "label": "Normal operation with working treatment",
     "missing": [],
-    "status": "open"
+    "status": "open",
+    "supporting": []
    },
    {
+    "contradicting": [],
     "id": "aeration_cut",
-    "label": "Aeration cut: ETP power cut while inflow normal",
-    "supporting": [],
-    "contradicting": [],
+    "label": "Aeration cut during power-below-load alert",
     "missing": [],
-    "status": "open"
+    "status": "open",
+    "supporting": []
    },
    {
-    "id": "meter_fault",
-    "label": "Power meter fault: low reading not real cut",
-    "supporting": [],
     "contradicting": [],
+    "id": "power_meter_fault",
+    "label": "Power meter reads wrong, treatment actually ran",
     "missing": [],
-    "status": "open"
+    "status": "open",
+    "supporting": []
    },
    {
+    "contradicting": [],
     "id": "bypass",
-    "label": "Bypass around ETP during stop",
-    "supporting": [],
-    "contradicting": [],
+    "label": "Bypass around ETP discharging untreated water",
     "missing": [],
-    "status": "open"
-   },
-   {
-    "id": "replay",
-    "label": "Replayed power feed hiding real operation",
-    "supporting": [],
-    "contradicting": [],
-    "missing": [],
-    "status": "open"
+    "status": "open",
+    "supporting": []
    }
   ],
   [
    {
+    "contradicting": [],
     "id": "normal",
-    "label": "Normal operation: ETP treated batch wastewater",
-    "supporting": [],
-    "contradicting": [
-     "calc:power_vs_load@1013-1140..1013-1645",
-     "doc:lab-1013-1610"
-    ],
+    "label": "Normal operation with working treatment",
     "missing": [],
-    "status": "contradicted"
+    "status": "open",
+    "supporting": []
    },
    {
+    "contradicting": [],
     "id": "aeration_cut",
-    "label": "Aeration cut: ETP power cut while inflow normal",
+    "label": "Aeration cut (or prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+    "missing": [],
+    "status": "open",
     "supporting": [
      "calc:power_vs_load@1013-1140..1013-1645",
-     "calc:reading_vs_feed:S3@1013-1531",
-     "sig:S2@1013-1140..1013-1645",
      "doc:lab-1013-1610"
-    ],
-    "contradicting": [],
-    "missing": [],
-    "status": "supported"
+    ]
    },
    {
-    "id": "meter_fault",
-    "label": "Power meter fault: low reading not real cut",
-    "supporting": [],
+    "contradicting": [],
+    "id": "power_meter_fault",
+    "label": "Power meter reads wrong, treatment actually ran",
+    "missing": [],
+    "status": "open",
+    "supporting": []
+   },
+   {
+    "contradicting": [],
+    "id": "bypass",
+    "label": "Bypass around ETP discharging untreated water",
+    "missing": [],
+    "status": "open",
+    "supporting": []
+   }
+  ],
+  [
+   {
+    "contradicting": [
+     "calc:reading_vs_feed:S3@1013-1531",
+     "doc:lab-1013-1610",
+     "calc:power_vs_load@1013-1140..1013-1645",
+     "sig:S2@1013-1140..1013-1645"
+    ],
+    "id": "normal",
+    "label": "Normal operation with working treatment",
+    "missing": [],
+    "status": "contradicted",
+    "supporting": []
+   },
+   {
+    "contradicting": [],
+    "id": "aeration_cut",
+    "label": "Aeration cut (prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+    "missing": [],
+    "status": "supported",
+    "supporting": [
+     "calc:power_vs_load@1013-1140..1013-1645",
+     "sig:S2@1013-1140..1013-1645",
+     "calc:reading_vs_feed:S3@1013-1531",
+     "doc:lab-1013-1610",
+     "sig:S3@1013-1140..1013-1645"
+    ]
+   },
+   {
     "contradicting": [
      "calc:reading_vs_feed:S3@1013-1531",
      "doc:lab-1013-1610"
     ],
+    "id": "power_meter_fault",
+    "label": "Power meter reads wrong, treatment actually ran",
     "missing": [],
-    "status": "contradicted"
+    "status": "contradicted",
+    "supporting": []
    },
    {
-    "id": "bypass",
-    "label": "Bypass around ETP during stop",
-    "supporting": [],
     "contradicting": [
      "sig:S4b@1013-1140..1013-1645",
      "calc:water_balance@1013-1140..1013-1645",
-     "sig:T1@1013-1140..1013-1645"
+     "sig:S4a@1013-1140..1013-1645",
+     "sig:S4c@1013-1140..1013-1645"
     ],
+    "id": "bypass",
+    "label": "Bypass around ETP discharging untreated water",
     "missing": [],
-    "status": "contradicted"
-   },
-   {
-    "id": "replay",
-    "label": "Replayed power feed hiding real operation",
-    "supporting": [],
-    "contradicting": [
-     "calc:reading_vs_feed:S3@1013-1531"
-    ],
-    "missing": [
-     "compare_similar_windows:S3"
-    ],
-    "status": "open"
+    "status": "contradicted",
+    "supporting": []
    }
   ]
  ],
  "final": {
   "kind": "assessment",
   "status": "contradicts",
-  "summary": "Power averaged 39.2 kW against 59.9 kW expected with all readings below the band while inflow stayed normal, and the meter photo reading of 39.4 kW matched the feed. A final-outfall sample at 16:10 had BOD 60.9 mg/L against a 30 mg/L limit with pH 7.37. Outfall pH stayed near neutral, showing water went through the under-aerated plant rather than around it.",
+  "summary": "Wastewater was passed through the ETP but with aeration cut for hours inside the batch treatment interval, and the discharge was poorly treated. The low power reading is confirmed by a meter photo, and a lab sample from the outfall exceeds the BOD limit. Outfall chemistry shows the water went through the plant rather than bypassing it, so the failure was poor treatment, not a bypass.",
   "explanations": [
    {
-    "id": "normal",
-    "label": "Normal operation: ETP treated batch wastewater",
-    "supporting": [],
     "contradicting": [
      "calc:power_vs_load@1013-1140..1013-1645",
+     "sig:S2@1013-1140..1013-1645",
+     "calc:reading_vs_feed:S3@1013-1531",
      "doc:lab-1013-1610"
     ],
+    "id": "normal",
+    "label": "Normal operation with working treatment",
     "missing": [],
-    "status": "contradicted"
+    "status": "contradicted",
+    "supporting": []
    },
    {
+    "contradicting": [],
     "id": "aeration_cut",
-    "label": "Aeration cut: ETP power cut while inflow normal",
+    "label": "Aeration cut (prolonged under-aeration) 11:40-16:45, poorly treated discharge",
+    "missing": [],
+    "status": "supported",
     "supporting": [
      "calc:power_vs_load@1013-1140..1013-1645",
-     "calc:reading_vs_feed:S3@1013-1531",
      "sig:S2@1013-1140..1013-1645",
+     "sig:S3@1013-1140..1013-1645",
+     "calc:reading_vs_feed:S3@1013-1531",
      "doc:lab-1013-1610"
-    ],
-    "contradicting": [],
-    "missing": [],
-    "status": "supported"
+    ]
    },
    {
-    "id": "meter_fault",
-    "label": "Power meter fault: low reading not real cut",
-    "supporting": [],
     "contradicting": [
      "calc:reading_vs_feed:S3@1013-1531",
      "doc:lab-1013-1610"
     ],
+    "id": "power_meter_fault",
+    "label": "Power meter reads wrong, treatment actually ran",
     "missing": [],
-    "status": "contradicted"
+    "status": "contradicted",
+    "supporting": []
    },
    {
-    "id": "bypass",
-    "label": "Bypass around ETP during stop",
-    "supporting": [],
     "contradicting": [
      "sig:S4b@1013-1140..1013-1645",
-     "calc:water_balance@1013-1140..1013-1645",
-     "sig:T1@1013-1140..1013-1645"
+     "sig:S4a@1013-1140..1013-1645",
+     "sig:S4c@1013-1140..1013-1645",
+     "calc:water_balance@1013-1140..1013-1645"
     ],
+    "id": "bypass",
+    "label": "Bypass around ETP discharging untreated water",
     "missing": [],
-    "status": "contradicted"
-   },
-   {
-    "id": "replay",
-    "label": "Replayed power feed hiding real operation",
-    "supporting": [],
-    "contradicting": [
-     "calc:reading_vs_feed:S3@1013-1531"
-    ],
-    "missing": [],
-    "status": "contradicted"
+    "status": "contradicted",
+    "supporting": []
    }
   ],
   "key_evidence": [
    {
     "id": "calc:power_vs_load@1013-1140..1013-1645",
-    "why": "Power stayed below expected band for whole 11:40-16:45 stretch while inflow normal."
+    "why": "Power sustained far below expected band with normal inflow, showing aeration was cut."
    },
    {
     "id": "calc:reading_vs_feed:S3@1013-1531",
-    "why": "Photo reading matches feed and is below expected band, proving low power is real."
+    "why": "Meter photo matches the low feed, proving the low power is real, not a feed fault."
    },
    {
     "id": "doc:lab-1013-1610",
-    "why": "BOD above limit shows treatment did not work at time of low power."
+    "why": "BOD above limit is physical proof treatment did not work for water discharged in the interval."
    },
    {
     "id": "sig:S4b@1013-1140..1013-1645",
-    "why": "Neutral pH rules out raw wastewater bypass as cause."
+    "why": "Neutral pH with no high values rules out raw wastewater bypass."
    },
    {
     "id": "calc:water_balance@1013-1140..1013-1645",
-    "why": "Balances within tolerance show flow went through ETP, not around it."
+    "why": "Balances close within tolerance, showing flow went through the ETP rather than around it."
    }
   ],
-  "scope_line": "Based on flow, power, pH and conductivity records and tank balance for 2026-10-13 11:40 to 16:45 within treatment interval 2026-10-13 10:00 to 2026-10-14 14:00, plus power meter photo and lab BOD. Does not measure every pollutant.",
+  "scope_line": "Based on ETP inflow, power, outfall flow, pH and conductivity records for 2026-10-13 11:40 to 16:45 inside the treatment interval, plus a power meter photo and a lab BOD result. Does not measure every pollutant.",
   "limitations": [
-   "Replay comparison for S3 was not completed because the check budget was spent; the photo match and lab result already confirm low power was real and treatment failed, so this does not change the finding.",
-   "Meter photo covers only the 15:30-15:35 instant and lab covers the 16:10 grab; continuous low power is shown by the feed over 11:40-16:45.",
-   "No evidence was available for pollutants other than BOD, pH and conductivity."
+   "Assessment covers the 11:40-16:45 stretch inside the treatment interval where physical evidence is strongest; it does not measure every pollutant.",
+   "Factory logbook, maintenance record and operator statement are claims, not facts; where they claim normal operation after 13:20 they are contradicted by continued low power and high BOD.",
+   "Power confirms flow only roughly, but flow exactness is not needed here because photo and lab confirm the finding."
   ],
   "unresolved": [],
-  "evidence_request": null
+  "evidence_request": "null"
  },
  "status": "contradicts",
  "validation": [
@@ -1827,12 +1708,13 @@
  ],
  "valid": true,
  "turns": 8,
- "checks_used": 16,
- "prompt_tokens": 110330,
- "completion_tokens": 8732,
- "reasoning_tokens": 4987,
- "cached_tokens": 64264,
- "cost_usd": 0.175,
- "seconds": 44.7,
+ "checks_used": 15,
+ "prompt_tokens": 98966,
+ "completion_tokens": 10263,
+ "reasoning_tokens": 6473,
+ "cached_tokens": 43445,
+ "cost_usd": 0.1673,
+ "seconds": 51.6,
+ "finished_at": "2026-10-31T15:20:42+00:00",
  "error": null
 }

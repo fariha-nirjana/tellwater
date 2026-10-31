@@ -1,4 +1,6 @@
 import copy
+import json
+import re
 
 import pytest
 from fastapi.testclient import TestClient
@@ -108,24 +110,25 @@ def test_signed_record_names_every_garment_of_the_batch(client):
 def test_translation_keeps_every_number_and_is_cached(client, monkeypatch, tmp_path):
     from api import translate
     monkeypatch.setattr(api, "RUNTIME", tmp_path)
-    calls = []
+    calls, dropped = [], []
 
     class Fake:
         def __init__(self, *_):
             pass
 
         def chat(self, messages, **_):
-            src = __import__("json").loads(messages[1]["content"])
+            src = json.loads(messages[1]["content"])
             calls.append(1)
-            # first answer drops a number; the retry keeps them
+            # first answer drops the numbers from one field that has some; the retry keeps them
             out = {k: ("DE " + v) for k, v in src.items()}
             if len(calls) == 1:
-                out["summary"] = "DE Leistung war niedrig."
-            return type("R", (), {"message": type("M", (), {"content": __import__("json").dumps(out)}), "usage": {}})()
+                dropped.append(next(k for k, v in src.items() if re.search(r"\d", v)))
+                out[dropped[0]] = "DE Leistung war niedrig."
+            return type("R", (), {"message": type("M", (), {"content": json.dumps(out)}), "usage": {}})()
 
     monkeypatch.setattr(api, "ModelClient", Fake)
     r = client.get("/api/passport/B/translate", params={"lang": "de"}).json()
-    assert len(calls) == 2 and "39.2" in r["fields"]["summary"] and "Muse Spark" in r["note"]
+    assert len(calls) == 2 and re.search(r"\d", r["fields"][dropped[0]]) and "Muse Spark" in r["note"]
     assert client.get("/api/passport/B/translate", params={"lang": "de"}).json() == r and len(calls) == 2  # cached
     assert client.get("/api/passport/B/translate", params={"lang": "bn"}).status_code == 400  # Bangla is reviewed by a person
     assert translate.problems({"a": "BOD 60.9 vs 30"}, {"a": "BSB 60,9 gegen 30"}) == ["a: numbers changed or lost (60.9)"]
