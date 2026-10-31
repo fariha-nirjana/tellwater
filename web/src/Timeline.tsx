@@ -15,10 +15,11 @@ type Props = {
   range: [Date, Date]
   highlight: { signals: string[]; start?: Date; end?: Date } | null
   bands?: { start: Date; end: Date }[] // what a factory record claims
+  focusRow?: number // height of a highlighted record's row (the case file's stage shows one or two records large)
 }
 
 /** Stacked signals on one time axis, in iteration 02's chart style. Gaps stay gaps. */
-export function Timeline({ series, info, shown, range, highlight, bands = [] }: Props) {
+export function Timeline({ series, info, shown, range, highlight, bands = [], focusRow = FOCUS }: Props) {
   const box = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(560)
   useEffect(() => {
@@ -37,7 +38,7 @@ export function Timeline({ series, info, shown, range, highlight, bands = [] }: 
   const ticks: Date[] = []
   const first = new Date(t0); first.setMinutes(0, 0, 0)
   for (let t = new Date(first.getTime() + 3600_000); t < t1; t = new Date(t.getTime() + 3600_000)) if (t.getHours() % stepH === 0) ticks.push(t)
-  const heights = shown.map((s) => (highlight?.signals.includes(s) ? FOCUS : ROW))
+  const heights = shown.map((s) => (highlight?.signals.includes(s) ? focusRow : ROW))
   const tops = heights.map((_, i) => heights.slice(0, i).reduce((a, b) => a + b, 0))
   const body = heights.reduce((a, b) => a + b, 0)
   const height = body + 22

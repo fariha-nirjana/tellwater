@@ -51,3 +51,4 @@ data/distill/
 
 # Other participants' posts (reference only)
 participant ideas/
+*.tsbuildinfo

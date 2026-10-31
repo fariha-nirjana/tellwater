@@ -131,4 +131,277 @@
 @keyframes cl-in { from { opacity: 0; transform: translateY(14px) scale(.85) } to { opacity: 1; transform: none } }
 @media (max-width: 560px) { .cl-card { display: none } }
 @media print { .chat-launcher { display: none !important } }
-body:has(.chat-launcher) footer > div { margin-right: 130px }  /* the corner chat never covers the footer's switches */
+body:has(.chat-launcher) footer > div { margin-right: 130px }
+@media (min-width: 561px) { body:has(.chat-launcher) footer > div { margin-right: 330px } }  /* and its card beside it */  /* the corner chat never covers the footer's switches */
+
+/* the case file as a stage (CaseFile.tsx): the investigation works one record at a time, and so does the page. The steps (or,
+   at rest, the finding line by line) on the left, the one record in question large in the middle with the companion telling
+   why, the explanations on the right. It fits the window below the site header; nothing on it scrolls the page. */
+.case-view.case-stage { max-width: none; padding: 12px 30px 14px }
+.case-stage .case-header { display: flex; align-items: center; gap: 20px; padding: 2px 0 12px; border-top: 0; border-bottom: 1px solid #d6d3df }
+.case-stage .case-identity { flex-shrink: 0 }
+.case-stage .case-identity h1 { font-size: 22px; margin: 3px 0 0 }
+.case-stage .stamp { white-space: nowrap; flex-shrink: 0 }
+.case-stage .case-switch { display: flex; gap: 14px; margin-left: 6px }
+.case-stage .supplier { display: flex; align-items: center; gap: 4px }
+.case-stage .supplier > span { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #8a86a0; margin-right: 4px }
+.case-stage .case-switch button { width: auto; min-width: 34px; padding: 6px 10px; display: flex; align-items: baseline; gap: 6px }
+.case-stage .case-switch button small { font-size: 9px; color: #8a86a0 }
+.case-stage .case-switch button[aria-pressed=true] small { color: #c9c6e6 }
+.case-stage .case-switch button:not([aria-pressed=true]) small { display: none }
+.case-stage .logbook-language { margin: 0 }
+.case-decision { display: flex; align-items: center; gap: 14px; margin-left: auto; flex-shrink: 0 }
+.case-decision small { font-size: 10px; color: #837b90; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+.stage { display: grid; grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(230px, 290px); gap: 14px; margin-top: 12px }
+.stage-col, .stage-center { background: #fff; border: 1px solid #e1dde8; border-radius: 8px; min-width: 0; min-height: 0 }
+.stage-col { padding: 16px; display: flex; flex-direction: column }
+.stage-col h2 { font: 700 15px Manrope, var(--font); letter-spacing: -.02em; margin-bottom: 10px }
+.stage-col h3 { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #8a86a0; margin: 16px 0 8px }
+.finding-lines { display: grid; gap: 4px; overflow: auto; min-height: 0 }
+.finding-lines button { text-align: left; font-size: 11.5px; line-height: 1.5; padding: 7px 8px; border-bottom: 1px solid #4945ff30; border-radius: 3px }
+.finding-lines button span { color: var(--purple) }
+.finding-lines button:hover, .finding-lines button[aria-pressed=true] { background: #e5ff5260 }
+.record-thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px }
+.record-thumbs button { border: 1px solid #e1dde8; border-radius: 5px; padding: 4px; background: #faf9f6; display: grid; gap: 3px; justify-items: center; font-size: 8.5px; line-height: 1.2; color: #55526a; text-align: center }
+.record-thumbs button[aria-pressed=true] { border-color: var(--purple); box-shadow: 0 0 0 1px var(--purple) }
+.record-thumbs img, .record-thumbs .text-thumb { width: 100%; height: 34px; object-fit: cover; border-radius: 3px; display: grid; place-items: center; font: 16px Georgia, serif; background: #fff }
+.stage-steps { list-style: none; padding: 0; display: grid; gap: 1px; overflow: auto; min-height: 0; flex: 1 }
+.stage-steps button { width: 100%; display: flex; gap: 8px; text-align: left; padding: 4px 6px; border-radius: 4px; font-size: 11.5px; color: #a29eb6 }
+.stage-steps button[data-done] { color: #55526a }
+.stage-steps button[aria-current=step] { background: #ecebff; color: var(--ink); font-weight: 600 }
+.stage-steps button:disabled { cursor: default }
+.stage-steps i { font-style: normal; width: 16px; text-align: right; color: #b3afc7; flex-shrink: 0 }
+.stage-steps button[aria-current=step] i { color: var(--purple) }
+.stage-steps .thinking { font-size: 10.5px; color: #6d6a9c; padding: 4px 6px; display: flex; gap: 6px; align-items: center }
+.stage-play { margin-top: auto; padding-top: 12px; border-top: 1px solid #efedf3; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px }
+.stage-play .button { padding: 9px 13px }
+.stage-play input { flex: 1; min-width: 60px; accent-color: var(--purple) }
+.stage-play small { font-size: 10px; color: #8a86a0 }
+.stage-play .text-btn { font-size: 11px; color: var(--purple) }
+.stage-live { display: grid; gap: 2px; flex-basis: 100% }
+.stage-live .text-btn { text-align: left; font-size: 12px }
+
+.stage-center { display: flex; flex-direction: column; overflow: hidden }
+.stage-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 18px 0 }
+.stage-head .micro { font-size: 9px; color: var(--purple) }
+.stage-head small { font-size: 10px; color: #8a86a0 }
+.stage-links { display: flex; gap: 14px }
+.stage-links button, .stage-links a { font-size: 11px; color: var(--purple); padding: 0 }
+.stage-view { flex: 1; min-height: 0; overflow: auto; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px }
+.stage-summary { font-size: 15px; line-height: 1.6; letter-spacing: -.01em; max-width: 1000px }
+.stage-caption { font-size: 10px; color: #8a86a0; margin-bottom: -4px }
+.stage-empty { margin: auto; color: #8a86a0; font-size: 13px }
+.stage-view .contradiction-ribbon, .stage-view .request-slip, .stage-view .factory-reply { margin: 0 }
+.stage-view .contradiction-ribbon { padding: 9px 14px }
+.stage-view .contradiction-ribbon p { font-size: 11.5px }
+.stage-view .request-slip { padding: 10px 14px }
+.stage-view .request-slip p { font-size: 12px; line-height: 1.55 }
+.request-wait { display: block; margin-top: 6px; font-size: 10px; color: #6d6a7c }
+.request-wait a { color: var(--purple) }
+.factory-reply { padding: 10px 12px; border-left: 3px solid var(--coral); background: #fff6f3; border-radius: 0 5px 5px 0 }
+.factory-reply .micro { font-size: 8px; color: #b2402f }
+.factory-reply p { font-size: 12px; line-height: 1.5; margin-top: 4px }
+.factory-reply small { font-size: 9.5px; color: #8a7d84 }
+.stage-view #documentViewer { display: flex; flex-direction: column; min-height: 0; flex: 1 }
+.stage-view .doc-type { display: none }
+.stage-view .doc-stage { flex: 1; min-height: 0; display: flex; justify-content: center }
+.stage-view .doc-image-wrap { height: 100%; max-height: 62vh; width: auto; display: inline-block; position: relative }
+.stage-view .doc-image-wrap img { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block }
+.stage-view .physical-moment { margin: auto 0; border: 0; background: none; padding: 0 }
+.stage-view .physical-moment > .micro { display: none }
+.stage-view .meter-comparison { gap: 34px; align-items: center }
+.stage-view .meter-comparison > button { flex: 0 1 55%; min-width: 0 }
+.stage-view .meter-comparison img { max-height: 46vh; max-width: 100%; width: auto; height: auto; object-fit: contain; display: block }
+.stage-view .meter-comparison b { font-size: 56px }
+.stage-view .physical-moment > div > p { font-size: 15px; line-height: 1.6; margin-top: 14px }
+.stage-view .lab-moment { margin-top: 8px }
+.stage-lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: center; margin: auto 0 }
+.stage-lab > button img { width: 100%; max-height: 56vh; object-fit: contain; border-radius: 6px; box-shadow: 0 8px 24px #17173522 }
+@media (max-width: 760px) { .stage-lab { grid-template-columns: 1fr } }
+.stage-chart { display: flex; flex-direction: column; gap: 6px }
+.stage-chart .chart-label { display: flex; justify-content: space-between; align-items: baseline }
+.stage-chart .chart-label b { font-size: 13px }
+.stage-chart .chart-label small { display: block; font-size: 10px; color: #8a86a0 }
+.stage-chart .chart-label > span { font: 600 26px Manrope, var(--font); color: var(--purple); letter-spacing: -.03em }
+.stage-stories { display: grid; gap: 8px; margin: auto 0 }
+.stage-stories h3 { font-size: 15px }
+.stage-finding { font-size: 17px; line-height: 1.6; margin: auto 0 }
+.stage-table { border-collapse: collapse; font-size: 12.5px; margin: auto 0; width: 100% }
+.stage-table th { text-align: left; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #8a86a0; padding: 6px 8px; border-bottom: 1px solid #e1dde8 }
+.stage-table td { padding: 8px; border-bottom: 1px solid #efedf3 }
+.stage-say { display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: #ecebff; border-top: 1px solid #ccc8ff; min-height: 92px }
+.stage-say .desk-perch { flex: 0 0 67px; height: 78px; pointer-events: none }
+.stage-say > div:nth-child(2) { flex: 1; min-width: 0 }
+.stage-say .micro { font-size: 8.5px; color: var(--purple); display: inline-flex; gap: 6px; align-items: center }
+.stage-say p { font-size: 14.5px; line-height: 1.5; margin-top: 3px }
+.stage-say .text-btn { font-size: 11px; color: var(--purple); white-space: nowrap; align-self: flex-start; margin-top: 4px }
+.stage-board { display: grid; gap: 8px; overflow: auto; min-height: 0; align-content: start }
+.stage-board .explanation-card { padding: 10px 11px; margin: 0 }
+.stage-board .explanation-card h3 { font-size: 12.5px; line-height: 1.35; margin-top: 4px; text-transform: none; letter-spacing: 0; color: inherit }
+.stage-board .evidence-chips { margin-top: 6px }
+.stage-board .evidence-chips button { font-size: 9.5px }
+.board-empty { font-size: 11px; color: #8a86a0 }
+.stage-right .board-note { margin-top: auto; padding-top: 10px; font-size: 9.5px; color: #8a86a0; line-height: 1.5 }
+@media (min-width: 1000px) and (min-height: 600px) {
+  .case-view.case-stage { height: calc(100vh - 83px); display: flex; flex-direction: column }
+  .case-stage .stage { flex: 1; min-height: 0 }
+}
+@media (max-width: 1250px) {
+  .case-stage .case-header { flex-wrap: wrap; gap: 10px 18px }
+  .case-stage .case-switch button small { display: none }
+}
+@media (max-width: 999px) {
+  .stage { grid-template-columns: 1fr }
+  .stage-center { order: -1; min-height: 70vh }
+  .stage-steps { max-height: 260px }
+}
+@media (max-width: 760px) {
+  .case-view.case-stage { padding: 12px 16px 24px }
+  .case-decision { margin-left: 0; flex-basis: 100%; justify-content: space-between }
+  .case-stage .case-switch { flex-wrap: wrap; margin: 0 }
+  .stage-head { flex-wrap: wrap }
+  .stage-say { position: sticky; bottom: 0; z-index: 4; padding: 8px 12px; gap: 10px; min-height: 0 }
+  .stage-say .desk-perch { flex-basis: 46px; height: 54px }
+  .stage-say p { font-size: 13px }
+  .stage-view .meter-comparison { flex-direction: column; gap: 12px }
+  .stage-view .meter-comparison b { font-size: 40px }
+}
+
+/* off the desk the companion steps aside; the corner card speaks for it */
+.companion.away { opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(.6); transition: opacity .25s, transform .25s }
+.chat-launcher.telling .cl-card { max-width: 300px }
+.chat-launcher.telling .cl-card small { line-height: 1.45; color: #5d5a6b }
+/* its first-visit bubble sits beside it on the desk, not over the case buttons */
+.companion.dock-mode .friend-tooltip, .companion.dock-mode.introduce .friend-tooltip { display: none }  /* inside the desk the bubble would cover the finding */
+/* the corner card never covers the human decision */
+
+/* who the page is for (App.tsx): a demo switch, not a login */
+.role-switch { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: 10px; color: #6d6a7c; white-space: nowrap }
+.role-switch > span { margin-right: 2px }
+.role-switch button { border: 1px solid #d3cfdf; border-radius: 999px; padding: 6px 11px; font-size: 10.5px; background: #fff; color: var(--ink) }
+.role-switch button[aria-pressed=true] { background: var(--ink); color: #fff; border-color: var(--ink) }
+@media (max-width: 1100px) { .role-switch > span { display: none } }
+@media (max-width: 760px) { .role-switch { gap: 4px } .role-switch button { padding: 5px 7px; font-size: 9.5px } }
+.role-short { display: none }
+@media (max-width: 560px) { .role-long { display: none } .role-short { display: inline } }
+
+/* the factory's page (Factory.tsx) */
+.fv { max-width: 1380px; margin: 0 auto; padding: 26px 30px 60px }
+.fv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--ink) }
+.fv-head h1 { font: 700 30px/1.15 Manrope, var(--font); letter-spacing: -.04em; margin-top: 8px }
+.fv-head p { font-size: 12px; color: #6d6a7c; margin-top: 6px }
+.fv-tools { display: grid; gap: 8px; justify-items: end; flex-shrink: 0 }
+.fv-who { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #6d6a7c }
+.fv-who a { border: 1px solid #d3cfdf; border-radius: 999px; padding: 5px 11px; background: #fff; color: var(--ink) }
+.fv-who a[aria-pressed=true] { background: var(--ink); color: #fff; border-color: var(--ink) }
+.fv-lang { display: flex; gap: 6px; flex-shrink: 0 }
+.fv-lang button { border: 1px solid #d3cfdf; border-radius: 5px; padding: 7px 12px; font-size: 12px; background: #fff }
+.fv-lang button[aria-pressed=true] { background: var(--ink); color: var(--acid) }
+.fv-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; margin-top: 22px; align-items: start }
+.fv-side { display: grid; gap: 22px }
+.fv-card { background: #fff; border: 1px solid #e1dde8; border-radius: 8px; padding: 22px; scroll-margin-top: 20px; min-width: 0 }
+.fv-card h2 { font: 700 20px Manrope, var(--font); letter-spacing: -.03em }
+.fv-sub { font-size: 11px; color: #8a86a0; margin-top: 4px }
+.fv-req { margin-top: 16px; border: 1px solid var(--ink); border-radius: 6px; padding: 18px; box-shadow: 3px 3px 0 #17173512 }
+.fv-req-top { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.fv-pill { font-size: 10px; font-weight: 600; padding: 5px 9px; border-radius: 999px }
+.fv-pill.wait { background: #fff2c9; color: #7a5a00 }
+.fv-pill.done { background: #e1f6e9; color: #1f7a45 }
+.fv-from { font-size: 10px; color: #8a86a0 }
+.fv-req h3 { font: 700 16px Manrope, var(--font); margin-top: 12px }
+.fv-req h3::first-letter { text-transform: uppercase }
+.fv-coverage th small { display: block; font-size: 9px; letter-spacing: 0; font-weight: 400; margin: 2px 0 0 16px }
+.fv-req dl { display: grid; grid-template-columns: 130px 1fr; gap: 8px 14px; margin-top: 12px; font-size: 12px; line-height: 1.5 }
+.fv-req dt { color: #8a86a0 }
+.fv-req dd { margin: 0 }
+.fv-muse { font-size: 10px; color: #8a86a0 }
+.fv-upload { margin-top: 16px; border: 1.5px dashed #b9b4f5; border-radius: 6px; padding: 14px 16px; background: #f7f7ff }
+.fv-upload b { font-size: 13px }
+.fv-upload small { display: block; font-size: 11px; color: #8a86a0; margin-top: 3px }
+.fv-label { display: block; font-size: 11px; color: #6d6a7c; margin-top: 12px }
+.fv textarea { width: 100%; min-height: 64px; margin-top: 5px; padding: 10px; border: 1px solid #e1dde8; border-radius: 5px; font: 12px/1.5 var(--font); resize: vertical; background: #fff }
+.fv-actions { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; margin-top: 12px }
+.fv-actions .text-btn { color: var(--purple); font-size: 12px }
+.fv-sent { margin-top: 14px; padding-top: 12px; border-top: 1px solid #efedf3; font-size: 12px; line-height: 1.5 }
+.fv-now { margin-top: 6px }
+.fv-letter { margin-top: 12px; padding: 12px; background: #f7f7f2; border-radius: 5px; font-size: 13px; line-height: 1.7; white-space: pre-wrap }
+.fv-letter small { display: block; margin-top: 8px; font-size: 10px; color: #8a86a0; white-space: normal }
+.fv-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px }
+.fv-table th { text-align: left; font-size: 9px; letter-spacing: .12em; color: #8a86a0; font-weight: 600; padding: 8px 6px; border-bottom: 1px solid #e1dde8 }
+.fv-table td { padding: 11px 6px; border-bottom: 1px solid #efedf3; vertical-align: top; line-height: 1.45 }
+.fv-table td small { display: block; color: #8a86a0; font-size: 10.5px }
+.fv-table .text-btn { color: var(--purple); font-size: 11.5px; text-align: left }
+.fv-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px }
+.fv-reply { display: grid; gap: 6px; justify-items: start }
+.fv-reply-form { width: 100%; margin-top: 4px }
+.fv-reply-form small { font-size: 10px; color: #8a86a0 }
+.fv-replies { width: 100%; margin-top: 6px; padding: 8px 10px; background: #fff6f3; border-radius: 5px }
+.fv-replies .micro { font-size: 8px; color: #b2402f }
+.fv-replies p { font-size: 11.5px; margin-top: 4px }
+.fv-nothing { color: #8a86a0 }
+.fv-coverage td:first-child { white-space: nowrap }
+.fv-coverage code { font-size: 10px; color: var(--purple); margin-right: 4px }
+.fv-cov { font-size: 11px; white-space: nowrap }
+.fv-cov i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: #2fb36b }
+.fv-cov.part i { background: #e8b100 }
+.fv-cov.miss { color: #c0392b; font-weight: 600 }
+.fv-cov.miss i { background: var(--coral) }
+.fv-cov.none { color: #a09cb0 }
+.fv-cov.none i { background: #cfcbd9 }
+.fv-cant { margin-top: 22px; font-size: 11px; color: #6d6a7c; line-height: 1.6; border-top: 1px solid #e1dde8; padding-top: 12px; max-width: 900px }
+.fv [lang=bn], .fv:lang(bn) { line-height: 1.7 }
+@media (max-width: 960px) { .fv-grid { grid-template-columns: 1fr } }
+@media (max-width: 760px) {
+  .fv { padding: 18px 16px 40px }
+  .fv-head { flex-direction: column; align-items: flex-start }
+  .fv-tools { justify-items: start }
+  .fv-head h1 { font-size: 24px }
+  .fv-req dl { grid-template-columns: 1fr; gap: 2px }
+  .fv-req dd { margin-bottom: 6px }
+  .fv-card { padding: 16px }
+  .fv-coverage { font-size: 11px }
+}
+
+/* a page from another audience's view (App.tsx) */
+.other-view { max-width: 720px; min-height: 62vh; margin: 0 auto; padding: 90px 30px 120px; display: grid; gap: 16px; align-content: start }
+.other-view h1 { font: 700 30px/1.2 Manrope, var(--font); letter-spacing: -.04em }
+.other-view > div { display: flex; gap: 18px; align-items: center }
+.other-view .text-btn { color: var(--purple) }
+
+/* the case picker (CaseFile.tsx): a factory tile and a case tile, each opening its list */
+.case-pick { display: flex; gap: 8px; margin-left: 6px }
+.picker { position: relative }
+.picker-tile { display: grid; grid-template-columns: 1fr auto; text-align: left; gap: 1px 14px; min-width: 190px; padding: 7px 12px; border: 1px solid #d3cfdf; border-radius: 7px; background: #fff }
+.picker-tile:hover, .picker-tile[aria-expanded=true] { border-color: var(--ink) }
+.picker-tile .micro { font-size: 8px; color: #8a86a0; grid-column: 1 }
+.picker-tile b { font-size: 13px; grid-column: 1 }
+.picker-tile small { font-size: 10px; color: #8a86a0; grid-column: 1 }
+.picker-tile i { grid-column: 2; grid-row: 1 / 4; align-self: center; font-style: normal; font-size: 12px }
+.picker-list { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; min-width: 100%; width: max-content; max-width: 340px; list-style: none; margin: 0; padding: 6px; background: #fff; border: 1px solid var(--ink); border-radius: 8px; box-shadow: 4px 4px 0 #17173520 }
+.picker-list button { display: grid; gap: 1px; width: 100%; text-align: left; padding: 8px 10px; border-radius: 5px }
+.picker-list button:hover { background: #f3f2fb }
+.picker-list [aria-selected=true] button { background: var(--ink) }
+.picker-list [aria-selected=true] b { color: var(--acid) }
+.picker-list [aria-selected=true] small { color: #c9c6e6 }
+/* the tiles show what is chosen, as the case tiles did: ink, with the choice in acid */
+.picker-tile { background: var(--ink); border-color: var(--ink); color: #fff }
+.picker-tile:hover, .picker-tile[aria-expanded=true] { border-color: var(--ink); box-shadow: 3px 3px 0 #17173530 }
+.picker-tile .micro { color: #a9a5c9 }
+.picker-tile b { color: var(--acid) }
+.picker-tile small { color: #c9c6e6 }
+.picker-tile i { color: var(--acid) }
+.picker-list b { font-size: 13px }
+.picker-list small { font-size: 10px; color: #8a86a0 }
+@media (max-width: 760px) { .case-pick { margin: 0; flex-basis: 100% } .picker { flex: 1 } .picker-tile { min-width: 0; width: 100% } }
+/* the language a letter is written or read in */
+.letter-lang { display: flex; align-items: center; gap: 6px; margin: 10px 0; font-size: 11px; color: #6d6a7c }
+.letter-lang button { border: 1px solid #d3cfdf; border-radius: 5px; padding: 5px 11px; font-size: 12px; background: #fff }
+.letter-lang button[aria-pressed=true] { background: var(--ink); color: var(--acid); border-color: var(--ink) }
+.letter-one { background: #f7f7f2; border-radius: 6px; padding: 14px 16px; font-size: 14px; line-height: 1.75; white-space: pre-wrap; margin-bottom: 8px }
+@media (max-width: 760px) { .case-pick { margin: 0; flex-basis: 100% } .case-pick select { max-width: none; width: 100% } }
+
+/* the guide's answer language (Guide.tsx): any of twelve; questions can be in any language, or mixed */
+.answer-language { flex-wrap: wrap }
+.answer-language select { font: 600 11px var(--font); color: var(--ink); border: 1px solid #d3cfdf; border-radius: 4px; padding: 4px 8px; background: #fff }
+.answer-language small { flex-basis: 100%; font-size: 9px; color: #9a96b0 }

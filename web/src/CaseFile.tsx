@@ -1,17 +1,21 @@
-// The case file, a screen of its own in iteration 03's composition, on real engine output:
-// status stamp and finding, the gap in the story (or the evidence request), documents threaded
-// to the signals, the explanations board, the full investigation trail, and the human decision.
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type ViewKey, type Series, type Status, type Step, type Trace } from './api'
-import { setMood, toolMood, type Mood } from './companion'
+// The case file, the buyer's reviewer's workspace, on real engine output. It fits the window: a top row (the batch, its
+// status stamp, the cases, the human decision), the desk where the companion tells the finding or the replay step by step,
+// and three panels that scroll inside themselves: documents threaded to the signals (with the gap in the story or the
+// evidence request), and the explanations board.
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type ViewKey, type Series, type Status, type Step, type Trace, type CatalogBatch } from './api'
+import { setMood, setStepLine, toolMood, type Mood } from './companion'
 import { Dialogs, type DialogKind } from './Dialogs'
 import { Guide } from './Guide'
-import { dayHm, docLabel, hm, parseEvidence, wall, type Target } from './evidence'
+import { CALC_SIGNALS, dayHm, docLabel, hm, parseEvidence, wall, type Target } from './evidence'
 import { ORDER, Timeline } from './Timeline'
 
-const CASES: { key: CaseKey; label: string }[] = [
-  { key: 'A', label: 'Maintenance' }, { key: 'B', label: 'Contradiction' }, { key: 'C', label: 'Missing record' },
-]
+// the buyer's suppliers and their dye runs: factory A's three, a second supplier's two. Each is named for what drew a
+// look (the alert or the claim), never for the answer
+const SUPPLIERS: [string, CaseKey[]][] = [['Factory A', ['A', 'B', 'C']], ['Factory B', ['D', 'E']]]
+const SCENARIO: Record<CaseKey, string> = {
+  A: 'Planned ETP stop', B: 'Aerator service, low power', C: 'ETP stop, tank log missing', D: 'High pH at the outfall', E: 'Extra water at the outfall',
+}
 export const TOOL: Record<string, string> = {
   get_case_overview: 'Opened the case', update_hypotheses: 'Updated the stories', get_signal_window: 'Looked at a record',
   compute_water_balance: 'Balanced the water', check_power_vs_load: 'Checked power against load',
@@ -47,17 +51,16 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
   // each step shows its reason first and its result a beat later, whether watched back or arriving live
   const [phase, setPhase] = useState<'reason' | 'result'>('result')
   const [active, setActive] = useState<string | null>(null)
-  const [doc, setDoc] = useState('')
-  const [allRecords, setAllRecords] = useState(false)
   const [dialog, setDialog] = useState<DialogKind>(null)
   const [enlarged, setEnlarged] = useState<string | null>(null)
-  const [pane, setPane] = useState<'documents' | 'timeline' | 'board'>('documents')
   const [live, setLive] = useState<'idle' | 'running' | 'error' | 'limited'>('idle')
   const [liveError, setLiveError] = useState('')
   const [runs, setRuns] = useState<Allowance | null>(null)
   const refreshRuns = useCallback(() => { api.limits().then((l) => setRuns(l.runs)).catch(() => setRuns(null)) }, [])
   useEffect(refreshRuns, [refreshRuns])
   const [guideOpen, setGuideOpen] = useState(false)
+  const [catalog, setCatalog] = useState<CatalogBatch[]>([])
+  useEffect(() => { api.catalog().then(setCatalog).catch(() => setCatalog([])) }, [])
   useEffect(() => {
     const open = () => setGuideOpen(true)
     addEventListener('tw:guide', open)
@@ -71,12 +74,17 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
     const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${hm(d)}`
     setSeries(await api.signals(src, iso(new Date(wall(ti.start).getTime() - 2 * 3600_000)), iso(wall(ti.end)), 15))
     setData(c); setTrace(t); setWhich(w); setAt(t.steps.length - 1); setPhase('result'); setActive(null); setPlaying(false)
-    setDoc(c.documents.find((d) => d.type === 'logbook')?.id ?? c.documents[0]?.id ?? '')
   }, [src])
   // a case whose factory already answered opens on the investigation after the answer
   useEffect(() => {
     abort.current?.abort(); setLive('idle'); setData(null)
-    api.case(src).then((c) => load(c.submission ? 'after' : 'saved'))
+    api.case(src).then(async (c) => {
+      await load(c.submission ? 'after' : 'saved')
+      // the factory just sent the record on its own page: the buyer's side watches the investigation run again with it
+      let replay = false
+      try { replay = !!c.submission && sessionStorage.getItem('tw:replay-after') === src; if (replay) sessionStorage.removeItem('tw:replay-after') } catch { /* private window */ }
+      if (replay) { setAt(0); setPhase('reason'); setPlaying(true) }
+    })
   }, [src, load])
 
   const stepCount = trace?.steps.length ?? 0
@@ -100,23 +108,8 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
   const thinking = live === 'running' && steps.length > 0 && at >= steps.length - 1 && phase === 'result'
 
   useEffect(() => {
-    if (!step) return
-    if (step.tool === 'read_document' && step.args.doc_id) setDoc(step.args.doc_id as string)  // what it is about to read
-    const id = step.result?.evidence_id as string | undefined
-    if (id && phase === 'result') setActive(id)  // what it found, a beat later
-  }, [step, phase])
-  useEffect(() => {
     if (complete && !playing && final?.key_evidence?.length) setActive((a) => a ?? final.key_evidence![0].id)
   }, [complete, playing, final])
-
-  const target: Target | null = active ? parseEvidence(active) : null
-  useEffect(() => {
-    if (target?.doc) return setDoc(target.doc)
-    // a photo checked against the feed: show that photo
-    const sig = active?.match(/reading_vs_feed:(\w+)@/)?.[1]
-    const photo = sig && data?.documents.find((d) => d.id.startsWith(`doc:photo-${sig}-`))
-    if (photo) setDoc(photo.id)
-  }, [target?.doc, active, data])
 
   const explanations: Explanation[] = useMemo(() => {
     if (complete && final?.explanations) return final.explanations
@@ -143,36 +136,15 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
     : resting === 'insufficient' ? 'asking' : resting === 'review_required' ? 'cant-tell' : null
   useEffect(() => setMood(mood), [mood])
   useEffect(() => () => setMood(null), [])
+  // the corner card follows the replay once the desk is scrolled away
+  useEffect(() => setStepLine(watching && step ? { label: `Step ${at + 1} of ${stepCount} · ${TOOL[step.tool] ?? step.tool}`, line: step.why ?? '' } : null), [watching, step, at, stepCount])
+  useEffect(() => () => setStepLine(null), [])
 
-  // the thread: from the line on the page to the record that tests it (one connection at a time)
-  const grid = useRef<HTMLDivElement>(null)
-  const [thread, setThread] = useState<{ d: string; x: number; y: number } | null>(null)
-  const docObj = data?.documents.find((d) => d.id === doc) ?? data?.documents[0]
-  const lit = docObj && target ? linesIn(docObj, target.start, target.end) : []
-  useLayoutEffect(() => {
-    const draw = () => {
-      const g = grid.current, a = g?.querySelector('.record-highlight.active, #docAnchor'), b = g?.querySelector('#chartAnchor .chart-pin')
-      if (!g || !a || !b || !target || innerWidth <= 760) return setThread(null)
-      const r = g.getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect()
-      const x1 = ra.right - r.left, y1 = ra.top + ra.height / 2 - r.top, x2 = rb.left + rb.width / 2 - r.left, y2 = rb.top + rb.height / 2 - r.top
-      const mid = (x1 + x2) / 2
-      const d = `M${x1} ${y1} C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`
-      setThread((t) => (t?.d === d ? t : { d, x: x2, y: y2 }))  // unchanged geometry: no re-render
-    }
-    draw()
-    const t = setTimeout(draw, 300)
-    addEventListener('resize', draw)
-    return () => { clearTimeout(t); removeEventListener('resize', draw) }
-  }, [active, doc, data, lit.length, allRecords])
-
-  const showPane = (p: typeof pane) => {
-    setPane(p)
-    const g = grid.current
-    if (!g || innerWidth > 760) return
-    g.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    g.scrollTo({ left: ['documents', 'timeline', 'board'].indexOf(p) * g.clientWidth, behavior: 'smooth' })
-  }
-  const follow = (id: string) => { setPlaying(false); setPhase('result'); setActive(id); showPane(id.startsWith('doc:') ? 'documents' : 'timeline') }
+  const follow = (id: string) => { setPlaying(false); setPhase('result'); setActive(id) }
+  const enlargedDoc = data?.documents.find((d) => d.id === enlarged)
+  // the steps list keeps the step being shown in view
+  const stepsBox = useRef<HTMLOListElement>(null)
+  useEffect(() => { stepsBox.current?.querySelector('[aria-current=step]')?.scrollIntoView({ block: 'nearest' }) }, [at])
 
   if (!data || !trace || !series) return <section className="case-view"><p className="loading">Opening the case file…</p></section>
 
@@ -180,30 +152,30 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
   const ti = ov.treatment_interval
   const factory = `Factory ${data.overview.case_id.split('-')[1]?.toUpperCase() ?? ''}`
   const keyIds = (final?.key_evidence ?? []).map((k) => k.id)
-  const spans = keyIds.map((id) => parseEvidence(id)).filter((e) => e.start && e.end && e.end.getTime() - e.start.getTime() < 20 * 3600_000)
-  const full: [Date, Date] = [new Date(wall(ti.start).getTime() - 2 * 3600_000), wall(ti.end)]
-  const range: [Date, Date] = allRecords || !spans.length ? full : [
-    new Date(Math.max(full[0].getTime(), Math.min(...spans.map((e) => e.start!.getTime())) - 3 * 3600_000)),
-    new Date(Math.min(full[1].getTime(), Math.max(...spans.map((e) => e.end!.getTime())) + 4 * 3600_000)),
-  ]
-  const shownSet = new Set<string>()
-  keyIds.forEach((id) => parseEvidence(id).signals.forEach((s) => shownSet.add(s)))
-  if (!complete) steps.slice(0, at + 1).forEach((s) => { if (s.args.signal) shownSet.add(s.args.signal as string) })
-  target?.signals.forEach((s) => shownSet.add(s))
-  const shown = ORDER.filter((s) => allRecords || shownSet.has(s))
   const claims = data.documents.filter((d) => d.type === 'maintenance_record').map((d) => ({ start: wall(d.covers[0]), end: wall(d.covers[1]) }))
   const status = live === 'running' ? null : (trace.status as Status | null)
   const request = final?.kind === 'evidence_request' ? final : typeof final?.evidence_request === 'object' ? final?.evidence_request : null
-  const headline = headlineFor(active, steps)
-  const why = complete ? final?.key_evidence?.find((k) => k.id === active)?.why : step?.why
+  const atRest = complete && !playing
+  const supplier = SUPPLIERS.find(([, keys]) => keys.includes(caseKey))![0]
   const reviews = data.review ?? []
   const lastReview = reviews.at(-1)
-
   // the gap in the story: what the maintenance record claims against how long power really stayed low
   const lowPower = keyIds.map((id) => parseEvidence(id)).find((e) => e.label?.toLowerCase().includes('power') && e.start && e.end)
   const gap = status === 'contradicts' && claims[0] && lowPower?.end && lowPower.end.getTime() > claims[0].end.getTime() + 30 * 60_000
     ? { claim: claims[0], low: lowPower } : null
   const physicalId = steps.find((s) => s.tool === 'check_reading_against_feed')?.result?.evidence_id as string | undefined
+
+  // what the middle shows: at rest the record behind the line picked; during the investigation the record each step is about
+  const focus: Focus = atRest || !step ? (live === 'running' ? { kind: 'opening' } : focusOf(active ?? keyIds[0] ?? 'all', steps))
+    : focusOfStep(step, steps)
+  const full: [Date, Date] = [new Date(wall(ti.start).getTime() - 2 * 3600_000), wall(ti.end)]
+  const caption = captionOf(focus, data.documents)
+  const sayLabel = !step && live === 'running' ? 'LIVE RUN · MUSE SPARK'
+    : atRest ? `THE FINDING${which === 'after' ? ' · AFTER THE FACTORY’S RECORD' : which === 'live' ? ' · LIVE RUN' : ''}`
+    : phase === 'reason' && watching ? <><i className="pulse" />NEXT · {(NEXT[step!.tool] ?? step!.tool).toUpperCase()}</>
+    : 'MUSE SPARK’S REASON'
+  const sayText = atRest ? 'Tap a line of the finding to see the record behind it, or watch how I got here.'
+    : step?.why ?? (step?.tool === 'update_hypotheses' ? 'Updating the explanations it keeps open.' : step?.tool === 'submit_assessment' ? 'Giving the assessment.' : live === 'running' ? 'Opening the case…' : '')
 
   const runLive = async () => {
     abort.current = new AbortController()
@@ -240,230 +212,290 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
     } finally { refreshRuns() }
   }
 
-  const windowStart = Math.max(0, Math.min(at - 1, steps.length - 4))
-  const enlargedDoc = data.documents.find((d) => d.id === enlarged)
-
   return (
-    <section className="case-view">
-      <div className="case-nav">
-        <a href="#/">← The garment</a><span>THE CASE FILE</span>
-        <div><a href="#/results">Results ↗</a><button onClick={() => setDialog('qr')}>Batch passport ▦</button></div>
-      </div>
-
+    <section className="case-view case-stage">
       <header className="case-header">
         <div className="case-identity">
           <span className="micro">{factory} (demo) · {ov.batch.shade} shade</span>
           <h1>Batch {ov.batch.id.split('-').at(-1)}</h1>
-          <p>Produced {dayHm(wall(ov.batch.production_start))} to {dayHm(wall(ov.batch.production_end))} · {Math.round(ov.batch.planned_wastewater_m3)} m³ planned</p>
-          <p>Treatment interval <strong>{dayHm(wall(ti.start))} to {dayHm(wall(ti.end))}</strong></p>
         </div>
-        <div className="case-status">
-          {status ? <Stamp status={status} /> : <span className="stamp stamp-working"><span className="stamp-mark"><i className="pulse" /></span><span>Investigating · step {Math.max(1, at + 1)}</span></span>}
-          <small>{final?.scope_line ?? ''}</small>
-        </div>
-        <div className="case-switch" role="group" aria-label="Choose case">
-          {CASES.map((c) => <button key={c.key} aria-pressed={c.key === caseKey} onClick={() => { location.hash = `#/case/${c.key}` }}><b>{c.key}</b><span>{c.label}</span></button>)}
+        {status ? <Stamp status={status} /> : <span className="stamp stamp-working"><span className="stamp-mark"><i className="pulse" /></span><span>Investigating · step {Math.max(1, at + 1)}</span></span>}
+        <div className="case-pick">
+          {/* two tiles: the supplier, then one of its dye runs */}
+          <Picker label="FACTORY" value={supplier} options={SUPPLIERS.map(([name, keys]) => ({ value: name, title: `${name} (demo)`, sub: `${keys.length} dye runs checked` }))}
+            onPick={(name) => { location.hash = `#/case/${SUPPLIERS.find(([n]) => n === name)![1][0]}` }} />
+          <Picker label="CASE" value={caseKey} options={SUPPLIERS.find(([n]) => n === supplier)![1].map((k) => {
+            const b = catalog.find((c) => c.key === k)?.batch
+            return { value: k, title: SCENARIO[k], sub: b ? `Run ${b.id.split('-').at(-1)} · ${b.shade} shade` : '' }
+          })} onPick={(k) => { location.hash = `#/case/${k}` }} />
         </div>
         {data.bangla_view && (
           <div className="logbook-language" role="group" aria-label="Language of the logbook pages">
-            <span className="micro">LOGBOOK WRITTEN IN</span>
+            <span className="micro">LOGBOOK IN</span>
             <button aria-pressed={!bangla} onClick={() => { location.hash = `#/case/${caseKey}` }}>English</button>
             <button aria-pressed={bangla} lang="bn" onClick={() => { location.hash = `#/case/${caseKey}/bn` }}>বাংলা</button>
           </div>
         )}
+        <div className="case-decision">
+          <small>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : 'Ready for a reviewer'}</small>
+          {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
+            : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
+        </div>
       </header>
 
-      <section className="case-finding">
-        <div className="finding-label">
-          <span className="micro">THE FINDING{which === 'after' ? ' · AFTER THE FACTORY’S RECORD' : which === 'live' ? ' · LIVE RUN' : ''}</span>
-          <small>Tap a line to follow its evidence.</small>
-        </div>
-        <div>
-          <p className="finding-summary">{live === 'running' ? 'Muse Spark is investigating. The finding appears when it finishes.' : final?.summary ?? final?.reason}</p>
-          {live !== 'running' && (
-            <div className="finding-sentences">
-              {(final?.key_evidence ?? []).slice(0, 6).map((k) => (
-                <button key={k.id} className={active === k.id ? 'chosen' : ''} onClick={() => follow(k.id)}>{k.why}<span>↗</span></button>
-              ))}
-            </div>
+      <div className="stage">
+        <section className="stage-col stage-left">
+          {atRest ? (
+            <>
+              <h2>The finding, line by line</h2>
+              <div className="finding-lines">
+                {(final?.key_evidence ?? []).slice(0, 6).map((k) => (
+                  <button key={k.id} aria-pressed={active === k.id} onClick={() => follow(k.id)}>{k.why} <span>↗</span></button>
+                ))}
+              </div>
+              <h3>The records</h3>
+              <div className="record-thumbs">
+                {data.documents.map((d) => (
+                  <button key={d.id} aria-pressed={active === d.id} className={d.is_claim ? '' : 'physical'} onClick={() => follow(d.id)} title={docLabel(d.id)}>
+                    {d.image ? <img src={d.image} alt="" /> : <span className="text-thumb">Aa</span>}<span>{docLabel(d.id)}</span>
+                  </button>
+                ))}
+                <button aria-pressed={active === 'all'} onClick={() => follow('all')}><span className="text-thumb">〰</span><span>Every meter</span></button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2>The steps</h2>
+              <ol className="stage-steps" ref={stepsBox}>
+                {steps.map((s, i) => (
+                  <li key={i}><button aria-current={i === at ? 'step' : undefined} data-done={i < at || undefined} disabled={i > at && (playing || live === 'running')}
+                    onClick={() => { setPlaying(false); setPhase('result'); setAt(i) }}>
+                    <i>{s.n}</i>{i === at && phase === 'reason' && watching ? NEXT[s.tool] ?? s.tool : TOOL[s.tool] ?? s.tool}</button></li>
+                ))}
+                {thinking && <li className="thinking"><i className="pulse" />choosing the next check…</li>}
+              </ol>
+            </>
           )}
-          {final?.limitations?.length ? <button className="text-btn limits-link" onClick={() => setDialog('limits')}>What this can’t show ↗</button> : null}
-        </div>
-      </section>
-
-      {gap && (
-        <section className="contradiction-ribbon">
-          <div><span className="micro">THE GAP IN THE STORY</span>
-            <p>Logged service <b>{hm(gap.claim.start)}–{hm(gap.claim.end)}</b><span>→</span>Low power <b>{hm(gap.low.start!)}–{hm(gap.low.end!)}</b></p></div>
-          {physicalId && <button onClick={() => { follow(physicalId); document.querySelector('.physical-moment')?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }}>Follow the physical evidence ↗</button>}
-        </section>
-      )}
-      {request && (which === 'saved' || which === 'live') && (
-        <section className="request-slip">
-          <span className="request-icon">?</span>
-          <div><span className="micro">A GAP, NOT A VERDICT</span>
-            <p>Requested: {(request.items ?? []).join(', ')}{request.interval ? `, ${spanText(request.interval)}` : ''}. Why: {request.reason}</p></div>
-          <div className="request-actions">
-            <button className="text-btn" onClick={() => setDialog('letter')}>Draft it for the factory <span lang="bn">(বাংলা)</span> ↗</button>
-            {caseKey === 'C' && !bangla && which === 'saved' && <button className="button acid small" onClick={() => setDialog('factory')}>Respond as factory ↗</button>}
+          <div className="stage-play">
+            <button className="button ink small" onClick={() => { if (playing) return setPlaying(false); if (atRest || at >= steps.length - 1) { setAt(0); setPhase('reason') } setPlaying(true) }} disabled={live === 'running'}>
+              {playing ? <>Pause <span>Ⅱ</span></> : atRest ? <>Watch the investigation <span>▶</span></> : <>Play <span>▶</span></>}
+            </button>
+            {!atRest && <>
+              <input type="range" min={0} max={Math.max(0, steps.length - 1)} value={Math.max(0, at)} aria-label="Scrub the investigation's steps"
+                onChange={(e) => { setPlaying(false); setPhase('result'); setAt(Number(e.target.value)) }} />
+              <small>{Math.max(1, at + 1)} / {steps.length}</small>
+            </>}
+            {!atRest && live !== 'running' && <button className="text-btn" onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>The finding ↗</button>}
+            {atRest && !bangla && (
+              <div className="stage-live">
+                <button className="text-btn" onClick={runLive} disabled={runs?.left === 0}>
+                  {runs && !runs.live ? 'Live runs are off in this demo' : runs?.left === 0 ? 'Live runs used up for today' : 'Run it live with Muse Spark ↗'}
+                </button>
+                {runs?.live && runs.left > 0 && <small>{runs.left} of {runs.per_visitor} left today</small>}
+              </div>
+            )}
+            {atRest && bangla && <small>The investigation Muse Spark ran on the Bangla pages.</small>}
           </div>
         </section>
-      )}
-      {which === 'after' && data.submission && (
-        <section className="request-slip received">
-          <span className="request-icon">↗</span>
-          <div><span className="micro">RECORD RECEIVED</span>
-            <p>{data.submission.file} · {spanText([wall(data.submission.covers[0]), wall(data.submission.covers[1])])}. Investigated again with the factory’s record; it still counts as the factory’s word until it agrees with the other signals.</p>
-            {data.submission.note && <small>Factory note: {data.submission.note}</small>}</div>
-          <button className="button ink small" onClick={async () => { await api.clearSubmission(caseKey); load('saved') }}>Reset the demo ↺</button>
+
+        <section className="stage-center">
+          <div className="stage-head">
+            <span className="micro">{atRest ? 'THE FINDING' : step ? `STEP ${step.n} · ${(TOOL[step.tool] ?? step.tool).toUpperCase()}` : 'LIVE RUN'}</span>
+            {atRest
+              ? <div className="stage-links"><button onClick={() => setDialog('limits')}>What this can’t show ↗</button><button onClick={() => setDialog('qr')}>Batch passport ▦</button>{!bangla && <a href={`#/report/${caseKey}`}>Audit report ↗</a>}</div>
+              : <small>{caption}</small>}
+          </div>
+          <div className="stage-view">
+            {live === 'error' && <p className="live-error">The live run stopped: {liveError}</p>}
+            {live === 'limited' && <p className="live-error live-note">{liveError}</p>}
+            {atRest && (
+              <>
+                {gap && (
+                  <section className="contradiction-ribbon">
+                    <div><span className="micro">THE GAP IN THE STORY</span>
+                      <p>Logged service <b>{hm(gap.claim.start)}–{hm(gap.claim.end)}</b><span>→</span>Low power <b>{hm(gap.low.start!)}–{hm(gap.low.end!)}</b></p></div>
+                    {physicalId && <button onClick={() => follow(physicalId)}>Follow the physical evidence ↗</button>}
+                  </section>
+                )}
+                {request && (which === 'saved' || which === 'live') && (
+                  <section className="request-slip">
+                    <span className="request-icon">?</span>
+                    <div><span className="micro">A GAP, NOT A VERDICT</span>
+                      <p>Requested: {(request.items ?? []).join(', ')}{request.interval ? `, ${spanText(request.interval)}` : ''}. Why: {request.reason}</p>
+                      {!bangla && which === 'saved' && <small className="request-wait">Waiting for the factory’s record · <a href="#/factory">See the factory’s side ↗</a></small>}</div>
+                    <div className="request-actions"><button className="text-btn" onClick={() => setDialog('letter')}>Draft it for the factory ↗</button></div>
+                  </section>
+                )}
+                {which === 'after' && data.submission && (
+                  <section className="request-slip received">
+                    <span className="request-icon">↗</span>
+                    <div><span className="micro">RECORD RECEIVED</span>
+                      <p>{data.submission.file} · {spanText([wall(data.submission.covers[0]), wall(data.submission.covers[1])])}. Investigated again with the factory’s record; it still counts as the factory’s word until it agrees with the other signals.</p>
+                      {data.submission.note && <small>Factory note: {data.submission.note}</small>}</div>
+                    <button className="button ink small" onClick={async () => { await api.clearSubmission(caseKey); load('saved') }}>Reset the demo ↺</button>
+                  </section>
+                )}
+                {data.replies.length > 0 && (
+                  <section className="factory-reply">
+                    <span className="micro">THE FACTORY’S REPLY · {dayHm(wall(data.replies.at(-1)!.at)).toUpperCase()}</span>
+                    <p>“{data.replies.at(-1)!.note}”</p>
+                    <small>The factory’s word. It doesn’t change the finding.</small>
+                  </section>
+                )}
+                <p className="stage-summary">{final?.summary ?? final?.reason}</p>
+                <small className="stage-caption">{caption}</small>
+              </>
+            )}
+            <FocusView compact={atRest} focus={focus} steps={steps} data={data} series={series} full={full} claims={claims} explanations={explanations}
+              final={final ?? null} request={request} onPick={follow} onEnlarge={setEnlarged} />
+          </div>
+          <div className="stage-say">
+            <div id="caseDock" className="desk-perch" aria-hidden="true" />
+            <div><span className="micro">{sayLabel}</span><p aria-live="polite">{sayText}</p></div>
+            <button className="text-btn" onClick={() => setGuideOpen(true)}>Explain this simply ↗</button>
+          </div>
         </section>
-      )}
 
-      <div className="phone-sections" role="tablist" aria-label="Case file sections">
-        {(['documents', 'timeline', 'board'] as const).map((p) => (
-          <button key={p} role="tab" aria-selected={pane === p} onClick={() => showPane(p)}>{p === 'board' ? 'Explanations' : p === 'timeline' ? 'Timeline' : 'Documents'}</button>
-        ))}
-      </div>
-      <div className="case-grid" ref={grid} onScroll={(e) => {
-        if (innerWidth > 760) return
-        const g = e.currentTarget, i = Math.round(g.scrollLeft / g.clientWidth)
-        setPane((['documents', 'timeline', 'board'] as const)[i] ?? 'documents')
-      }}>
-        <svg className="case-thread" aria-hidden="true">{thread && <><path d={thread.d} /><circle r="4" cx={thread.x} cy={thread.y} /></>}</svg>
-
-        <section className="case-panel documents-panel">
-          <div className="panel-title"><h2>The documents</h2><span>CLAIMS & PHYSICAL RECORDS</span></div>
-          <div className="document-tabs">
-            {data.documents.map((d) => (
-              <button key={d.id} aria-pressed={d.id === docObj?.id} className={d.is_claim ? '' : 'physical'} onClick={() => setDoc(d.id)}>
-                {d.image ? <img src={d.image} alt="" /> : <span className="text-thumb">Aa</span>}<span>{docLabel(d.id)}</span>
-              </button>
-            ))}
-          </div>
-          {docObj && <DocView doc={docObj} lit={lit} focused={!!target && (target.doc === docObj.id || !!active?.includes('reading_vs_feed'))} onEnlarge={() => setEnlarged(docObj.id)} />}
-        </section>
-
-        <section className="case-panel timeline-panel">
-          <div className="panel-title"><h2>Follow the signals</h2><span>{allRecords ? 'EVERY RECORD' : 'THE RECORDS THAT MATTER'}</span></div>
-          <div id="chartAnchor" className="chart-label">
-            <span className="chart-pin" />
-            <div><b>{headline.title}</b><small>{headline.sub}</small></div>
-            <span>{headline.value}</span>
-          </div>
-          <div className="chart stacked">
-            <Timeline series={series} info={data.signals} shown={shown} range={range} highlight={target?.start ? target : null} bands={claims} />
-          </div>
-          <div className="timeline-key">
-            <span><i className="evidence-band" />The stretch being checked</span>
-            {claims.length > 0 && <span><i className="claim-band" />What the maintenance record claims</span>}
-            {shown.includes('S3') && <span><i className="need-band" />Power the plant needs for its inflow</span>}
-          </div>
-          <button className="text-btn more-records" onClick={() => setAllRecords((v) => !v)}>{allRecords ? '▾ The records that matter' : '▸ More records'}</button>
-          <Physical steps={steps} documents={data.documents} active={active} onPick={follow} />
-        </section>
-
-        <section className="case-panel board-panel">
-          <div className="panel-title"><h2>What explains it?</h2><span>KEEP EVERY POSSIBILITY IN VIEW</span></div>
-          <div className="explanations-board">
+        <section className="stage-col stage-right">
+          <h2>What explains it?</h2>
+          <div className="stage-board">
             {explanations.map((e) => {
               const state = e.status === 'contradicted' ? 'ruled out' : e.status === 'supported' ? 'supported' : 'open'
               const chips = e.status === 'contradicted' ? e.contradicting : e.supporting.length ? e.supporting : e.contradicting
               return (
                 <article key={e.id} className={`explanation-card ${state.replace(' ', '-')}`}>
-                  <div><span className="explanation-state">{state === 'supported' ? '↗' : state === 'ruled out' ? '−' : '○'} {state}</span><span className="mini-stitch">〰</span></div>
+                  <span className="explanation-state">{state === 'supported' ? '↗' : state === 'ruled out' ? '−' : '○'} {state}</span>
                   <h3>{e.label}</h3>
-                  <div className="evidence-chips">
-                    {chips.slice(0, 3).map((id) => <button key={id} aria-pressed={active === id} onClick={() => follow(id)}>{chipText(id)} ↗</button>)}
-                    {e.missing.length > 0 && <span>Missing: {e.missing.map(chipText).join(', ')}</span>}
-                  </div>
+                  {atRest && (
+                    <div className="evidence-chips">
+                      {chips.slice(0, 3).map((id) => <button key={id} aria-pressed={active === id} onClick={() => follow(id)}>{chipText(id)} ↗</button>)}
+                      {e.missing.length > 0 && <span>Missing: {e.missing.map(chipText).join(', ')}</span>}
+                    </div>
+                  )}
                 </article>
               )
             })}
-            {!explanations.length && <article className="explanation-card open"><h3>The investigator lists the possible explanations first.</h3></article>}
+            {!explanations.length && <p className="board-empty">The investigator lists the possible explanations first.</p>}
           </div>
-          <p className="board-note">Ruled-out explanations stay visible. Each chip takes you to the record behind the decision.</p>
+          <p className="board-note">{atRest ? 'Ruled-out explanations stay visible. Each chip shows the record behind the decision.' : 'Ruled in or out each time the investigator updates them.'}</p>
         </section>
       </div>
 
-      <section className="case-explanation">
-        <div>
-          <span className="micro">{complete ? 'LET ME CONNECT THE DOTS'
-            : !step && live === 'running' ? 'LIVE RUN · MUSE SPARK'
-            : phase === 'reason' && step ? <><i className="pulse" />NEXT · {(NEXT[step.tool] ?? step.tool).toUpperCase()}</>
-            : 'WHY THIS CHECK'}</span>
-          <p aria-live="polite">{why ?? (live === 'running' ? 'Opening the case…' : 'Tap a line of the finding, a chip or a record to follow its evidence.')}</p>
-          {thinking && <small className="thinking-line"><i className="pulse" />Muse Spark is choosing the next check…</small>}
-        </div>
-        <button onClick={() => setGuideOpen(true)}>Explain this simply ↗</button>
-      </section>
-
-      <section className="trail-section">
-        <div className="trail-heading">
-          <div><h2>Investigation trail</h2>
-            <p>{live === 'running'
-              ? `Live run by Muse Spark${trace.model ? ` (${trace.model})` : ''} · ${steps.length} ${steps.length === 1 ? 'step' : 'steps'} so far`
-              : `${steps.length} recorded steps by Muse Spark${trace.model ? ` (${trace.model})` : ''} · ${trace.checks_used || steps.length} checks · about ${Math.round(trace.seconds || 0)} s${which === 'after' ? ' · run after the factory’s record arrived' : which === 'live' ? ' · live run, just now' : ''}`}</p></div>
-          <div className="trail-actions">
-            <button className="button ink small" onClick={() => { if (playing) return setPlaying(false); setAt(0); setPhase('reason'); setPlaying(true) }} disabled={live === 'running'}>
-              {playing ? 'Pause replay' : 'Watch the investigation'} <span>{playing ? 'Ⅱ' : '▶'}</span>
-            </button>
-            {bangla ? <small className="runs-left">The investigation Muse Spark ran on the Bangla pages. Live runs and reviews are on the English case.</small> : <>
-            <button className="text-btn" onClick={runLive} disabled={live === 'running' || runs?.left === 0}>
-              {live === 'running' ? 'Muse Spark is investigating…'
-                : runs && !runs.live ? 'Live runs are off in this demo'
-                : runs?.left === 0 ? 'Live runs used up for today'
-                : 'Run it live with Muse Spark ↗'}
-            </button>
-            {runs?.live && runs.left > 0 && live !== 'running' && <small className="runs-left">{runs.left} of {runs.per_visitor} live runs left today</small>}
-            </>}
-          </div>
-        </div>
-        {live === 'error' && <p className="live-error">The live run stopped: {liveError}</p>}
-        {live === 'limited' && <p className="live-error live-note">{liveError}</p>}
-        <div className="trail-list">
-          {steps.slice(windowStart, windowStart + 4).map((s, k) => {
-            const i = windowStart + k
-            return (
-              <button key={i} aria-pressed={i === at} disabled={i > at && !complete && (playing || live === 'running')}
-                onClick={() => { setPlaying(false); setPhase('result'); setAt(i) }}>
-                <span className="trail-dot" /><b>{String(s.n).padStart(2, '0')} · {i === at && phase === 'reason' ? NEXT[s.tool] ?? s.tool : TOOL[s.tool] ?? s.tool}</b>
-                <span>{s.why ?? '—'}</span>
-              </button>
-            )
-          })}
-        </div>
-        <div className="trail-controls">
-          <label htmlFor="trailScrub">Step {Math.max(1, at + 1)} of {steps.length}</label>
-          <input id="trailScrub" type="range" min={0} max={Math.max(0, steps.length - 1)} value={Math.max(0, at)}
-            onChange={(e) => { setPlaying(false); setPhase('result'); setAt(Number(e.target.value)) }} aria-label="Scrub the investigation's steps" />
-          <button disabled={live === 'running'} onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>Show final assessment ↗</button>
-        </div>
-      </section>
-
-      <section className="review-bar">
-        <div><span className="micro">THE HUMAN DECISION</span>
-          <p>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : 'The evidence is ready for a reviewer.'}</p></div>
-        {!bangla && <a className="text-btn" href={`#/report/${caseKey}`}>Audit report ↗</a>}
-        {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
-          : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
-      </section>
-      {reviews.length > 0 && (
-        <section className="audit-trail"><h3>Decision history</h3>
-          {reviews.slice().reverse().map((r, i) => (
-            <div key={i} className="detail-row"><span>{dayHm(wall(r.at))} · {r.reviewer}</span>
-              <span>{r.action === 'change' && r.status ? `Changed to ${STATUS_LABEL[r.status]}` : r.action === 'approve' ? 'Approved' : 'Sent back'} · “{r.reason}”</span></div>
-          ))}
-        </section>
-      )}
-      <div className="case-footer"><span>Prototype · records from the Tellwater simulator · real Muse Spark investigations</span><a href={`#/passport/${caseKey}`}>Open batch passport ↗</a></div>
-
       {enlargedDoc?.image && <Enlarged doc={enlargedDoc} caseKey={caseKey} close={() => setEnlarged(null)} />}
-      <Guide caseKey={src} focus={active} open={guideOpen} onClose={() => setGuideOpen(false)} onCite={follow} />
+      <Guide caseKey={src} focus={active === 'all' ? null : active} open={guideOpen} onClose={() => setGuideOpen(false)} onCite={follow} />
       <Dialogs kind={dialog} close={() => setDialog(null)} caseKey={caseKey} status={status} reviews={reviews}
         limitations={final?.limitations ?? []} onReviewed={() => load(which === 'after' ? 'after' : 'saved')}
-        onSubmitted={async () => { setDialog(null); await load('after'); setAt(0); setPhase('reason'); setPlaying(true) }}
         onPassport={() => { location.hash = `#/passport/${caseKey}` }} />
     </section>
+  )
+}
+
+type Focus =
+  | { kind: 'doc'; id: string; window?: [Date, Date] } | { kind: 'photo'; id: string } | { kind: 'lab' }
+  | { kind: 'chart'; target: Target; title?: string } | { kind: 'all' } | { kind: 'stories' } | { kind: 'production'; result: Record<string, unknown> }
+  | { kind: 'finding' } | { kind: 'request' } | { kind: 'opening' }
+
+/** The record behind an evidence id, picked at rest (a line of the finding, a chip, a document). */
+function focusOf(id: string, steps: Step[]): Focus {
+  if (id === 'all') return { kind: 'all' }
+  if (id.includes('reading_vs_feed')) return { kind: 'photo', id }
+  if (id.startsWith('doc:lab') && steps.some((s) => s.tool === 'get_lab_results')) return { kind: 'lab' }
+  if (id.startsWith('doc:')) return { kind: 'doc', id }
+  if (id.startsWith('plan:')) {
+    const r = steps.find((s) => s.result?.evidence_id === id)?.result
+    if (r) return { kind: 'production', result: r }
+  }
+  const t = parseEvidence(id)
+  return t.signals.length ? { kind: 'chart', target: t } : { kind: 'all' }
+}
+
+/** The record a step of the investigation is about, from what it asked for (shown before its result arrives too). */
+function focusOfStep(s: Step, steps: Step[]): Focus {
+  const a = s.args as Record<string, string>
+  const id = s.result?.evidence_id as string | undefined
+  switch (s.tool) {
+    case 'get_case_overview': return { kind: 'all' }
+    case 'update_hypotheses': return { kind: 'stories' }
+    case 'submit_assessment': return { kind: 'finding' }
+    case 'request_evidence': return { kind: 'request' }
+    case 'get_lab_results': return { kind: 'lab' }
+    case 'read_document': return a.doc_id?.includes('lab') && steps.some((x) => x.tool === 'get_lab_results') ? { kind: 'doc', id: a.doc_id } : { kind: 'doc', id: a.doc_id }
+    case 'get_production': return s.result && !s.result.error ? { kind: 'production', result: s.result } : { kind: 'all' }
+    case 'check_reading_against_feed': if (id) return { kind: 'photo', id }
+  }
+  if (id && !id.startsWith('doc:')) return focusOf(id, steps)
+  // before the result (or a check refused by the budget): the window it asked about
+  const signals = a.signal ? [a.signal] : CALC_SIGNALS[s.tool.replace(/^(check_|compute_)/, '')] ?? []
+  if (!signals.length || !a.start) return { kind: 'all' }
+  return { kind: 'chart', target: { kind: 'signal', id: '', signals, start: wall(a.start), end: wall(a.end ?? a.start), label: signals[0] } }
+}
+
+function captionOf(f: Focus, docs: CF['documents']): string {
+  if (f.kind === 'doc') { const d = docs.find((x) => x.id === f.id); return d ? `${docLabel(d.id)} · ${d.is_claim ? 'the factory’s own record' : 'physical record'}` : '' }
+  if (f.kind === 'photo') { const t = parseEvidence(f.id); return `Meter photo ${t.signals[0] ?? ''} against the feed${t.start ? ` · ${dayHm(t.start)}` : ''}` }
+  if (f.kind === 'chart') return `${f.target.signals.join(', ')}${f.target.start && f.target.end ? ` · ${spanText([f.target.start, f.target.end])}` : ''}`
+  if (f.kind === 'all') return 'Every meter over the treatment interval'
+  if (f.kind === 'lab') return 'Lab results'
+  if (f.kind === 'production') return 'The factory’s production plan'
+  return ''
+}
+
+type FocusProps = {
+  compact?: boolean
+  focus: Focus; steps: Step[]; data: CF; series: Series; full: [Date, Date]; claims: { start: Date; end: Date }[]; explanations: Explanation[]
+  final: Trace['final']; request: { items?: string[]; interval?: string | [string, string]; reason?: string } | null | undefined
+  onPick: (id: string) => void; onEnlarge: (id: string) => void
+}
+
+/** One record, large: a document, a meter photo against its feed, the lab result, or the meters over the window in question. */
+function FocusView({ compact, focus, steps, data, series, full, claims, explanations, final, request, onPick, onEnlarge }: FocusProps) {
+  if (focus.kind === 'opening') return <p className="stage-empty">Opening the case…</p>
+  if (focus.kind === 'doc') {
+    const d = data.documents.find((x) => x.id === focus.id)
+    return d ? <DocView doc={d} lit={[]} focused={false} onEnlarge={() => onEnlarge(d.id)} /> : null
+  }
+  if (focus.kind === 'photo') return <Physical steps={steps} documents={data.documents} only={focus.id} onPick={onPick} />
+  if (focus.kind === 'lab') {
+    // the lab report itself beside what it measured
+    const page = data.documents.find((d) => d.type === 'lab_report' && d.image)
+    return (
+      <div className="stage-lab">
+        {page && <button onClick={() => onEnlarge(page.id)}><img src={page.image!} alt="The lab report" /></button>}
+        <Physical steps={steps} documents={data.documents} only="lab" onPick={onPick} />
+      </div>
+    )
+  }
+  if (focus.kind === 'stories') return (
+    <div className="stage-stories">{explanations.map((e) => <div key={e.id} className={`explanation-card ${e.status === 'contradicted' ? 'ruled-out' : e.status === 'supported' ? 'supported' : 'open'}`}><h3>{e.label}</h3></div>)}</div>
+  )
+  if (focus.kind === 'production') {
+    const batches = (focus.result.batches as { id: string; start: string; end: string; shade: string; planned_wastewater_m3: number }[] | undefined) ?? []
+    return (
+      <table className="stage-table"><thead><tr><th>Dye run</th><th>Time</th><th>Shade</th><th>Planned water</th></tr></thead>
+        <tbody>{batches.map((b) => <tr key={b.id}><td>{b.id.split('-').at(-1)}</td><td>{dayHm(wall(b.start))}–{hm(wall(b.end))}</td><td>{b.shade}</td><td>{Math.round(b.planned_wastewater_m3)} m³</td></tr>)}</tbody></table>
+    )
+  }
+  if (focus.kind === 'finding') return <div className="stage-finding"><p>{final?.summary ?? final?.reason}</p></div>
+  if (focus.kind === 'request') return request ? <p className="stage-finding">Requested: {(request.items ?? []).join(', ')}. {request.reason}</p> : null
+  if (focus.kind === 'all') return <div className="chart stacked"><Timeline series={series} info={data.signals} shown={ORDER} range={full} highlight={null} bands={claims} /></div>
+  const t = focus.target
+  const pad = 2 * 3600_000
+  const range: [Date, Date] = t.start && t.end
+    ? [new Date(Math.max(full[0].getTime(), t.start.getTime() - pad)), new Date(Math.min(full[1].getTime(), t.end.getTime() + pad))] : full
+  const shown = ORDER.filter((s) => t.signals.includes(s))
+  const headline = headlineFor(t.id, steps)
+  return (
+    <div className="stage-chart">
+      {headline.value && <div className="chart-label"><div><b>{headline.title}</b><small>{headline.sub}</small></div><span>{headline.value}</span></div>}
+      <div className="chart stacked">
+        <Timeline series={series} info={data.signals} shown={shown.length ? shown : ORDER} range={range} highlight={t} bands={claims} focusRow={compact ? (shown.length <= 1 ? 140 : 80) : shown.length <= 1 ? 230 : shown.length === 2 ? 150 : 90} />
+      </div>
+      <div className="timeline-key">
+        <span><i className="evidence-band" />The stretch being checked</span>
+        {claims.length > 0 && <span><i className="claim-band" />What the maintenance record claims</span>}
+        {shown.includes('S3') && <span><i className="need-band" />Power the plant needs for its inflow</span>}
+      </div>
+    </div>
   )
 }
 
@@ -572,10 +604,10 @@ function headlineFor(active: string | null, steps: Step[]): { title: string; sub
   return { title: t.label, sub, value: '' }
 }
 
-/** The physical cross-check: meter photos checked against the feed, and lab samples. From the investigation's own results. */
-function Physical({ steps, documents, active, onPick }: { steps: Step[]; documents: CF['documents']; active: string | null; onPick: (id: string) => void }) {
-  const photos = steps.filter((s) => s.tool === 'check_reading_against_feed' && s.result?.reading_given !== undefined)
-  const labs = (steps.find((s) => s.tool === 'get_lab_results')?.result?.lab_results as Record<string, unknown>[] | undefined) ?? []
+/** The physical cross-check, one record of it: a meter photo checked against the feed, or the lab samples. From the investigation's own results. */
+function Physical({ steps, documents, only, onPick }: { steps: Step[]; documents: CF['documents']; only: string; onPick: (id: string) => void }) {
+  const photos = only === 'lab' ? [] : steps.filter((s) => s.tool === 'check_reading_against_feed' && s.result?.reading_given !== undefined && s.result.evidence_id === only)
+  const labs = only !== 'lab' ? [] : (steps.find((s) => s.tool === 'get_lab_results')?.result?.lab_results as Record<string, unknown>[] | undefined) ?? []
   if (!photos.length && !labs.length) return null
   return (
     <div className="physical-moment">
@@ -588,7 +620,7 @@ function Physical({ steps, documents, active, onPick }: { steps: Step[]; documen
         return (
           <div key={String(r.evidence_id)}>
             <div className="meter-comparison">
-              <button aria-pressed={active === r.evidence_id} onClick={() => onPick(String(r.evidence_id))}>{img && <img src={img} alt={`Meter photo reading ${r.reading_given} at ${time}`} />}</button>
+              <button onClick={() => onPick(String(r.evidence_id))}>{img && <img src={img} alt={`Meter photo reading ${r.reading_given} at ${time}`} />}</button>
               <div><b>{String(r.reading_given)} <small>{sig === 'S3' ? 'kW' : ''}</small></b><span>Meter photo · {time}</span>
                 <p>Feed <strong>{String(r.feed_nearest)}</strong>{r.expected_kw_from_inflow !== undefined && <><br />Needed about <strong>{String(r.expected_kw_from_inflow)}</strong></>}</p></div>
             </div>
@@ -599,13 +631,43 @@ function Physical({ steps, documents, active, onPick }: { steps: Step[]; documen
       {labs.map((l) => {
         const over = Number(l.bod_mg_l) > Number(l.bod_limit_mg_l)
         return (
-          <button key={String(l.evidence_id)} className="lab-moment" aria-pressed={active === l.evidence_id} onClick={() => onPick(String(l.evidence_id))}>
+          <button key={String(l.evidence_id)} className="lab-moment" onClick={() => onPick(String(l.evidence_id))}>
             <span>{String(l.sample_point).toUpperCase()} · {String(l.sample_time).slice(-5)}</span>
             <strong>BOD {String(l.bod_mg_l)} <small>mg/L</small></strong>
             <span>Limit {String(l.bod_limit_mg_l)} mg/L · pH {String(l.ph)} <b>{over ? 'Above the limit ↗' : 'Within the limit ↗'}</b></span>
           </button>
         )
       })}
+    </div>
+  )
+}
+
+/** A tile that shows the current choice and opens its list when tapped. */
+function Picker({ label, value, options, onPick }: { label: string; value: string; options: { value: string; title: string; sub: string }[]; onPick: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const away = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false) }
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    addEventListener('mousedown', away); addEventListener('keydown', esc)
+    return () => { removeEventListener('mousedown', away); removeEventListener('keydown', esc) }
+  }, [open])
+  const current = options.find((o) => o.value === value)
+  return (
+    <div className="picker" ref={box}>
+      <button className="picker-tile" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <span className="micro">{label}</span><b>{current?.title}</b><small>{current?.sub}</small><i aria-hidden="true">▾</i>
+      </button>
+      {open && (
+        <ul className="picker-list" role="listbox" aria-label={label}>
+          {options.map((o) => (
+            <li key={o.value} role="option" aria-selected={o.value === value}>
+              <button onClick={() => { setOpen(false); if (o.value !== value) onPick(o.value) }}><b>{o.title}</b><small>{o.sub}</small></button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

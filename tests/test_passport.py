@@ -92,9 +92,9 @@ def test_digital_link_opens_the_passport(client):
 
 def test_catalog_lists_each_batch_and_its_garments_without_verdicts(client):
     cat = client.get("/api/catalog").json()
-    assert [c["key"] for c in cat] == ["A", "B", "C"] and all("status" not in c for c in cat)
+    assert [c["key"] for c in cat] == ["A", "B", "C", "D", "E"] and all("status" not in c for c in cat)
     gtins = [p["gtin"] for c in cat for p in c["products"]]
-    assert len(gtins) == len(set(gtins)) == 8 and all(g.startswith("02") and len(g) == 14 for g in gtins)
+    assert len(gtins) == len(set(gtins)) == 12 and all(g.startswith("02") and len(g) == 14 for g in gtins)
     jersey = next(c for c in cat if c["key"] == "B")
     assert jersey["fabric"] == "Cotton jersey" and {p["lot"] for p in jersey["products"]} == {"460f93ca-B04"}
 

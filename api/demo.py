@@ -7,8 +7,11 @@ the app runs from a fresh clone without regenerating anything.
 A  maintenance, cleared: the tank log shows the water was held
 B  aeration cut: the photo confirms low power, the lab shows treatment failed
 C  maintenance with the tank log missing: the investigator asks for it
+D  a second supplier (factory B): raw alkaline water reached the outfall, a bypass
+E  factory B again: extra outfall water with falling conductivity, possible dilution; a person decides
 
-All three are development cases; nothing here comes from the held-out test set.
+A to C are development cases; D and E are from the factory B check set (results page, "a second factory").
+Nothing here comes from the held-out test set.
 """
 
 from __future__ import annotations
@@ -25,6 +28,8 @@ DEMO = {
     "A": ("dev", "factory-a-54b2c9cb"),
     "B": ("dev", "factory-a-460f93ca"),
     "C": ("dev", "factory-a-6e86676d"),
+    "D": ("check_b", "factory-b-e257c871"),
+    "E": ("check_b", "factory-b-50fe9672"),
 }
 # Cases also shown with their logbook pages in Bangla (eval.caseset's bangla set: same records, same answer),
 # with the investigation Muse Spark ran on the Bangla pages.
@@ -38,6 +43,8 @@ CATALOG = {
     "A": ("Cotton piqué", [("polo", "Men's polo shirt"), ("polo-w", "Women's polo shirt")]),
     "B": ("Cotton jersey", [("tee", "Crew-neck T-shirt"), ("longsleeve", "Long-sleeve T-shirt"), ("kids-tee", "Kids' T-shirt")]),
     "C": ("Cotton fleece", [("hoodie", "Hoodie"), ("sweatshirt", "Sweatshirt"), ("joggers", "Joggers")]),
+    "D": ("Cotton jersey", [("tee", "Crew-neck T-shirt"), ("longsleeve", "Long-sleeve T-shirt")]),
+    "E": ("Cotton piqué", [("polo", "Men's polo shirt"), ("polo-w", "Women's polo shirt")]),
 }
 
 

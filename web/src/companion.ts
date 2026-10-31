@@ -12,6 +12,9 @@ export const art = (cloth: Cloth, mood: Mood, motion: boolean) =>
 
 /** The case file's mood for the companion; null hands it back to calm. */
 export const setMood = (mood: Mood | null) => { dispatchEvent(new CustomEvent('tw:mood', { detail: mood })) }
+/** The step a replay is on, for the corner card once the case file's desk is out of view; null when nothing plays. */
+export type StepLine = { label: string; line: string }
+export const setStepLine = (step: StepLine | null) => { dispatchEvent(new CustomEvent('tw:step', { detail: step })) }
 /** The guide is writing an answer: the companion reads meanwhile. */
 export const setGuideBusy = (busy: boolean) => { dispatchEvent(new CustomEvent('tw:guide-busy', { detail: busy })) }
 

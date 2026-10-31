@@ -1,0 +1,20 @@
+{
+  "case_id": "factory-b-50fe9672",
+  "batch_id": "factory-b-50fe9672-B07",
+  "treatment_interval": [
+    "2026-10-13 13:00:00+06:00",
+    "2026-10-14 12:00:00+06:00"
+  ],
+  "underlying": "dilution",
+  "justified": "review_required",
+  "window": [
+    "2026-10-13 14:15:00+06:00",
+    "2026-10-13 21:50:00+06:00"
+  ],
+  "established_by": [
+    "S2",
+    "S4a",
+    "S4c"
+  ],
+  "evidence_request": null
+}

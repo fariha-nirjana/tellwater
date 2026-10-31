@@ -8,7 +8,7 @@
 
 export type Target = { kind: 'signal' | 'calc' | 'doc' | 'alert' | 'other'; id: string; signals: string[]; start?: Date; end?: Date; doc?: string; label: string }
 
-const CALC_SIGNALS: Record<string, string[]> = {
+export const CALC_SIGNALS: Record<string, string[]> = {
   water_balance: ['S1', 'S2', 'S4a', 'T1'],
   power_vs_load: ['S2', 'S3'],
 }

@@ -1,0 +1,19 @@
+{
+  "case_id": "factory-b-e257c871",
+  "batch_id": "factory-b-e257c871-B07",
+  "treatment_interval": [
+    "2026-10-13 13:00:00+06:00",
+    "2026-10-14 12:00:00+06:00"
+  ],
+  "underlying": "bypass",
+  "justified": "contradicts",
+  "window": [
+    "2026-10-13 13:00:00+06:00",
+    "2026-10-13 21:10:00+06:00"
+  ],
+  "established_by": [
+    "S2",
+    "S4a"
+  ],
+  "evidence_request": null
+}

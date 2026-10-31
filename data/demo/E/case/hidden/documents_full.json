@@ -1,0 +1,159 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "T. Rahman",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "de326853b161c464d8bb4d6eb8287ce85fb77431630a63d5beedf1948d7180bf",
+    "content": {
+      "date": "13/10/2026",
+      "operator": "T. Rahman",
+      "entries": [
+        {
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.2",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "06:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.2",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "late": false
+        }
+      ]
+    },
+    "truthful": false,
+    "meta": {
+      "lines": [
+        {
+          "index": 0,
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.2",
+          "crossed_out": false,
+          "box": {
+            "x_min": 104,
+            "y_min": 197,
+            "x_max": 781,
+            "y_max": 232
+          }
+        },
+        {
+          "index": 1,
+          "time": "06:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 113,
+            "y_min": 246,
+            "x_max": 401,
+            "y_max": 272
+          }
+        },
+        {
+          "index": 2,
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.2",
+          "crossed_out": false,
+          "box": {
+            "x_min": 108,
+            "y_min": 280,
+            "x_max": 797,
+            "y_max": 313
+          }
+        },
+        {
+          "index": 3,
+          "time": "14:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 113,
+            "y_min": 319,
+            "x_max": 414,
+            "y_max": 344
+          }
+        },
+        {
+          "index": 4,
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "box": {
+            "x_min": 109,
+            "y_min": 346,
+            "x_max": 798,
+            "y_max": 376
+          }
+        },
+        {
+          "index": 5,
+          "time": "22:25",
+          "text": "Lime dosed 45 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 109,
+            "y_min": 387,
+            "x_max": 402,
+            "y_max": 411
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "doc:photo-S3-1013-1905",
+    "type": "meter_photo",
+    "covers": [
+      "2026-10-13 19:05:00+06:00",
+      "2026-10-13 19:10:00+06:00"
+    ],
+    "received_at": "2026-10-13 20:14:55.202661580+06:00",
+    "author": "Site photo",
+    "is_claim": false,
+    "image": "docs/photo-S3-1013-1905.jpg",
+    "sha256": "19193e0abd2b64e147cf3829c68acc094f4da39dd2e3927b5885ebbc35ea59cb",
+    "content": {
+      "signal": "S3",
+      "meter": "ETP main panel energy meter",
+      "unit": "kW",
+      "value": 123.1,
+      "display_time": "13/10/2026 19:06"
+    },
+    "truthful": true,
+    "meta": {
+      "taken_at": "2026-10-13 19:05:00+06:00",
+      "index": 0
+    }
+  }
+]

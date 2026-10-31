@@ -42,7 +42,7 @@ UI = {
     "limitations": "Limitations", "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate.",
     "doc_logbook": "Logbook", "doc_maintenance_record": "Maintenance record", "doc_operator_statement": "Operator statement",
     "doc_meter_photo": "Meter photo", "doc_lab_report": "Lab report",
-    "tab_you": "For you", "tab_buyer": "For buyers", "tab_auditor": "For auditors",
+    "tab_you": "For shoppers", "tab_buyer": "For buyers", "tab_auditor": "For auditors",
     "journey_title": "Where the water went", "stage_intake_dyeing": "Your fabric dyed", "of_water": "of water used by this run",
     "stage_intake": "Water drawn in", "stage_tank": "Held in the tank", "stage_treatment": "Cleaned at the treatment plant", "stage_river": "Back to the river",
     "state_intake_ok": "Metered as it came in", "state_intake_missing": "The intake record is missing", "state_intake_neutral": "Not needed for this answer",

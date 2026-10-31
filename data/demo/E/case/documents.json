@@ -1,0 +1,28 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "T. Rahman",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "de326853b161c464d8bb4d6eb8287ce85fb77431630a63d5beedf1948d7180bf"
+  },
+  {
+    "id": "doc:photo-S3-1013-1905",
+    "type": "meter_photo",
+    "covers": [
+      "2026-10-13 19:05:00+06:00",
+      "2026-10-13 19:10:00+06:00"
+    ],
+    "received_at": "2026-10-13 20:14:55.202661580+06:00",
+    "author": "Site photo",
+    "is_claim": false,
+    "image": "docs/photo-S3-1013-1905.jpg",
+    "sha256": "19193e0abd2b64e147cf3829c68acc094f4da39dd2e3927b5885ebbc35ea59cb"
+  }
+]

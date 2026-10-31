@@ -61,11 +61,17 @@ function journey(p: P): Record<Stage, State> {
   return out
 }
 
-export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string }) {
+// which tabs each audience sees: the public layer for anyone who scans, the business layers for buyers and auditors (as in the
+// EU product passport); the factory never sees the auditor tab, which carries the buyer's review notes
+export type PassportRole = 'all' | 'buyer' | 'factory' | 'shopper'
+const TABS: Record<PassportRole, View[]> = { all: ['you', 'buyer', 'auditor'], shopper: ['you'], buyer: ['buyer', 'auditor'], factory: ['you', 'buyer'] }
+
+export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gtin?: string; role?: PassportRole }) {
+  const tabs = TABS[role]
   const [p, setP] = useState<P | null>(null)
   const [docs, setDocs] = useState<Doc[]>([])
   const [open, setOpen] = useState<Doc | null>(null)
-  const [view, setView] = useState<View>('you')
+  const [view, setView] = useState<View>(() => TABS[role][0])
   const [langs, setLangs] = useState<Record<string, string>>({})
   const [lang, setLang] = useState('en')
   const [tr, setTr] = useState<Translation | null>(null)
@@ -107,7 +113,7 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
       <div className="pp-shell" lang={tr?.lang ?? 'en'}>
         <aside className="pp-side">
           <div className="pp-top">
-            <a className="passport-back" href={`#/case/${caseKey}`}>← {ui('open_case', 'Open case file')}</a>
+            {(role === 'all' || role === 'buyer') && <a className="passport-back" href={`#/case/${caseKey}`}>← {ui('open_case', 'Open case file')}</a>}
             {Object.keys(langs).length > 0 && (
               <label className="lang-pick"><span>Read in</span>
                 <select value={lang} onChange={(e) => setLang(e.target.value)} disabled={trState === 'loading'} aria-label="Passport language">
@@ -129,11 +135,13 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
         </aside>
 
         <div className="pp-main">
-          <div className="pp-tabs" role="tablist" aria-label="Who is reading">
-            {([['you', ui('tab_you', 'For you')], ['buyer', ui('tab_buyer', 'For buyers')], ['auditor', ui('tab_auditor', 'For auditors')]] as [View, string][]).map(([v, label]) => (
-              <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)}>{label}</button>
-            ))}
-          </div>
+          {tabs.length > 1 && (
+            <div className="pp-tabs" role="tablist" aria-label="Who is reading">
+              {([['you', ui('tab_you', 'For shoppers')], ['buyer', ui('tab_buyer', 'For buyers')], ['auditor', ui('tab_auditor', 'For auditors')]] as [View, string][]).filter(([v]) => tabs.includes(v)).map(([v, label]) => (
+                <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)}>{label}</button>
+              ))}
+            </div>
+          )}
           {trState === 'loading' && <p className="translation-note">Muse Spark is translating the passport…</p>}
           {trState && trState !== 'loading' && <p className="translation-note warn">{trState}</p>}
           {tr && <p className="translation-note">{tr.note} <button className="text-btn" onClick={() => setLang('en')}>Show the English original</button></p>}
@@ -173,10 +181,12 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
               <div className="pp-care" aria-label="Care instructions">
                 {p.garment.care.map((c, i) => <span key={c}><CareIcon i={i} />{t(`care.${i}`, c)}</span>)}
               </div>
-              <div className="pp-more">
-                <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'The details a buyer checks')} ↗</button>
-                <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Everything, for auditors')} ↗</button>
-              </div>
+              {tabs.length > 1 && (
+                <div className="pp-more">
+                  {tabs.includes('buyer') && <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'The details a buyer checks')} ↗</button>}
+                  {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Everything, for auditors')} ↗</button>}
+                </div>
+              )}
             </div>
           )}
 
@@ -214,7 +224,7 @@ export function Passport({ caseKey, gtin }: { caseKey: CaseKey; gtin?: string })
                   ))}
                 </div>
               </Section>
-              <p className="pp-fine">{t('limitation.0', p.limitations[0] ?? '')} <button className="text-btn" onClick={() => setView('auditor')}>{ui('all_limits', 'All limitations')} ↗</button></p>
+              <p className="pp-fine">{t('limitation.0', p.limitations[0] ?? '')} {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('all_limits', 'All limitations')} ↗</button>}</p>
               <a className="button acid small" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <span>↗</span></a>
             </div>
           )}

@@ -233,13 +233,17 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
     const $ = (s: string) => document.querySelector(s) as (SVGPathElement & HTMLElement) | null
     const setFriend = (x: number, y: number, m: string) => {
       if (m !== mode) {
-        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence')
-        f.classList.toggle('hanging', m !== 'road'); thread.current?.parentElement?.classList.toggle('let-go', m === 'road')
+        f.classList.toggle('road-mode', m === 'road'); f.classList.toggle('dock-mode', m === 'evidence'); f.classList.toggle('away', m === 'away')
+        f.classList.toggle('hanging', m === 'hang'); thread.current?.parentElement?.classList.toggle('let-go', m !== 'hang')
         f.classList.add('traveling'); clearTimeout(travelTimer); travelTimer = window.setTimeout(() => f.classList.remove('traveling'), 650)
+        if (m === 'evidence' && mode === 'hang') {  // lets go of its thread and hops down onto the case file's desk
+          f.classList.add('hopping'); clearTimeout(hopTimer); hopTimer = window.setTimeout(() => f.classList.remove('hopping'), 600)
+        }
         mode = m
       } else if (m === 'road' && Math.abs(y - lastY) > 70) {  // cleared something on the road: hop across it
         f.classList.add('hopping'); clearTimeout(hopTimer); hopTimer = window.setTimeout(() => f.classList.remove('hopping'), 600)
       }
+      if (m === 'away') return  // the desk is scrolled away: the corner card takes over, and it waits where it was
       lastY = y
       f.style.left = `${x}px`; f.style.top = `${y}px`
       setCloth(m === 'road' || onPurple(x, y, f) ? 'g2' : 'g1')  // acid cloth on purple, white cloth everywhere else
@@ -291,6 +295,7 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
         setFriend(...avoid(intro.left + (p.x / 1200) * intro.width, intro.top + (p.y / 500) * intro.height), 'road')
         $('#introProgress')!.style.strokeDashoffset = String(il - prog); $('#roadProgress')!.style.strokeDashoffset = String(roadLength)
       } else if (ev && ev.top > 60 && ev.bottom < innerHeight - 15) setFriend(ev.left + ev.width / 2, ev.top + ev.height / 2, 'evidence')
+      else if (inCase && ev) setFriend(0, 0, 'away')
       else {
         // off the road it hangs on its thread at the right and travels down the page with you: level with the hero's
         // garment while that's on screen, then at a steady height, and it stops above the footer
@@ -323,7 +328,7 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
     const settle = window.setInterval(position, 500) // content above (the case file) loads after mount
     addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onResize)
     return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onResize); clearInterval(settle); cancelAnimationFrame(frame); cancelAnimationFrame(tie) }
-  }, [motion, hidden])
+  }, [motion, hidden, inCase])
   // until the guide has been opened once, a bubble says what the companion is for
   const [introduce, setIntroduce] = useState(() => { try { return !localStorage.getItem('tw:guide-opened') } catch { return true } })
   useEffect(() => { const t = setTimeout(() => setIntroduce(false), 10_000); return () => clearTimeout(t) }, [])  // it doesn't sit over the page for long

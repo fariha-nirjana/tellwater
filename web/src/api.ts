@@ -1,7 +1,7 @@
 // Types and fetchers for the Tellwater API (api/app.py).
 
 export type Status = 'supports' | 'contradicts' | 'review_required' | 'insufficient'
-export type CaseKey = 'A' | 'B' | 'C'
+export type CaseKey = 'A' | 'B' | 'C' | 'D' | 'E'
 // a case, or its view with the logbook pages in Bangla (read-only)
 export type ViewKey = CaseKey | `${CaseKey}-bn`
 
@@ -20,10 +20,11 @@ export type Overview = {
   [k: string]: unknown
 }
 export type Submission = { signal: string; file: string; note: string; at: string; covers: [string, string] }
+export type Reply = { note: string; at: string }
 export type Review = { action: 'approve' | 'change' | 'return'; status: Status | null; reason: string; reviewer: string; at: string }
 export type CaseFile = {
   key: ViewKey; overview: Overview; documents: Doc[]; signals: SignalInfo; submission: Submission | null; review: Review[] | null
-  logbook_language: 'en' | 'bn'; bangla_view: boolean
+  replies: Reply[]; logbook_language: 'en' | 'bn'; bangla_view: boolean
 }
 
 export type Explanation = { id: string; label: string; supporting: string[]; contradicting: string[]; missing: string[]; status: 'open' | 'supported' | 'contradicted' }
@@ -87,6 +88,12 @@ export const api = {
     return r.json()
   },
   clearSubmission: (k: CaseKey) => fetch(`/api/cases/${k}/evidence`, { method: 'DELETE' }),
+  reply: async (k: CaseKey, note: string) => {
+    const r = await fetch(`/api/cases/${k}/reply`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ note }) })
+    if (!r.ok) throw new Error((await r.json()).detail ?? 'reply failed')
+    return r.json() as Promise<Reply>
+  },
+  clearReplies: (k: CaseKey) => fetch(`/api/cases/${k}/reply`, { method: 'DELETE' }),
   review: async (k: CaseKey, r: { action: string; status?: Status; reason: string }) => {
     const res = await fetch(`/api/cases/${k}/review`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(r) })
     if (!res.ok) throw new Error((await res.json()).detail ?? 'review failed')

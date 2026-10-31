@@ -15,7 +15,7 @@ def client(tmp_path, monkeypatch):
 
 def test_cases_and_documents(client):
     keys = {c["key"]: c["status"] for c in client.get("/api/cases").json()}
-    assert keys == {"A": "supports", "B": "contradicts", "C": "insufficient"}
+    assert keys == {"A": "supports", "B": "contradicts", "C": "insufficient", "D": "contradicts", "E": "review_required"}
     docs = {d["id"]: d for d in client.get("/api/cases/B").json()["documents"]}
     assert docs["doc:logbook-1013"]["lines"] and docs["doc:photo-S3-1013-1530"]["image"]
     assert client.get(docs["doc:photo-S3-1013-1530"]["image"]).headers["content-type"] == "image/jpeg"
@@ -36,6 +36,16 @@ def test_submission_fills_the_record_and_adds_a_factory_document(client):
     assert sub["is_claim"]  # a factory-supplied record is still the factory's word
     client.delete("/api/cases/C/evidence")
     assert client.get("/api/cases/C").json()["overview"]["signals"]["T1"]["coverage_of_treatment_interval"] == 0.0
+
+
+def test_factory_reply_is_shown_beside_the_case_without_changing_it(client):
+    assert client.post("/api/cases/B/reply", json={"note": "  "}).status_code == 400
+    client.post("/api/cases/B/reply", json={"note": "Aerator 2 needed a part; we ran on one aerator until 16:45."})
+    c = client.get("/api/cases/B").json()
+    assert [r["note"] for r in c["replies"]] == ["Aerator 2 needed a part; we ran on one aerator until 16:45."]
+    assert client.get("/api/passport/B").json()["status"] == "contradicts"
+    client.delete("/api/cases/B/reply")
+    assert client.get("/api/cases/B").json()["replies"] == []
 
 
 def test_review_updates_the_passport(client):

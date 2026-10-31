@@ -1,0 +1,158 @@
+[
+  {
+    "id": "doc:logbook-1013",
+    "type": "logbook",
+    "covers": [
+      "2026-10-13 00:00:00+06:00",
+      "2026-10-14 00:00:00+06:00"
+    ],
+    "received_at": "2026-10-14 02:00:00+06:00",
+    "author": "T. Rahman",
+    "is_claim": true,
+    "image": "docs/logbook-1013.jpg",
+    "sha256": "8a0b6c0c852815950dbf20c496c039b267d063300d95d40856bd2c505a876ee9",
+    "content": {
+      "date": "13/10/2026",
+      "operator": "T. Rahman",
+      "entries": [
+        {
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.6",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.4",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "late": false
+        },
+        {
+          "time": "22:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "late": false
+        }
+      ]
+    },
+    "truthful": false,
+    "meta": {
+      "lines": [
+        {
+          "index": 0,
+          "time": "06:00",
+          "text": "Shift A start. ETP running normal. Outfall pH 7.6",
+          "crossed_out": false,
+          "box": {
+            "x_min": 98,
+            "y_min": 163,
+            "x_max": 773,
+            "y_max": 231
+          }
+        },
+        {
+          "index": 1,
+          "time": "06:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 101,
+            "y_min": 232,
+            "x_max": 391,
+            "y_max": 273
+          }
+        },
+        {
+          "index": 2,
+          "time": "14:00",
+          "text": "Shift B start. ETP running normal. Outfall pH 7.4",
+          "crossed_out": false,
+          "box": {
+            "x_min": 97,
+            "y_min": 242,
+            "x_max": 800,
+            "y_max": 307
+          }
+        },
+        {
+          "index": 3,
+          "time": "14:25",
+          "text": "Lime dosed 40 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 105,
+            "y_min": 310,
+            "x_max": 407,
+            "y_max": 352
+          }
+        },
+        {
+          "index": 4,
+          "time": "22:00",
+          "text": "Shift C start. ETP running normal. Outfall pH 7.3",
+          "crossed_out": false,
+          "box": {
+            "x_min": 101,
+            "y_min": 318,
+            "x_max": 800,
+            "y_max": 381
+          }
+        },
+        {
+          "index": 5,
+          "time": "22:25",
+          "text": "Lime dosed 35 kg",
+          "crossed_out": false,
+          "box": {
+            "x_min": 109,
+            "y_min": 385,
+            "x_max": 402,
+            "y_max": 424
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "doc:lab-1013-1135",
+    "type": "lab_report",
+    "covers": [
+      "2026-10-13 11:35:00+06:00",
+      "2026-10-13 11:40:00+06:00"
+    ],
+    "received_at": "2026-10-16 11:35:00+06:00",
+    "author": "Accredited laboratory (simulated)",
+    "is_claim": false,
+    "image": "docs/lab-1013-1135.jpg",
+    "sha256": "bba1fe654ecd6ecac9645143b6ee599e74f64a94d3e8903e8301db94864ddf1f",
+    "content": {
+      "sample_point": "Final outfall",
+      "sample_time": "13/10/2026 11:35",
+      "bod_mg_l": 20.2,
+      "cod_mg_l": 53.7,
+      "tss_mg_l": 31.7,
+      "ph": 7.58,
+      "bod_limit_mg_l": 30.0
+    },
+    "truthful": true,
+    "meta": {}
+  }
+]

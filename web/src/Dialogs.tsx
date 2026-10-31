@@ -1,14 +1,14 @@
-// Iteration 02's dialogs: the factory's bounded response, the reviewer's decision, and the limits.
+// Iteration 02's dialogs: the reviewer's decision, the passport's QR, the letter to the factory, and the limits.
 import { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { api, STATUS_LABEL, type CaseKey, type Review, type Status } from './api'
 import { dayHm, wall } from './evidence'
 
-export type DialogKind = 'factory' | 'review' | 'limits' | 'qr' | 'letter' | null
+export type DialogKind = 'review' | 'limits' | 'qr' | 'letter' | null
 
 type Props = {
   kind: DialogKind; close: () => void; caseKey: CaseKey; status: Status | null; reviews: Review[]; limitations: string[]
-  onReviewed: () => void; onSubmitted: () => void; onPassport: () => void
+  onReviewed: () => void; onPassport: () => void
 }
 
 export function Dialogs({ kind, close, ...p }: Props) {
@@ -22,7 +22,6 @@ export function Dialogs({ kind, close, ...p }: Props) {
   return (
     <dialog ref={ref} className={kind === 'qr' ? 'qr-dialog' : ''} onClose={close} onClick={(e) => { if (e.target === ref.current) close() }}>
       <button className="close" onClick={close} aria-label="Close">×</button>
-      {kind === 'factory' && <Factory {...p} close={close} />}
       {kind === 'review' && <ReviewForm {...p} close={close} />}
       {kind === 'qr' && <PassportQR {...p} />}
       {kind === 'letter' && <Letter caseKey={p.caseKey} />}
@@ -61,54 +60,35 @@ function PassportQR({ caseKey }: { caseKey: CaseKey }) {
 }
 
 type LetterDraft = { en: string; bn: string; note: string }
+export type LetterLang = 'en' | 'bn'
+export const LETTER_LANGS: [LetterLang, string][] = [['en', 'English'], ['bn', 'বাংলা']]
 
-/** The evidence request as a message to the factory: Bangla for the factory, the English beside it. */
+/** The evidence request as a message to the factory, in the language the sender chooses. */
 function Letter({ caseKey }: { caseKey: CaseKey }) {
   const [draft, setDraft] = useState<LetterDraft | null>(null)
   const [error, setError] = useState('')
+  const [lang, setLang] = useState<LetterLang>('en')
   useEffect(() => {
     fetch(`/api/cases/${caseKey}/letter`, { method: 'POST' })
       .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.detail ?? r.status); setDraft(d) })
       .catch((e) => setError((e as Error).message))
   }, [caseKey])
-  const copy = (text: string) => navigator.clipboard?.writeText(text).catch(() => {})
+  const text = draft?.[lang] ?? ''
   return (
     <div className="letter">
       <span className="micro">THE REQUEST, FOR THE FACTORY</span>
       <h2>A message to send the factory.</h2>
+      <div className="letter-lang" role="group" aria-label="Language of the message">
+        <span>Write it in</span>
+        {LETTER_LANGS.map(([code, name]) => <button key={code} lang={code} aria-pressed={lang === code} onClick={() => setLang(code)}>{name}</button>)}
+      </div>
       {error ? <p className="form-error">{error}</p> : !draft ? <p>Muse Spark is drafting the message…</p> : (
         <>
-          <div className="letter-pair">
-            <div lang="bn"><span className="micro" lang="en">বাংলা · FOR THE FACTORY</span><p>{draft.bn}</p><button className="text-btn" onClick={() => copy(draft.bn)}>Copy ↗</button></div>
-            <div><span className="micro">ENGLISH · FOR YOUR RECORDS</span><p>{draft.en}</p><button className="text-btn" onClick={() => copy(draft.en)}>Copy ↗</button></div>
-          </div>
+          <div className="letter-one" lang={lang}><p>{text}</p></div>
+          <button className="text-btn" onClick={() => navigator.clipboard?.writeText(text).catch(() => {})}>Copy ↗</button>
           <p className="scope">{draft.note}</p>
         </>
       )}
-    </div>
-  )
-}
-
-function Factory({ caseKey, onSubmitted, close }: Omit<Props, "kind">) {
-  const [note, setNote] = useState('Tank level log from the ETP control room.')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  return (
-    <div>
-      <span className="micro">FACTORY VIEW / RESPONSE TO AN EVIDENCE REQUEST</span>
-      <h2>Equalization tank level log</h2>
-      <p>The reviewer asked for the tank level during the ETP stop, 13 Oct 13:10–15:40. Only that record can show the arriving wastewater was held for treatment, rather than leaving another way.</p>
-      <label>The requested record</label>
-      <div className="upload-file"><b>tank-level-13-oct.csv</b><small>Demo file · 13 Oct 10:00 to 14 Oct 14:00 · one reading every 15 minutes</small></div>
-      <label htmlFor="factoryNote">Note to the reviewer</label>
-      <textarea id="factoryNote" value={note} onChange={(e) => setNote(e.target.value)} />
-      <p className="scope">Still the factory’s record: the investigator checks it against the other signals before it counts.</p>
-      {error && <p className="form-error">{error}</p>}
-      <button className="button ink" disabled={busy} onClick={async () => {
-        setBusy(true); setError('')
-        try { await api.submitSample(caseKey, note); onSubmitted() } catch (e) { setError((e as Error).message); setBusy(false) }
-      }}>{busy ? 'Sending…' : 'Send and re-run the investigation'} <span>↗</span></button>
-      <button className="text-btn cancel" onClick={close}>Cancel</button>
     </div>
   )
 }

@@ -1,0 +1,170 @@
+[
+  {
+    "id": "factory-b-50fe9672-B00",
+    "start": "2026-10-12 06:00:00+06:00",
+    "end": "2026-10-12 09:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 308.1
+  },
+  {
+    "id": "factory-b-50fe9672-B01",
+    "start": "2026-10-12 09:00:00+06:00",
+    "end": "2026-10-12 12:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 405.7
+  },
+  {
+    "id": "factory-b-50fe9672-B02",
+    "start": "2026-10-12 12:00:00+06:00",
+    "end": "2026-10-12 15:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 500.7
+  },
+  {
+    "id": "factory-b-50fe9672-B03",
+    "start": "2026-10-12 15:00:00+06:00",
+    "end": "2026-10-12 18:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 439.6
+  },
+  {
+    "id": "factory-b-50fe9672-B04",
+    "start": "2026-10-12 18:00:00+06:00",
+    "end": "2026-10-12 21:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 353.1
+  },
+  {
+    "id": "factory-b-50fe9672-B05",
+    "start": "2026-10-12 21:00:00+06:00",
+    "end": "2026-10-13 00:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 302.3
+  },
+  {
+    "id": "factory-b-50fe9672-B06",
+    "start": "2026-10-13 00:00:00+06:00",
+    "end": "2026-10-13 03:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 284.7
+  },
+  {
+    "id": "factory-b-50fe9672-B07",
+    "start": "2026-10-13 03:00:00+06:00",
+    "end": "2026-10-13 06:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 286.6
+  },
+  {
+    "id": "factory-b-50fe9672-B08",
+    "start": "2026-10-13 06:00:00+06:00",
+    "end": "2026-10-13 09:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 257.3
+  },
+  {
+    "id": "factory-b-50fe9672-B09",
+    "start": "2026-10-13 09:00:00+06:00",
+    "end": "2026-10-13 12:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 496.4
+  },
+  {
+    "id": "factory-b-50fe9672-B10",
+    "start": "2026-10-13 12:00:00+06:00",
+    "end": "2026-10-13 15:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 534.9
+  },
+  {
+    "id": "factory-b-50fe9672-B11",
+    "start": "2026-10-13 15:00:00+06:00",
+    "end": "2026-10-13 18:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 420.8
+  },
+  {
+    "id": "factory-b-50fe9672-B12",
+    "start": "2026-10-13 18:00:00+06:00",
+    "end": "2026-10-13 21:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 310.2
+  },
+  {
+    "id": "factory-b-50fe9672-B13",
+    "start": "2026-10-13 21:00:00+06:00",
+    "end": "2026-10-14 00:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 251.7
+  },
+  {
+    "id": "factory-b-50fe9672-B14",
+    "start": "2026-10-14 00:00:00+06:00",
+    "end": "2026-10-14 03:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 238.4
+  },
+  {
+    "id": "factory-b-50fe9672-B15",
+    "start": "2026-10-14 03:00:00+06:00",
+    "end": "2026-10-14 06:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 212.6
+  },
+  {
+    "id": "factory-b-50fe9672-B16",
+    "start": "2026-10-14 06:00:00+06:00",
+    "end": "2026-10-14 09:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 293.4
+  },
+  {
+    "id": "factory-b-50fe9672-B17",
+    "start": "2026-10-14 09:00:00+06:00",
+    "end": "2026-10-14 12:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 419.2
+  },
+  {
+    "id": "factory-b-50fe9672-B18",
+    "start": "2026-10-14 12:00:00+06:00",
+    "end": "2026-10-14 15:00:00+06:00",
+    "shade": "dark",
+    "planned_wastewater_m3": 509.5
+  },
+  {
+    "id": "factory-b-50fe9672-B19",
+    "start": "2026-10-14 15:00:00+06:00",
+    "end": "2026-10-14 18:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 332.0
+  },
+  {
+    "id": "factory-b-50fe9672-B20",
+    "start": "2026-10-14 18:00:00+06:00",
+    "end": "2026-10-14 21:00:00+06:00",
+    "shade": "medium",
+    "planned_wastewater_m3": 353.4
+  },
+  {
+    "id": "factory-b-50fe9672-B21",
+    "start": "2026-10-14 21:00:00+06:00",
+    "end": "2026-10-15 00:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 195.4
+  },
+  {
+    "id": "factory-b-50fe9672-B22",
+    "start": "2026-10-15 00:00:00+06:00",
+    "end": "2026-10-15 03:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 188.1
+  },
+  {
+    "id": "factory-b-50fe9672-B23",
+    "start": "2026-10-15 03:00:00+06:00",
+    "end": "2026-10-15 06:00:00+06:00",
+    "shade": "light",
+    "planned_wastewater_m3": 219.5
+  }
+]

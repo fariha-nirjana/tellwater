@@ -8,10 +8,11 @@ import { HowTeaser, PhoneStory, ScanLabel } from './Home'
 import { HowItWorks } from './How'
 import { Results } from './Pages'
 import { Passport } from './Passport'
+import { Factory } from './Factory'
 import { Report } from './Report'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file; #/case/C/bn with its logbook in Bangla),
-// #/passport/A, #/report/A (the audit report), #/results, #/trace (pick a run and a garment, scan its tag)
+// #/passport/A, #/report/A (the audit report), #/results, #/trace (pick a run and a garment, scan its tag), #/factory (the factory's page)
 function useHash() {
   const [hash, setHash] = useState(location.hash || '#/')
   useEffect(() => {
@@ -20,6 +21,23 @@ function useHash() {
     return () => removeEventListener('hashchange', on)
   }, [])
   return hash
+}
+
+type Role = 'all' | 'buyer' | 'factory' | 'shopper'
+type Page = 'home' | 'case' | 'report' | 'passport' | 'results' | 'how' | 'trace' | 'factory'
+const ROLES: [Role, string, string][] = [['all', 'Everything', 'All'], ['buyer', 'Buyer’s reviewer', 'Buyer'], ['factory', 'Factory', 'Factory'], ['shopper', 'Shopper', 'Shopper']]
+// each audience's own pages, and where it starts
+const PAGES: Record<Exclude<Role, 'all'>, Page[]> = {
+  buyer: ['case', 'report', 'passport', 'how', 'results'],
+  factory: ['factory', 'passport', 'how'],
+  shopper: ['home', 'trace', 'passport', 'how'],
+}
+const START: Record<Exclude<Role, 'all'>, string> = { buyer: '#/case/B', factory: '#/factory', shopper: '#/' }
+const NAV: Record<Role, [string, string, Page | 'story'][]> = {
+  all: [['#/case/B', 'The investigation', 'case'], ['#/trace', 'Trace a garment', 'trace'], ['#/how', 'How it works', 'how'], ['#/story', 'Why I was born', 'story'], ['#/results', 'Results', 'results']],
+  buyer: [['#/case/B', 'Our suppliers’ cases', 'case'], ['#/how', 'How it works', 'how'], ['#/results', 'Results', 'results']],
+  factory: [],
+  shopper: [['#/trace', 'Trace a garment', 'trace'], ['#/how', 'How it works', 'how'], ['#/story', 'Why I was born', 'story']],
 }
 
 const prefersMotion = () => !matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -32,13 +50,23 @@ export function App() {
   const [companion, setCompanionState] = useState(() => { try { return localStorage.getItem('tw:companion') !== 'off' } catch { return true } })
   const setCompanion = (on: boolean) => { setCompanionState(on); try { localStorage.setItem('tw:companion', on ? 'on' : 'off') } catch { /* private window */ } }
   const { curtain, run } = useCurtain(motion)
-  const [, caseKey, bangla] = (hash.match(/^#\/case\/([ABC])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
-  const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([ABC])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
-  const report = hash.match(/^#\/report\/([ABC])$/)?.[1] as CaseKey | undefined
+  const [, caseKey, bangla] = (hash.match(/^#\/case\/([A-E])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
+  const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([A-E])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
+  const report = hash.match(/^#\/report\/([A-E])$/)?.[1] as CaseKey | undefined
   const results = hash === '#/results'
   const how = hash === '#/how'
   const trace = hash === '#/trace'
-  const home = !caseKey && !passport && !report && !results && !how && !trace
+  const factoryId = hash.match(/^#\/factory(?:\/([ab]))?$/) ? (hash.endsWith('/b') ? 'B' : 'A') : null
+  const factory = !!factoryId
+  const home = !caseKey && !passport && !report && !results && !how && !trace && !factory
+  // who is looking: everything (the default, and the demo), or one audience with only its own pages
+  const [role, setRoleState] = useState<Role>(() => { try { return (localStorage.getItem('tw:role') as Role) || 'all' } catch { return 'all' } })
+  const setRole = (r: Role) => {
+    setRoleState(r); try { localStorage.setItem('tw:role', r) } catch { /* private window */ }
+    if (r !== 'all') location.hash = START[r]
+  }
+  const page: Page = caseKey ? 'case' : report ? 'report' : passport ? 'passport' : results ? 'results' : how ? 'how' : trace ? 'trace' : factory ? 'factory' : 'home'
+  const allowed = role === 'all' || PAGES[role].includes(page)
   const [arrived] = useState(home && hash !== '#/story') // only a first visit to the garment plays the arrival
 
   useEffect(() => { document.body.classList.toggle('reduced', !motion) }, [motion])
@@ -61,17 +89,26 @@ export function App() {
       {curtain}
       <header className="header">
         <a className="wordmark" href="#/" aria-label="Tellwater home"><svg viewBox="0 0 40 20"><path d="M2 16C8 0 10 25 19 7S29 20 38 3" /></svg>tellwater</a>
-        <nav aria-label="Main navigation">
-          <a href="#/case/B" aria-current={caseKey ? 'page' : undefined}>The investigation</a>
-          <a href="#/trace" aria-current={trace ? 'page' : undefined}>Trace a garment</a>
-          <a href="#/how" aria-current={how ? 'page' : undefined}>How it works</a>
-          <a href="#/story">Why I was born</a>
-          <a href="#/results" aria-current={results ? 'page' : undefined}>Results</a>
-        </nav>
-        <span className="prototype"><i /> Prototype · records from the Tellwater simulator</span>
+        {factory ? (
+          <nav aria-label="Factory navigation">
+            {([['fv-requests', 'Requests'], ['fv-runs', 'Our dye runs'], ['fv-records', 'Our records']] as const).map(([id, label]) => (
+              <a key={id} href={hash} onClick={(e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>{label}</a>
+            ))}
+          </nav>
+        ) : (
+          <nav aria-label="Main navigation">
+            {NAV[role].map(([href, label, p]) => <a key={href} href={href} aria-current={p === page ? 'page' : undefined}>{label}</a>)}
+          </nav>
+        )}
+        <div className="role-switch" role="group" aria-label="Viewing as">
+          <span>Viewing as</span>
+          {ROLES.map(([r, long, short]) => (
+            <button key={r} aria-pressed={role === r} onClick={() => setRole(r)}><span className="role-long">{long}</span><span className="role-short">{short}</span></button>
+          ))}
+        </div>
       </header>
       <main>
-        {passport ? <Passport key={`${passport}${scannedGtin ?? ''}`} caseKey={passport} gtin={scannedGtin} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
+        {!allowed ? <OtherView role={role as Exclude<Role, 'all'>} onEverything={() => setRole('all')} /> : passport ? <Passport key={`${passport}${scannedGtin ?? ''}${role}`} caseKey={passport} gtin={scannedGtin} role={role} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : factoryId ? <Factory key={factoryId} which={factoryId} /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
             <Hero onEnter={() => openCase('B')} />
             <PhoneStory />
@@ -81,10 +118,23 @@ export function App() {
         )}
         <Footer motion={motion} setMotion={setMotion} replay={() => { location.hash = '#/'; setReplay((r) => r + 1) }} companion={companion} setCompanion={setCompanion} />
       </main>
-      {(home || caseKey) && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
+      {(home || caseKey) && allowed && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
       {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide ↗</button>}
-      {!caseKey && <ChatLauncher page={passport ? 'passport' : report ? 'report' : results ? 'results' : how ? 'how' : trace ? 'trace' : 'home'} hidden={chat} motion={motion} onOpen={ask} />}
-      {!caseKey && <Guide key={passport ?? 'site'} caseKey={passport ?? 'B'} scope={passport ? 'passport' : 'site'} focus={null} open={chat} onClose={() => setChat(false)} onCite={cite} />}
+      <ChatLauncher key={caseKey ? 'case' : 'page'} page={caseKey ? 'case' : passport ? 'passport' : report ? 'report' : results ? 'results' : how ? 'how' : trace ? 'trace' : factory ? 'factory' : 'home'} hidden={chat || (!!caseKey && !companion)} motion={motion} onOpen={ask} />
+      {!caseKey && <Guide key={passport ?? 'site'} caseKey={passport ?? 'B'} scope={passport ? 'passport' : 'site'} languages={factory ? 'en-bn' : 'all'} focus={null} open={chat} onClose={() => setChat(false)} onCite={cite} />}
     </>
+  )
+}
+
+/** A page that belongs to another audience than the one chosen. */
+function OtherView({ role, onEverything }: { role: Exclude<Role, 'all'>; onEverything: () => void }) {
+  const who = ROLES.find(([r]) => r === role)![1]
+  return (
+    <section className="other-view">
+      <span className="micro">VIEWING AS {who.toUpperCase()}</span>
+      <h1>This page isn’t part of the {who.toLowerCase()} view.</h1>
+      <div><a className="button ink small" href={START[role]}>Go to the {who.toLowerCase()} view <span>↗</span></a>
+        <button className="text-btn" onClick={onEverything}>See everything ↗</button></div>
+    </section>
   )
 }

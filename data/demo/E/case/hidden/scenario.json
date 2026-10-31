@@ -1,0 +1,18 @@
+{
+  "id": "factory-b-50fe9672",
+  "seed": 70001,
+  "kind": "dilution",
+  "tank_level_available": true,
+  "events": [
+    {
+      "type": "dilution",
+      "start": "2026-10-13 14:15:00+06:00",
+      "end": "2026-10-13 21:50:00+06:00",
+      "params": {
+        "flow_m3_h": 29.259555504415687,
+        "metered": true
+      }
+    }
+  ],
+  "gaps": []
+}
