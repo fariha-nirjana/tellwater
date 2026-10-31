@@ -104,6 +104,10 @@ def main() -> None:
     p.add_argument("--fresh", action="store_true")
     p.add_argument("--host", choices=["fireworks", "baseten"], default="fireworks", help="C5 only")
     a = p.parse_args()
+    if a.set == "test":
+        from eval.freeze import changed
+        if changed():
+            raise SystemExit(f"the investigator changed since the freeze ({', '.join(changed())}); the test runs only on the frozen one")
 
     out_dir = RUNS / a.set / a.condition
     out_dir.mkdir(parents=True, exist_ok=True)

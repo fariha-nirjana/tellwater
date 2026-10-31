@@ -1,0 +1,17 @@
+{
+  "note": "Investigator frozen before the held-out test. Nothing in these files changes after this.",
+  "frozen_on": "2026-10-31",
+  "files": {
+    "agent/prompts.py": "b52e98ea818ac5aedc9195b295ba3ce1ffd89ab0d49d8d034189f28a36619d4a",
+    "agent/tools.py": "995b61003e75e419a1447ceca9b308b3a4a18622858a86690cff267e1011abc0",
+    "agent/loop.py": "2345bfb31c12ef5a8969ad5c00f0e8f0bcf785e014b3472947372b811fe16f5e",
+    "agent/validate.py": "177dee0168875786c7e926a8524bebc03ee3a2303a462ccefd6ffe1a98ebef1d",
+    "agent/bundle_pass.py": "3794a2dff5a55eed233a2da19ab47b264195e59d67f0c2c15f76e81aaafbb764",
+    "core/checks.py": "f29cec6385d4079496f157375bed03e50f7854f4a4f3645d35c8c073237d952b",
+    "core/physics.py": "44295f70ec7b687c091cac4a75642e9dcb0bd36f95ab59ae1c25c1184cbba9eb",
+    "sim/baseline.py": "2d700a0445d82f08ee8f7b2daa5f09c5414fd73db42a45bf9e13e018d981f845",
+    "eval/c1_rules.py": "16480b79dbff55c6e78b98a0f2dea34a7c735b40c7ddd5e669d43133acc88590",
+    "eval/c2_extract.py": "f2c27284943b03136aa0dbce514adbe917022e4cfe573cb3ba1e0e0b4c4a9863",
+    "eval/metrics.py": "6da16e2545b394e8217dfece688e62c59957b3ba9fcb9e7043504c3eb60d335b"
+  }
+}
