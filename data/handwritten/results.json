@@ -1,0 +1,674 @@
+{
+ "run1": {
+  "page1": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "14/10/2026",
+    "operator": "R. Karim",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "shift A start, ETP running normal out fall P H 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "Lime dosed 30 Kg",
+      "crossed_out": true,
+      "written_at": null
+     },
+     {
+      "time": "06:30",
+      "text": "Lime dosed 35 K.G",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "09:45",
+      "text": "sludge removed from clarifier",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "shift B start ETP running normal outfall PH 7.4",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:25",
+      "text": "Lime dosed 40 K.G",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "shift c start ETP running normal out fall P H 7.2",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:20",
+      "text": "Lime dosed 30 K.G",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "7/7",
+    "times_right": "7/7",
+    "numbers_right": "7/7",
+    "shifts_right": "3/3",
+    "struck_handled": "1/1",
+    "late_note": null,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page2": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "15/10/2026",
+    "operator": "S. Akter",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "Lime dosed 35 kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "11:40",
+      "text": "ETP stopped for planned maintenance (WO-1015-07). Tank taking inflow",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "Shift B start. ETP stopped. Outfall PH 7.6",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:20",
+      "text": "ETP restarted. Running normal",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "15:10",
+      "text": "Areator 2 serviced. Other units running",
+      "crossed_out": false,
+      "written_at": "17:45"
+     },
+     {
+      "time": "16:30",
+      "text": "Areator back in service",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "Shift C start. ETP running normal. Outfall pH 7.3.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "8/8",
+    "times_right": "8/8",
+    "numbers_right": "8/8",
+    "shifts_right": "3/3",
+    "struck_handled": "0/0",
+    "late_note": true,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page3": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "16/10/2026",
+    "operator": "M. Hossain",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট A শুরু, ETP স্বাভাবিকভাবে চলছে, আউটলেটের পানির pH 7.4",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 35 kg.",
+      "crossed_out": true,
+      "written_at": null
+     },
+     {
+      "time": "06:30",
+      "text": "চুন দেওয়া হয়েছে 35 kg.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "07:45",
+      "text": "ক্লারিফায়ার থেকে স্লাজ সরানো হয়েছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফট B শুরু। ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.3.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:25",
+      "text": "চুন দেওয়া হয়েছে 40 Kg.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "শিফট C শুরু। ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.2.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "5/6",
+    "times_right": "5/6",
+    "numbers_right": "6/6",
+    "shifts_right": "3/3",
+    "struck_handled": "1/1",
+    "late_note": null,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page4": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "17/10/2026",
+    "operator": "N. Islam",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট এ শুরু ETP স্বাভাবিকভাবে চলছে আউটলেটের পানির PH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 30kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "12:30",
+      "text": "পলিশিং ড্রাম পরিষ্কারের জন্য ETP বন্ধ (ETP WO-1017-12), ট্যাংকে পানি ঢুকছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফট এ শুরু। ETP বন্ধ, আউটলেটের পানির PH 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:40",
+      "text": "ETP আবার চালু হয়েছে স্বাভাবিকভাবে চলছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:10",
+      "text": "ETP ফিড পাম্পের সার্ভিসিং চলছে, বাকি ইউনিট চলছে। (লেখা হয়েছে 18:05 এ)",
+      "crossed_out": false,
+      "written_at": "18:05"
+     },
+     {
+      "time": "17:30",
+      "text": "ETP ফিড পাম্প আবার চালু হয়েছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "শিফট এ শুরু ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.4.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "4/8",
+    "times_right": "7/8",
+    "numbers_right": "8/8",
+    "shifts_right": "1/3",
+    "struck_handled": "0/0",
+    "late_note": true,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page5": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "17/10/2026",
+    "operator": "N. Islam",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট এ বুঝা ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 30kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "12:30",
+      "text": "পরিকল্পিত রক্ষণাবেক্ষণের জন্য ETP বন্ধ (ETP WO-1017-12), ট্যাংকে পানি ঢুকছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফট এ বুঝা। ETP বন্ধ, আউটলেটের পানির PH 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:40",
+      "text": "ETP আবার চালু হয়েছে স্বাভাবিকভাবে চলছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:10",
+      "text": "ETP ফিড পাম্পের সার্ভিসিং চলছে বাকি ইউনিট চালু। (লেখা হয়েছে 16:35 এ)",
+      "crossed_out": false,
+      "written_at": "16:35"
+     },
+     {
+      "time": "17:30",
+      "text": "ETP ফিড পাম্প আবার চালু হয়েছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "শিফট এ বুঝা ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.4.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "5/8",
+    "times_right": "7/8",
+    "numbers_right": "8/8",
+    "shifts_right": "1/3",
+    "struck_handled": "0/0",
+    "late_note": false,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  }
+ },
+ "run2": {
+  "page1": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "14/10/2026",
+    "operator": "R. Karim",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "shift A start, ETP running normal out fall P H 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "Lime dosed 30 Kg",
+      "crossed_out": true,
+      "written_at": null
+     },
+     {
+      "time": "06:30",
+      "text": "Lime dosed 35 K.G",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "09:45",
+      "text": "sludge removed from clarifier",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "shift B start ETP running normal outfall PH 7.4",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:25",
+      "text": "Lime dosed 40 K.G",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "shift c start ETP running normal out fall P H 7.2",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:20",
+      "text": "Lime dosed 30 K.G",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "7/7",
+    "times_right": "7/7",
+    "numbers_right": "7/7",
+    "shifts_right": "3/3",
+    "struck_handled": "1/1",
+    "late_note": null,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page2": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "15/10/2026",
+    "operator": "S. Akter",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "Shift A start. ETP running normal. Outfall pH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "Lime dosed 35 kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "11:40",
+      "text": "ETP stopped for planned maintenance (WO-1015-07). Tank taking inflow",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "Shift B start. ETP stopped. Outfall PH 7.6",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:20",
+      "text": "ETP restarted. Running normal",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "15:10",
+      "text": "Areator 2 serviced. Other units running (written 17:45)",
+      "crossed_out": false,
+      "written_at": "17:45"
+     },
+     {
+      "time": "16:30",
+      "text": "Areator back in service",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "Shift C start. ETP running normal. Outfall pH 7.3.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "8/8",
+    "times_right": "8/8",
+    "numbers_right": "8/8",
+    "shifts_right": "3/3",
+    "struck_handled": "0/0",
+    "late_note": true,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page3": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "16/10/2026",
+    "operator": "M. Hossain",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট A শুরু। ETP স্বাভাবিকভাবে চলছে, আউটলেটের পানির pH 7.4",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 35 Kg.",
+      "crossed_out": true,
+      "written_at": null
+     },
+     {
+      "time": "06:30",
+      "text": "চুন দেওয়া হয়েছে 35 Kg.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "09:45",
+      "text": "ক্লারিফায়ার থেকে স্লাজ সরানো হয়েছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফট B শুরু। ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.3.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:25",
+      "text": "চুন দেওয়া হয়েছে 40 Kg.",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "শিফট C শুরু। ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির pH 7.2.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "6/6",
+    "times_right": "6/6",
+    "numbers_right": "6/6",
+    "shifts_right": "3/3",
+    "struck_handled": "1/1",
+    "late_note": null,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page4": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "17/10/2026",
+    "operator": "N. Islam",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট এ শুরু ETP স্বাভাবিকভাবে চলছে আউটলেটের পানির PH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 30kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "12:30",
+      "text": "পরিগনিলত রুমনা বেকমনের জন্য ETP বন্ধ (ETP WO-1017-12), ট্যাংকে পানি ঢুকছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফট এ শুরু। ETP বন্ধ, আউটলেটের পানির PH 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:40",
+      "text": "ETP আবার চালু হয়েছে স্বাভাবিকভাবে চলছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:10",
+      "text": "ETP ফিড পাম্পের সার্ভিসিং চলছে, বাকি ইউনিট চলছে। (লেখা হয়েছে 18:05 এ)",
+      "crossed_out": false,
+      "written_at": "18:05"
+     },
+     {
+      "time": "17:30",
+      "text": "ETP ফিড পাম্প আবার চালু হয়েছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "শিফট এ শেষ ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.4.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "5/8",
+    "times_right": "7/8",
+    "numbers_right": "8/8",
+    "shifts_right": "1/3",
+    "struck_handled": "0/0",
+    "late_note": true,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  },
+  "page5": {
+   "model": "muse-spark-1.3",
+   "read": {
+    "date": "17/10/2026",
+    "operator": "N. Islam",
+    "entries": [
+     {
+      "time": "06:00",
+      "text": "শিফট এ সুরু ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.5",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "06:25",
+      "text": "চুন দেওয়া হয়েছে 30kg",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "12:30",
+      "text": "পলিশিং ফিল্টার রক্ষণাবেক্ষণের জন্য ETP বন্ধ (ETP WO-1017-12), ট্যাংকে পানি ঢুকছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "14:00",
+      "text": "শিফটে সুরু। ETP বন্ধ, আউটলেটের পানির PH 7.3",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "16:40",
+      "text": "ETP আবার চালু হয়েছে স্বাভাবিকভাবে চলছে।",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "18:10",
+      "text": "ETP ফিড পাম্পের সার্ভিসিং চলছে, বাকি ইউনিট চালু। (লেখা হয়েছে 18:09 এ)",
+      "crossed_out": false,
+      "written_at": "18:09"
+     },
+     {
+      "time": "17:30",
+      "text": "ETP ফিড পাম্প আবার চালু হয়েছে",
+      "crossed_out": false,
+      "written_at": null
+     },
+     {
+      "time": "22:00",
+      "text": "নাইটে সুরু ETP স্বাভাবিকভাবে চলছে। আউটলেটের পানির PH 7.4.",
+      "crossed_out": false,
+      "written_at": null
+     }
+    ]
+   },
+   "score": {
+    "lines_right": "4/8",
+    "times_right": "6/8",
+    "numbers_right": "8/8",
+    "shifts_right": "1/3",
+    "struck_handled": "0/0",
+    "late_note": false,
+    "date": true,
+    "operator": true,
+    "extra_entries": 0
+   }
+  }
+ }
+}
