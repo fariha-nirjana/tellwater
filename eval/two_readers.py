@@ -13,17 +13,19 @@ from __future__ import annotations
 import json
 import sys
 
+from agent.glimmer import PUBLISHED_RUNS
 from eval.metrics import score
 from eval.run_set import RUNS
 
-FIRST, SECOND = "C4", "C6"
+FIRST, SECOND = "C4", PUBLISHED_RUNS  # Muse Spark, and the published Muse Glimmer adapter
 ROUTED = "review_required"  # what a disagreement becomes: a person decides
 
 
 def combine(first: dict, second: dict) -> dict:
     """One case's combined answer from the two readers' summary rows."""
     a, b = first["predicted"], second["predicted"]
-    agree = a is not None and a == b
+    # an answer that failed validation is no result: it cannot make an agreement
+    agree = a is not None and a == b and bool(first.get("valid")) and bool(second.get("valid"))
     return {**first, "predicted": a if agree else ROUTED, "readers": [a, b], "routed": not agree,
             "cost": (first.get("cost") or 0) + (second.get("cost") or 0)}
 

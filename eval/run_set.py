@@ -10,8 +10,13 @@ Conditions:
   C3  Muse Spark with the complete evidence bundle, no tools
   C4  investigator with tools, Muse Spark (Meta Model API)
   C5  investigator with tools, Muse Spark Open (Fireworks; --host baseten for Baseten)
-  C6  investigator with tools, Muse Glimmer 30B distilled from C4 traces (--checkpoint, default glimmer-v1)
+  C6  investigator with tools, Muse Glimmer 30B distilled from C4 traces
   C6b investigator with tools, base Muse Glimmer 30B (no distillation), for comparison
+
+C6 and C6b with --modal sample the vLLM server in deploy/glimmer.py (C6 with
+--adapter, an adapter trained and published from there; traces go to
+<condition>-<adapter run> or C6b-modal). Without --modal they sample Fireworks'
+training sampler (C6 with --checkpoint, the first adapter, kept for comparison).
 
 Results go to eval/runs/<set>/<condition>/: one trace per case, plus
 summary.json. Runs already present are reused, so an interrupted run can
@@ -99,8 +104,11 @@ def main() -> None:
     p.add_argument("set")
     p.add_argument("condition", choices=["C1", "C2", "C3", "C4", "C5", "C6", "C6b"])
     p.add_argument("--checkpoint", default="glimmer-v1", help="C6: run ID under data/distill/")
+    p.add_argument("--modal", action="store_true", help="C6/C6b: sample on Modal (deploy/glimmer.py)")
+    p.add_argument("--adapter", default=None, help="C6 with --modal: adapter saved on Modal (default: the published one)")
     p.add_argument("--workers", type=int, default=6)
     p.add_argument("--limit", type=int)
+    p.add_argument("--cases", help="comma-separated case IDs to run instead of the whole set")
     p.add_argument("--fresh", action="store_true")
     p.add_argument("--host", choices=["fireworks", "baseten"], default="fireworks", help="C5 only")
     a = p.parse_args()
@@ -109,9 +117,20 @@ def main() -> None:
         if changed():
             raise SystemExit(f"the investigator changed since the freeze ({', '.join(changed())}); the test runs only on the frozen one")
 
-    out_dir = RUNS / a.set / a.condition
+    folder_name = a.condition
+    if a.modal and a.adapter is None:
+        from agent.glimmer import PUBLISHED
+        a.adapter = PUBLISHED
+    if a.modal:
+        if a.condition not in ("C6", "C6b"):
+            raise SystemExit("--modal is for C6 and C6b")
+        from agent.glimmer import runs_folder
+        folder_name = runs_folder(a.adapter) if a.condition == "C6" else folder_name + "-modal"
+    out_dir = RUNS / a.set / folder_name
     out_dir.mkdir(parents=True, exist_ok=True)
     folders = _case_dirs(a.set)[: a.limit]
+    if a.cases:
+        folders = [f for f in folders if f.name in a.cases.split(",")]
     endpoint = None
     if a.condition in ("C2", "C3", "C4"):
         endpoint = ModelEndpoint.muse_spark()
@@ -139,6 +158,9 @@ def main() -> None:
     def glimmer():  # one sampler client shared by the workers
         if not _glimmer:
             from agent.glimmer import GlimmerClient
+            if a.modal:
+                _glimmer.append(GlimmerClient(a.adapter if a.condition == "C6" else None, modal=True))
+                return _glimmer[0]
             path = None
             if a.condition == "C6":
                 path = json.loads((ROOT / "data" / "distill" / a.checkpoint / "checkpoint.json").read_text())["sampler_path"]

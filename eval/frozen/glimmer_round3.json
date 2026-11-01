@@ -1,0 +1,64 @@
+{
+ "written": "2026-11-02, before any reference run on check_r3 and before round 3 training",
+ "code": {
+  "eval/guidance.py": "9eafddd96e661d695d2c0c00155a29a9acd0c9039e0d0c68dd33a167dca74a7e",
+  "eval/distill_data.py": "6bdbcc66284472dbd0fac0d44f9cb95ae55abf0805edf9d421d25e3ba172f6fe",
+  "eval/distill_export.py": "dd97239b7467ef48d8bceeeb2bbd738fdd3bcd8967f4b97387e697e86e4ba6a1",
+  "eval/glimmer_round2.py": "ce66359fea2d6fe49b02ec3b29710a382dbb142683688a4a6c8055e5b7a2b698",
+  "eval/glimmer_round3.py": "5de6c21414ee415302c92fae9fd9f1dd570ec9eca4e4d8664bbe91e460d1a1f3",
+  "eval/caseset.py": "dd8a9d2be3f31321e78d532d2f1d227673a0bec123ad91ee6fa98be9c81f2de5",
+  "eval/spark_reasoning.py": "0bf214b23eb5fe7391097b75eadfd5d69854eeed838acc56ed4e2377532dcf71",
+  "agent/glimmer.py": "401ceb09de8aa03d11c85c56fa98faf137d3b334ebec68ac383ea07162822974",
+  "deploy/glimmer.py": "18eeca46ec1f6763778a68f6683f88f96a728a1bb5de944de6f54355bf7dc34f"
+ },
+ "training_data": {
+  "jsonl": "data/distill/train_round3.jsonl",
+  "sha256": "b3ec704942ee9362e5255eacbc6feae04c4348367bb2196277d168b342573a81",
+  "manifest_sha256_field": "b3ec704942ee9362e5255eacbc6feae04c4348367bb2196277d168b342573a81",
+  "conversations": 290,
+  "rendered": "data/distill/rendered_train_round3.pkl",
+  "rendered_sha256": "2a1a22246d56bd07301a85dd3eca5942454023b63c3dc20f08ae50db97dea9c2"
+ },
+ "training": {
+  "run_id": "glimmer-r3",
+  "learning_rate": 0.0001,
+  "epochs": 2,
+  "lora_rank": 16,
+  "batch_size": 8,
+  "max_seq_len": 32768
+ },
+ "check_r3": {
+  "cases": 28,
+  "sha256_of_all_cases": "e9b47efcd3a6f7f1b3a6a1cd6fe570ffdf605709d5eb91ac200905d04376bbaa",
+  "case_sha256": {
+   "factory-a-10c6d297": "76193dd836242da7293947538578031e0f88c35b9d2913bc3ce4c6c77ee473ea",
+   "factory-a-116912ae": "4d319274cd8c0ca2193aaff7d5e54f564e6688d1a970bb1a8be45241e02b0a30",
+   "factory-a-121707ff": "2594d7bcc342921c815c95cf6b6cb95ef8816478c7f204ecd9dadda36fac4eeb",
+   "factory-a-1cbe2ad9": "755a82f363adfef4cb634a47f975cfaf4447f8a9873e5a2964711d6ffa6f80e2",
+   "factory-a-20a930f3": "bf2d8e1d3a7417c3fe52b786eec02b7b13c5383d4d21162e095e91cd718c488a",
+   "factory-a-22d0f54d": "61fa25745f78c9b81e4427d411d821959e9e7054b25ce611ed03be7b2a261506",
+   "factory-a-29511fcc": "8e446ee1ab2b3eac9e05b04aa1de6bd42e62480308d33777cca9c228e3736983",
+   "factory-a-34ffc6e2": "8db15e8f9e9ca266981e5279bd0a942279248346ebce1338298886ef99d13e31",
+   "factory-a-48200d9d": "95eb2cd04870000a9c1e550516d6ad0dfbed05bacc9c08d637e828dfaa99e409",
+   "factory-a-5823285d": "8ed4d89708e13e71f8e60e4c99a4b67d510e690c415da6251ffe796aabc935df",
+   "factory-a-5a142d17": "f462cadbf8b2ef37391a7a6ce300ea797cad27d67e3440ff2aaa1dfc6ec76b76",
+   "factory-a-6b90f12d": "7ad07ff9ad8d9d33fe8a52cdb570edf21e46a81791dd9aab9a7a5aad2bf7736c",
+   "factory-a-73c00f68": "7819186024025a6de389074123511089ee8b4b83b12ea1134e9ecf143190858e",
+   "factory-a-78efdd30": "322c6fc21f8f40f4ffce4b7f3508ce1838aafb9ad48dcdf79ef0343e92d12c66",
+   "factory-a-8762d7f2": "cec0b920f87d9cf76df7184e4f3eba0bb42515b26e5a596fe76caa240e11c538",
+   "factory-a-8d34f527": "f14760f72990c25aaa4d85f49650e5271a3e989f2b44802a9e9bc31754ddd236",
+   "factory-a-98e29103": "3373284facded36ed2995c6d6ca0bf1deca54edff0617f79afc12c2c543aa678",
+   "factory-a-a1804171": "936c360949967fe587a79ec78d498f14801a8d2f8bec022d2b1b0bd0b7f11924",
+   "factory-a-a6f6dd89": "dd4faa453be4d5ee4ed4dc55c5e82e832208d3b8da510da5f5023a4376bf4061",
+   "factory-a-b485a344": "8b43d3c82f4189d6b2c9a578d9e614db3343d52bf933cac949cfd5ac47db0df0",
+   "factory-a-bb8f3269": "12f7ab9e071ac82dbe5133096de6dc50359774ebaa06adb04b7ce3bd44bb119e",
+   "factory-a-c533ca8d": "69638806e68cfe835d9173ef4e5c7b9627d20c831d9de413f335a91a1ce26372",
+   "factory-a-cb42c2b9": "f8bbcbad61f8a51aed9d95a2325a594214a56330a16601509b5c912a21c9defa",
+   "factory-a-e788ad2f": "dbe947e7c959a46325f0264367a4af2cd4942b66c7816d8f5865663cae277062",
+   "factory-a-ec4b50c0": "43b11f20b0bc88b70d0a09460a06c8dad74254f46207d70d28319bc61ac8662d",
+   "factory-a-f8ad08d9": "94c51edc25405f5206da9f0337c365a94343717321bb69625ad01d4a9b612e8a",
+   "factory-a-fe901396": "1f5005a8429d2f3d3a6b4f2c7df8959832b1cded6ccdbbcc7829ea4c9fcda290",
+   "factory-a-ff7d280f": "8976164d911c9b743ca6457f76e56725dda087e9eb2263b651f617cda3501ffd"
+  }
+ }
+}

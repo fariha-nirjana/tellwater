@@ -1,10 +1,10 @@
-"""A chat client for Muse Glimmer through the Fireworks Serverless Training API's
-sampler, so the investigation loop can run the distilled model unchanged.
+"""A chat client for Muse Glimmer, so the investigation loop can run the distilled model unchanged.
 
-There is no chat endpoint for a trained Glimmer adapter without a paid
-deployment, but a saved sampler checkpoint can be sampled per token. This
-renders the conversation (tools, tool calls, images) with the cookbook's
-muse_glimmer renderer, samples, and parses the reply back into tool calls.
+It renders the conversation (tools, tool calls, images) with the Fireworks cookbook's
+muse_glimmer renderer, samples, and parses the reply back into tool calls. Sampling
+runs on the vLLM server in deploy/glimmer.py (modal=True, the adapter trained there
+and published), or on the Fireworks Serverless Training API's sampler for the first
+adapter, which was trained on Fireworks and cannot be downloaded.
 """
 
 from __future__ import annotations
@@ -19,7 +19,24 @@ from dataclasses import dataclass, field
 from agent.models import Reply, load_env
 
 BASE_MODEL = "accounts/fireworks/models/muse-glimmer-30b"
+# The adapter that is published and reported as C6 (trained on Modal, deploy/glimmer.py). Its runs are in
+# eval/runs/<set>/C6-<run>; the results page and the two-reader report read them from there.
+PUBLISHED = "glimmer-gaps/epoch2"  # chosen by the rule written before its check (worklog, Nov 1)
+
+
+def runs_folder(adapter: str) -> str:
+    """Where an adapter's C6 runs are saved: C6-<run> for a run's last epoch (epoch2), C6-<run>-<epoch> for any other,
+    so two epochs of one run never share results."""
+    run, _, epoch = adapter.partition("/")
+    return f"C6-{run}" + ("" if epoch in ("", "epoch2") else f"-{epoch}")
+
+
+PUBLISHED_RUNS = runs_folder(PUBLISHED)
 TOKENIZER_MODEL = "meta-models/Muse-Glimmer-30B"
+# Round 2 adapters were trained to reason before each step, with their earlier reasoning kept in the
+# conversation (eval.distill_data build_reasoning; the template's own form). The loop keeps only each turn's
+# content and tool calls, so the client puts its reasoning back. Earlier adapters were trained and measured without.
+REASONING_ADAPTERS = ("glimmer-reason",)
 
 
 @dataclass
@@ -48,19 +65,31 @@ class GlimmerEndpoint:
 
 
 class GlimmerClient:
-    """`model_path` is a sampler checkpoint from eval.distill_train; None samples the base model."""
+    """`model_path` is a sampler checkpoint from eval.distill_train; None samples the base model.
+    With `modal=True` it samples the Sampler in deploy/glimmer.py instead, and `model_path` is an
+    adapter saved there (such as "glimmer-modal/epoch2")."""
 
-    def __init__(self, model_path: str | None = None, max_tokens: int = 4096):
+    def __init__(self, model_path: str | None = None, max_tokens: int = 4096, modal: bool = False):
         load_env()
         from fireworks.training import sdk
-        from fireworks.training.sdk import FiretitanServiceClient
         from training.renderer.tokenizer import get_tokenizer
-        from training.utils.serverless import serverless_base_url
         from training.utils.supervised import build_renderer
 
         self._sdk = sdk
         self.tokenizer = get_tokenizer(TOKENIZER_MODEL)
         self.renderer = build_renderer(self.tokenizer, TOKENIZER_MODEL, "muse_glimmer")
+        self.model_path, self.max_tokens, self.modal = model_path, max_tokens, modal
+        self.keep_reasoning = bool(model_path) and model_path.startswith(REASONING_ADAPTERS)
+        self._reasoning: dict[str, str] = {}  # first call id of a turn -> that turn's reasoning
+        if modal:
+            import modal as modal_sdk
+
+            self.sampler = modal_sdk.Cls.from_name("tellwater-glimmer", "Sampler")()
+            self.endpoint = GlimmerEndpoint("muse-glimmer" + ("-distilled" if model_path else ""), "muse-glimmer-30b-modal")
+            return
+        from fireworks.training.sdk import FiretitanServiceClient
+        from training.utils.serverless import serverless_base_url
+
         service = FiretitanServiceClient(api_key=os.environ["FIREWORKS_API_KEY"], base_url=serverless_base_url("https://api.fireworks.ai"))
         self.sampler = (service.create_sampling_client(model_path=model_path, tokenizer=self.tokenizer) if model_path
                         else service.create_sampling_client(base_model=BASE_MODEL, tokenizer=self.tokenizer))
@@ -77,19 +106,42 @@ class GlimmerClient:
             m = dict(m)
             if m.get("tool_calls"):
                 m["tool_calls"] = [{**c, "function": {**c["function"], "arguments": _obj(c["function"]["arguments"])}} for c in m["tool_calls"]]
+                if self.keep_reasoning and m["tool_calls"][0]["id"] in self._reasoning:
+                    m["reasoning_content"] = self._reasoning[m["tool_calls"][0]["id"]]
             msgs.append(m)
         prompt = self.renderer.build_generation_prompt(build_tool_prefixed_messages(msgs, renderer=self.renderer, tools=tools))
         tokens, images = self._project_images(prompt)
-        res = self.sampler.sample(prompt=self._sdk.ModelInput.from_ints(tokens), num_samples=1, sampling_params=self.params,
-                                  images=images or None)
-        res = res.result() if hasattr(res, "result") else res
-        out = [int(t) for t in res.sequences[0].tokens]
+        if self.modal:
+            blobs = [base64.b64decode(url.split(",", 1)[1]) for url in images]
+            for attempt in range(4):  # a dropped connection to Modal is retried; a sampler that failed to start is not
+                try:
+                    out = self.sampler.sample.remote(tokens, blobs, self.max_tokens, self.renderer.get_stop_sequences(),
+                                                     self.model_path)["tokens"]
+                    break
+                except RuntimeError:
+                    raise
+                except Exception:
+                    if attempt == 3:
+                        raise
+                    time.sleep(5 * (attempt + 1))
+        else:
+            res = self.sampler.sample(prompt=self._sdk.ModelInput.from_ints(tokens), num_samples=1,
+                                      sampling_params=self.params, images=images or None)
+            res = res.result() if hasattr(res, "result") else res
+            out = [int(t) for t in res.sequences[0].tokens]
         parsed, _ = self.renderer.parse_response(out)
         content = parsed.get("content")
-        if isinstance(content, list):  # drop reasoning parts; keep the visible text
-            content = "".join(p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text")
-        calls = [_Call(id=c.id or f"call_{uuid.uuid4().hex[:8]}", function=_Fn(c.function.name, c.function.arguments))
+        reasoning = ""
+        if isinstance(content, list):  # keep the reasoning apart from the visible text
+            parts = [p for p in content if isinstance(p, dict)]
+            reasoning = "".join(p.get("thinking", "") for p in parts if p.get("type") == "thinking")
+            content = "".join(p.get("text", "") for p in parts if p.get("type") == "text")
+        # the parser numbers calls within a turn ("read_document:0"), so ids repeat across turns; ids are never
+        # rendered, so unique ones change no token and let a turn's reasoning be found again
+        calls = [_Call(id=f"call_{uuid.uuid4().hex[:12]}", function=_Fn(c.function.name, c.function.arguments))
                  for c in parsed.get("tool_calls") or []]
+        if self.keep_reasoning and calls and reasoning:
+            self._reasoning[calls[0].id] = reasoning
         usage = {"prompt_tokens": len(tokens), "completion_tokens": len(out), "images": len(images)}
         return Reply(_Message(content or "", calls), usage, round(time.perf_counter() - start, 2))
 
