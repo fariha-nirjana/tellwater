@@ -113,7 +113,7 @@ export function Hero({ entry, onEnter }: { entry: string; onEnter: () => void })
           <h1>Nice shirt.<br />What about<br /><em>its water?</em></h1>
           <p>There’s a story behind every garment.<br />Let’s follow the thread to the evidence.</p>
           <button className="button acid" onClick={onEnter}>Follow the thread <span>↗</span></button>
-          <span className="hero-foot">EVERY GARMENT HAS A RUN. EVERY RUN HAS RECORDS. YOU’RE THE REVIEWER.</span>
+          <span className="hero-foot">EVERY GARMENT HAS A DYE RUN. EVERY RUN LEAVES RECORDS.</span>
           <svg className="hero-scribble" viewBox="0 0 600 90" aria-hidden="true"><path d="M-10 65C70 0 100 100 200 50S310 20 360 50S460 90 610 10" /></svg>
         </div>
         <div className="hero-object">
@@ -138,9 +138,9 @@ export function Story({ next }: { next: [string, string, string] }) {
     <>
       <section className="story-intro" id="origin">
         <svg id="introRoad" viewBox="0 0 1200 500" preserveAspectRatio="none" aria-hidden="true"><path id="introBase" /><path id="introProgress" /></svg>
-        <span className="micro">02 / FOLLOW ME A LITTLE FURTHER</span>
+        <span className="micro light"><i className="dot" /> FOLLOW ME A LITTLE FURTHER</span>
         <h2>But why<br />was I <span className="serif">born?</span></h2>
-        <p>You’ve seen the records.<br />Let me show you why they matter.</p>
+        <p>You’ve seen the records.<br />Let me tell you how I came to be.</p>
         <span className="scroll-prompt">KEEP SCROLLING. I’LL WALK WITH YOU. ↓</span>
         <div className="story-loop" aria-hidden="true" />
       </section>
@@ -149,14 +149,16 @@ export function Story({ next }: { next: [string, string, string] }) {
         <article className="story-stop stop-one">
           <div className="photo-frame"><img src="/assets/garment-worker.jpg" alt="A garment worker tending spools of blue yarn" loading="lazy" /><span className="photo-sticker">IT STARTS<br />WITH PEOPLE.</span></div>
           <div className="story-text"><span className="micro">01 / THE GARMENT</span><h3>More than<br />something <em>you wear.</em></h3>
-            <p>I live in Mirpur, with garment factories all around. Some days I’d see the waste cleared out and left at the side of the road: the smell, the blocked path.</p>
+            <p>“I live in Mirpur, with garment factories all around. Some days I’d see the waste cleared out and left at the side of the road: the smell, the blocked path.”</p>
+            <span className="said-by">Fariha, who built Tellwater</span>
             <small>Contextual photograph · Unsplash<br />Not from the demo factory.</small></div>
         </article>
         <article className="story-stop stop-two">
           <div className="story-text"><span className="micro">02 / THE WATER</span><h3>The part<br /><em>you don’t see.</em></h3>
-            <p>When Hatirjheel was new, it was beautiful. I went back last year. The water had turned black, and the stench caught my nose.</p>
-            <small>Contextual photograph · Unsplash<br />Not evidence of pollution by any factory.</small></div>
-          <div className="photo-frame"><img src="/assets/river.jpg" alt="Wooden boats on a river beside a city" loading="lazy" /><span className="photo-sticker coral">THE STORY<br />KEEPS FLOWING.</span></div>
+            <p>“When Hatirjheel was new, it was beautiful. I went back last year. The water had turned black, and the stench caught my nose. And it isn’t only Hatirjheel: the rivers around Dhaka carry the same water.”</p>
+            <span className="said-by">Fariha, who built Tellwater</span>
+            <small>Photograph: a Dhaka riverfront, not Hatirjheel · Tanjir Hasan, Pexels<br />Not evidence of pollution by any factory.</small></div>
+          <div className="photo-frame"><img src="/assets/river.jpg" alt="Wooden boats moored in dark water on a Dhaka riverfront, with buildings along the far bank" loading="lazy" /><span className="photo-sticker coral">THE STORY<br />KEEPS FLOWING.</span></div>
         </article>
         <div className="story-facts">
           <div className="story-fact">
@@ -293,7 +295,9 @@ export function Companion({ hidden, motion, onClick, inCase }: { hidden: boolean
       const rb = $('#roadBase'), ib = $('#introBase')
       if (road && rb && road.top < focus && road.bottom > innerHeight * 0.2) {
         $('#introProgress')!.style.strokeDashoffset = '0'
-        const desired = Math.max(0, Math.min(innerWidth <= 760 ? 1420 : 1250, ((focus - road.top) / road.height) * 1550))
+        const end = innerWidth <= 760 ? 1420 : 1260
+        // once the road's end is on screen the thread reaches it, so the companion stands at its end, clear of the text
+        const desired = road.bottom < innerHeight ? end : Math.max(0, Math.min(end, ((focus - road.top) / road.height) * 1550))
         let lo = 0, hi = roadLength
         for (let i = 0; i < 16; i++) { const mid = (lo + hi) / 2; if (rb.getPointAtLength(mid).y < desired) lo = mid; else hi = mid }
         const len = (lo + hi) / 2, p = rb.getPointAtLength(len)

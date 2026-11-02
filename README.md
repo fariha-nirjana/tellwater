@@ -265,7 +265,7 @@ Every line of code in this repository was written during the hackathon, from Oct
 - Platforms: Modal (hosting the demo; training and serving Muse Glimmer), Fireworks (Muse Spark Open serving; the first Muse Glimmer fine-tune), Baseten (early Muse Spark Open trials).
 - Handwritten logbook pages: written and photographed for this project by people who agreed to their use.
 - Fonts bundled for the simulator's documents: Courier Prime, Caveat, Kalam, Reenie Beanie, DSEG7, Atma, Galada and Noto Sans Bengali (SIL Open Font License) and Homemade Apple (Apache License 2.0); licence files in [`assets/fonts/`](assets/fonts/).
-- Photographs in the story section: Unsplash (Unsplash License), image IDs 1770196035129-0a0affd4a519 and 1716462301593-5e075f013998; contextual only, not from any factory.
+- Photographs in the story section: the garment worker from Unsplash (Unsplash License, image ID 1770196035129-0a0affd4a519); the Dhaka riverfront by Tanjir Hasan on Pexels (Pexels License, photo 32700005). Contextual only, not from any factory.
 - Plant parameters: *Water and electricity consumption patterns with effluent quality in the textile processing industry of Bangladesh*, RSC Advances, doi:10.1039/D5RA05917H; the ECR 2023 textile effluent limit for BOD.
 
 Released under the [MIT License](LICENSE).
