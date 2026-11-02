@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from openai import OpenAI
+from openai import OpenAI  # only the OpenAI-compatible client library: every endpoint below serves a Meta model
 
 ROOT = Path(__file__).resolve().parent.parent
 

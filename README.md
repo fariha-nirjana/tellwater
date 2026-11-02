@@ -173,7 +173,7 @@ Open the [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run). I
 
 ### Run it on your own computer
 
-This runs the whole interface on your computer, with the saved investigations. You don't need an AI key to look around.
+This runs the whole interface on your computer, with investigations Muse Spark already made (saved in [`data/demo/`](data/demo/)). You don't need an AI key to look around; running a new investigation needs a Meta Model API key.
 
 **What you need**
 
@@ -212,7 +212,7 @@ This runs the whole interface on your computer, with the saved investigations. Y
 
 4. Open http://localhost:5173 in your browser. Press Ctrl+C in each terminal to stop.
 
-**What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work.
+**What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
 
 **To use the live parts,** copy `.env.example` to `.env` and put a Meta Model API key in `MODEL_API_KEY`, then restart step 2.
 

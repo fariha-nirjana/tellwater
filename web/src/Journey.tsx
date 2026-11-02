@@ -191,7 +191,7 @@ export function Story() {
 export function Footer({ motion, setMotion, replay, companion, setCompanion }: { motion: boolean; setMotion: (m: boolean) => void; replay: () => void; companion: boolean; setCompanion: (c: boolean) => void }) {
   return (
     <footer>
-      <a className="wordmark" href="#/">〰 tellwater</a>
+      <a className="wordmark" href="#/" aria-label="Tellwater home"><svg viewBox="0 0 40 20"><path d="M2 16C8 0 10 25 19 7S29 20 38 3" /></svg>tellwater</a>
       <p>Made to make the invisible understandable.</p>
       <div>
         <span>PROTOTYPE · SIMULATED RECORDS · REAL MUSE SPARK INVESTIGATIONS</span>
