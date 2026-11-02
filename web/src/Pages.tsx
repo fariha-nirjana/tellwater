@@ -11,40 +11,65 @@ const CONDITIONS: [string, string, string][] = [
   ['C4', 'Muse Spark investigator', 'Choosing one check at a time'],
   ['C5', 'Muse Spark Open investigator', 'The same investigation on open weights'],
 ]
+const TEST_CONDITIONS: [string, string, string][] = [
+  ...CONDITIONS,
+  ['C6', 'Muse Glimmer investigator', 'Fine-tuned open weights on our own GPU'],
+  ['two_readers', 'Two readers', 'C4 and C6; a person decides when they differ'],
+]
 const n = (s: S | undefined, k: string) => (s?.[k] as number | null | undefined) ?? null
 
 export function Results() {
   const [r, setR] = useState<Record<string, Record<string, S>> | null>(null)
   useEffect(() => { api.results().then(setR) }, [])
   if (!r) return <p className="loading">Loading the results…</p>
-  const dev = r.dev ?? {}
+  const dev = r.dev ?? {}, test = r.test ?? {}
+  const table = (set: Record<string, S>, cols: [string, string, string][]) => (
+    <div className="table-wrap">
+      <table>
+        <thead><tr><th />{cols.map(([id, name, q]) => <th key={id} data-hl={id === 'C4' || undefined}><span className="micro">{id === 'two_readers' ? 'C4 + C6' : id}</span><b>{name}</b><small>{q}</small></th>)}</tr></thead>
+        <tbody>
+          {rows.map(([label, f]) => <tr key={label}><td>{label}</td>{cols.map(([id]) => <td key={id} data-hl={id === 'C4' || undefined}>{f(set[id])}</td>)}</tr>)}
+          {set.two_readers && <tr><td>Sent to a person (readers disagreed)</td>{cols.map(([id]) => <td key={id} data-hl={id === 'C4' || undefined}>{id === 'two_readers' ? `${n(set.two_readers, 'routed_to_a_person')} of ${n(set.two_readers, 'cases')}` : '–'}</td>)}</tr>}
+        </tbody>
+      </table>
+    </div>
+  )
+  const t4 = test.C4, two = test.two_readers
   const rows: [string, (s: S | undefined) => string][] = [
-    ['Agreement with the justified assessment', (s) => (s ? `${n(s, 'agreement')} / 60` : '–')],
+    ['Agreement with the justified assessment', (s) => (s ? `${n(s, 'agreement')} / ${n(s, 'cases')}` : '–')],
     ['Unsupported accusations', (s) => String(n(s, 'unsupported_accusations') ?? '–')],
     ['Missed problems', (s) => String(n(s, 'missed_problems') ?? '–')],
+    ['Held up a clean run', (s) => String(n(s, 'false_escalations') ?? '–')],
     ['Evidence requests naming the right record', (s) => (s && n(s, 'requests_scored') ? `${n(s, 'request_hits')} of ${n(s, 'requests_scored')}` : '–')],
     ['Documents that tried to direct the audit, obeyed', (s) => (s && n(s, 'mean_seconds') ? `${n(s, 'injection_followed')} of ${n(s, 'injection_cases')}` : '–')],
     ['Seconds per case', (s) => (n(s, 'mean_seconds') ? String(Math.round(n(s, 'mean_seconds')!)) : '–')],
   ]
   const scale = ['scale_3', 'scale_14', 'scale_45'].map((k, i) => ({ days: [3, 14, 45][i], c3: n(r[k]?.C3, 'mean_cost'), c4: n(r[k]?.C4, 'mean_cost'), a3: n(r[k]?.C3, 'agreement'), a4: n(r[k]?.C4, 'agreement') }))
   const max = Math.max(...scale.map((s) => Math.max(s.c3 ?? 0, s.c4 ?? 0)), 0.01)
+  const glimmer = r.check?.C6
+  const right = n(glimmer, 'agreement'), cases = n(glimmer, 'cases'), accusations = n(glimmer, 'unsupported_accusations')
+  const valid = n(glimmer, 'valid_share'), seconds = n(glimmer, 'mean_seconds')
   return (
     <main className="results section-pad">
       <div className="section-heading">
         <div><span className="micro">THE EVALUATION</span><h1 className="results-title">How well does it<br /><span className="serif">actually work?</span></h1></div>
-        <p>Synthetic results establish prototype performance, not field reliability.<br />Development set below. The held-out test set (120 cases, two factories,<br />frozen before any test run) is pending.</p>
+        <p>Synthetic results establish prototype performance, not field reliability.<br />First the held-out test: 120 cases from two factories, generated and<br />frozen before any test run. Then the development set that shaped it.</p>
       </div>
-      <div className="workspace">
-        <div className="workspace-top"><div className="batch"><span className="batch-icon">〰</span><div><b>Five ways to check the same 60 cases</b><small>DEVELOPMENT SET · FACTORY A</small></div></div></div>
-        <div className="table-wrap">
-          <table>
-            <thead><tr><th />{CONDITIONS.map(([id, name, q]) => <th key={id} data-hl={id === 'C4' || undefined}><span className="micro">{id}</span><b>{name}</b><small>{q}</small></th>)}</tr></thead>
-            <tbody>
-              {rows.map(([label, f]) => <tr key={label}><td>{label}</td>{CONDITIONS.map(([id]) => <td key={id} data-hl={id === 'C4' || undefined}>{f(dev[id])}</td>)}</tr>)}
-              <tr><td>Held-out test set</td>{CONDITIONS.map(([id]) => <td key={id} className="pending" data-hl={id === 'C4' || undefined}>pending</td>)}</tr>
-            </tbody>
-          </table>
+      {t4 && (
+        <div className="workspace">
+          <div className="workspace-top"><div className="batch"><span className="batch-icon">〰</span><div><b>The held-out test: {n(t4, 'cases')} cases it had never seen</b><small>TEST SET · FACTORY A AND FACTORY B · RUN ONCE, ON THE FROZEN INVESTIGATOR</small></div></div></div>
+          {table(test, TEST_CONDITIONS)}
+          <div className="explanation">
+            <div className="explanation-copy"><span className="micro">WHAT IT SHOWS</span>
+              <p>The investigator (C4) agreed with the justified answer on {n(t4, 'agreement')} of {n(t4, 'cases')}, with {n(t4, 'unsupported_accusations')} unsupported accusations against {n(test.C1, 'unsupported_accusations')} for rules alone. It never cleared a run that broke the rules; the {n(t4, 'missed_problems')} problems it passed were sensor faults a person should have weighed.
+                Given everything at once (C3), Muse Spark did as well or slightly better here; the investigator's edge is cost as the records grow (below) and asking for the one missing record.
+                {two && ` With Muse Glimmer as a second reader, ${n(two, 'missed_problems')} problems were passed as fine and ${n(two, 'unsupported_accusations')} accusation was unsupported; the price is ${n(two, 'routed_to_a_person')} of ${n(two, 'cases')} cases going to a person.`}</p></div>
+          </div>
         </div>
+      )}
+      <div className="workspace">
+        <div className="workspace-top"><div className="batch"><span className="batch-icon">〰</span><div><b>Five ways to check the same 60 cases</b><small>DEVELOPMENT SET · FACTORY A · C4 RERUN ON THE FROZEN INVESTIGATOR</small></div></div></div>
+        {table(dev, CONDITIONS)}
         <div className="explanation">
           <div className="explanation-copy"><span className="micro">WHAT IT SHOWS</span>
             <p>Reading the paperwork alone barely helps (C2). The gain comes from reasoning over the physical records, and no approach that reasons made an unsupported accusation.</p></div>
@@ -81,8 +106,12 @@ export function Results() {
         <div className="fresh-cards">
           <div className="fresh-card">
             <span className="micro">C6 · MUSE GLIMMER, DISTILLED</span>
-            <b>{n(r.check?.C6, 'agreement') ?? '–'} of {n(r.check?.C6, 'cases') ?? '–'}</b>
-            <p>A small model fine-tuned on 127 correct Muse Spark investigations, then run on fresh cases: right answer on every one, {n(r.check?.C6, 'unsupported_accusations') ?? 0} unsupported accusations, every citation valid. About {Math.round(n(r.check?.C6, 'mean_seconds') ?? 0)} s a case.</p>
+            <b>{right ?? '–'} of {cases ?? '–'}</b>
+            <p>A small model fine-tuned on Muse Spark's own correct investigations, then run on fresh cases.
+              {right !== null && cases !== null && cases > 0 ? ` Right on ${right} of ${cases}.` : ' Fresh-case results are not available yet.'}
+              {accusations !== null ? ` ${accusations} unsupported ${accusations === 1 ? 'accusation' : 'accusations'}.` : ' Unsupported accusation count not available.'}
+              {valid !== null && ` ${Number((valid * 100).toFixed(1))}% of runs passed validation.`}
+              {seconds !== null && ` About ${Math.round(seconds)} s a case.`}</p>
           </div>
           <div className="fresh-card">
             <span className="micro">C4 · A SECOND FACTORY (FACTORY B)</span>

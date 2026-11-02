@@ -1,4 +1,4 @@
-"""The three demo cases the interface opens with, copied into data/demo/ so
+"""The five demo cases the interface opens with, copied into data/demo/ so
 the app runs from a fresh clone without regenerating anything.
 
     .venv/bin/python -m api.demo            (case copies, saved investigations and the results snapshot)
@@ -102,12 +102,22 @@ def real_pages() -> None:
 
 def snapshot_results() -> None:
     # evaluation summaries, so the results page works without the (gitignored) run folders
+    from agent.glimmer import PUBLISHED_RUNS
+
     results: dict = {}
     for summary in sorted((ROOT / "eval" / "runs").glob("*/*/summary.json")):
         set_name, condition = summary.parent.parent.name, summary.parent.name
         # current conditions only (C1..C6): archived iterations are named C4_v1, C4-v1, C4-stopfix
-        if re.fullmatch(r"C\d", condition):
+        if re.fullmatch(r"C\d", condition) and condition != "C6":
             results.setdefault(set_name, {})[condition] = json.loads(summary.read_text())["summary"]
+        elif condition == PUBLISHED_RUNS:  # C6 is the published Muse Glimmer adapter, not the first Fireworks one
+            results.setdefault(set_name, {})["C6"] = json.loads(summary.read_text())["summary"]
+    # Muse Spark and Muse Glimmer as two readers (eval.two_readers): the combined score, without the per-case list
+    for f in sorted((ROOT / "eval" / "runs").glob("*/two_readers.json")):
+        two = json.loads(f.read_text())
+        results.setdefault(f.parent.name, {})["two_readers"] = {**two["combined"], "readers_agree": two["readers_agree"],
+                                                                 "routed_to_a_person": two["routed_to_a_person"],
+                                                                 "mean_seconds": None, "mean_cost": None}  # those are C4's alone
     # line-finding on logbook photos (eval.localize): raw and square-padded, per model
     for f in sorted((ROOT / "eval" / "runs" / "localize").glob("*/*.json")):
         results.setdefault("localize", {})[f"{f.parent.name}/{f.stem}"] = json.loads(f.read_text())["summary"]
