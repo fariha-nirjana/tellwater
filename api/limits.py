@@ -8,9 +8,10 @@ IP address with a salt that changes every day, never the address itself.
 Counts reset at midnight UTC.
 
 Settings (environment):
-  TW_LIVE=0                  turn live runs and the guide off entirely
+  TW_LIVE=0                  turn live runs, the guide and voice transcription off
   TW_RUNS_PER_VISITOR=3      TW_RUNS_PER_DAY=15        live investigations (about $0.19 list each)
   TW_QUESTIONS_PER_VISITOR=20 TW_QUESTIONS_PER_DAY=150 guide questions (about $0.01 list each)
+  TW_VOICE_PER_VISITOR=10    TW_VOICE_PER_DAY=60      voice notes (up to 2 minutes each)
   TW_MAX_LIVE_RUNS=2         live runs in flight at once
   TW_TRUST_PROXY=1           behind a host's proxy: count by the address it appends to X-Forwarded-For
   TW_RUNTIME_DIR             where the counts are kept (default data/demo)
@@ -31,8 +32,8 @@ from fastapi import Request
 from store.cases import ROOT
 
 USAGE = Path(os.environ.get("TW_RUNTIME_DIR", ROOT / "data" / "demo")) / "usage.json"  # gitignored
-DEFAULTS = {"runs": (3, 15), "questions": (20, 150)}  # at most about $4.35 list a day on Muse Spark
-NOUN = {"runs": "live investigations", "questions": "guide questions"}
+DEFAULTS = {"runs": (3, 15), "questions": (20, 150), "voice": (10, 60)}
+NOUN = {"runs": "live investigations", "questions": "guide questions", "voice": "voice transcriptions"}
 _lock = threading.Lock()
 _in_flight = 0
 
@@ -61,8 +62,9 @@ def _load() -> dict:
     except (FileNotFoundError, json.JSONDecodeError):
         u = {}
     if u.get("day") != _today():  # a new day: fresh counts and a fresh salt
-        u = {"day": _today(), "salt": secrets.token_hex(16), "runs": {"total": 0, "visitors": {}},
-             "questions": {"total": 0, "visitors": {}}}
+        u = {"day": _today(), "salt": secrets.token_hex(16)}
+    for kind in DEFAULTS:
+        u.setdefault(kind, {"total": 0, "visitors": {}})
     return u
 
 
@@ -89,12 +91,17 @@ def remaining(kind: str, who: str) -> dict:
 def take(kind: str, who: str) -> str | None:
     """Use one of the visitor's allowance. Returns None if allowed, otherwise the reason to show."""
     if not live_enabled():
+        if kind == "voice":
+            return "Voice transcription is switched off in this demo. You can still type your reply."
         return f"Live {NOUN[kind]} are switched off in this demo. The saved investigation shows the same evidence."
     with _lock:
         u = _load()
         if _left(u, kind, who) <= 0:
             per_visitor, per_day = caps(kind)
             whose = "your" if u[kind]["total"] < per_day else "today's"
+            if kind == "voice":
+                return (f"That's {whose} voice transcriptions for today ({per_visitor} per visitor). "
+                        "They reset at midnight UTC. You can still type your reply.")
             return (f"That's {whose} {NOUN[kind]} for today ({per_visitor} per visitor). They reset at midnight UTC; "
                     "the saved investigation of the same evidence is shown instead.")
         vid = hashlib.sha256((u["salt"] + who).encode()).hexdigest()[:16]

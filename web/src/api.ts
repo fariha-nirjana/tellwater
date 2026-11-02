@@ -55,7 +55,7 @@ export type Verification = {
   items: number; investigation_matches: boolean
 }
 export type Allowance = { left: number; per_visitor: number; live: boolean }
-export type Limits = { runs: Allowance; questions: Allowance }
+export type Limits = { runs: Allowance; questions: Allowance; voice: Allowance }
 export type Passport = {
   batch: Overview['batch']; product: Product; products: Product[]; scanned: boolean; status: PublishedStatus | null; assessed_status: Status | null; summary: string | null
   held?: { reason: 'two_readers_disagree' }
@@ -93,6 +93,18 @@ export const api = {
     return r.json()
   },
   clearSubmission: (k: CaseKey) => fetch(`/api/cases/${k}/evidence`, { method: 'DELETE' }),
+  transcribeVoice: async (audio: Blob, signal: AbortSignal) => {
+    const body = new FormData()
+    body.set('audio', audio, 'reply.wav')
+    const fallback = 'Voice transcription failed. Try again or type your reply.'
+    let r: Response
+    try { r = await fetch('/api/voice/transcribe', { method: 'POST', body, signal }) }
+    catch (e) { if ((e as Error).name === 'AbortError') throw e; throw new Error(fallback) }
+    const result = await r.json().catch(() => null)
+    if (!r.ok) throw new Error(typeof result?.detail === 'string' ? result.detail : fallback)
+    if (typeof result?.transcript !== 'string' || !result.transcript.trim()) throw new Error(fallback)
+    return result as { transcript: string; model: string; seconds: number }
+  },
   reply: async (k: CaseKey, note: string) => {
     const r = await fetch(`/api/cases/${k}/reply`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ note }) })
     if (!r.ok) throw new Error((await r.json()).detail ?? 'reply failed')

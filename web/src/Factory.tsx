@@ -7,6 +7,7 @@ import { LETTER_LANGS, type LetterLang } from './Dialogs'
 import { dayHm, hm, wall } from './evidence'
 import { SHADE } from './Garments'
 import { ORDER } from './Timeline'
+import { VoiceReply } from './VoiceReply'
 
 type Lang = 'en' | 'bn'
 const EN = {
@@ -157,8 +158,9 @@ function WithBuyer() {
 
 function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps) {
   const [note, setNote] = useState(t.noteDefault)
-  useEffect(() => setNote(t.noteDefault), [t])
+  useEffect(() => setNote((old) => old === EN.noteDefault || old === BN.noteDefault ? t.noteDefault : old), [t])
   const [busy, setBusy] = useState(false)
+  const [voiceBusy, setVoiceBusy] = useState(false)
   const [error, setError] = useState('')
   const [letter, setLetter] = useState<{ bn: string; en: string; note: string } | null>(null)
   const [letterLang, setLetterLang] = useState<LetterLang>('en')
@@ -198,10 +200,11 @@ function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps
         <>
           <div className="fv-upload"><div><b>{t.file}</b><small>{t.fileNote}</small></div></div>
           <label className="fv-label" htmlFor={`note-${b.key}`}>{t.note}</label>
-          <textarea id={`note-${b.key}`} value={note} onChange={(e) => setNote(e.target.value)} />
+          <textarea id={`note-${b.key}`} value={note} onChange={(e) => setNote(e.target.value)} disabled={busy} aria-describedby={`note-${b.key}-voice-status`} />
+          <VoiceReply fieldId={`note-${b.key}`} disabled={busy} onBusyChange={setVoiceBusy} onTranscript={(text) => setNote((old) => old.trim() ? `${old.trimEnd()}\n${text}` : text)} />
           {error && <p className="form-error">{error}</p>}
           <div className="fv-actions">
-            <button className="button acid small" disabled={busy} onClick={send}>{busy ? t.sending : t.send} <span>↗</span></button>
+            <button className="button acid small" disabled={busy || voiceBusy} onClick={send}>{busy ? t.sending : t.send} <span>↗</span></button>
             <button className="text-btn" onClick={readLetter}>{t.letter} ↗</button>
           </div>
           {letter && (letter.bn ? (
@@ -223,14 +226,19 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
   const [writing, setWriting] = useState(false)
   const [text, setText] = useState('')
   const [error, setError] = useState('')
+  const [sending, setSending] = useState(false)
+  const [voiceBusy, setVoiceBusy] = useState(false)
   const s = p.status
   const needsPerson = c.awaiting_person
   const finding = needsPerson || s === 'contradicts' || s === 'review_required'
   const send = async () => {
-    setError('')
+    if (sending || voiceBusy || !text.trim() || text.length > 1200) return
+    setError(''); setSending(true)
     try { await api.reply(b.key, text); setText(''); setWriting(false); onChange() } catch (e) { setError((e as Error).message) }
+    finally { setSending(false) }
   }
   return (
+    <>
     <tr>
       <td><i className="fv-swatch" style={{ background: SHADE[b.batch.shade]?.fill }} />{b.products[0].lot}<small>{shade(b.batch.shade)}</small></td>
       <td>{needsPerson ? <WithBuyer /> : <>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></>}</td>
@@ -240,16 +248,6 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
             <div className="fv-reply">
               <a className="text-btn" href={`#/passport/${b.key}`}>{t.passport} ↗</a>
               {!writing && <button className="text-btn" onClick={() => setWriting(true)}>{t.reply} ↗</button>}
-              {writing && (
-                <div className="fv-reply-form">
-                  <label className="fv-label" htmlFor={`reply-${b.key}`}>{t.replyLabel}</label>
-                  <textarea id={`reply-${b.key}`} value={text} onChange={(e) => setText(e.target.value)} maxLength={1200} />
-                  <small>{t.replyHint}</small>
-                  {error && <p className="form-error">{error}</p>}
-                  <div className="fv-actions"><button className="button ink small" disabled={!text.trim()} onClick={send}>{t.replySend} <span>↗</span></button>
-                    <button className="text-btn" onClick={() => setWriting(false)}>{t.cancel}</button></div>
-                </div>
-              )}
               {c.replies.length > 0 && (
                 <div className="fv-replies"><span className="micro">{t.replies}</span>
                   {c.replies.map((r) => <p key={r.at + r.note}>“{r.note}” <small>{dayHm(wall(r.at))}</small></p>)}
@@ -260,5 +258,18 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
           ) : <span className="fv-nothing">{t.nothing}</span>}
       </td>
     </tr>
+    {writing && <tr className="fv-reply-row"><td colSpan={3}>
+      <div className="fv-reply-form">
+        <label className="fv-label" htmlFor={`reply-${b.key}`}>{t.replyLabel}</label>
+        <textarea id={`reply-${b.key}`} value={text} onChange={(e) => setText(e.target.value)} maxLength={1200} disabled={sending} aria-describedby={`reply-${b.key}-voice-status`} />
+        <VoiceReply fieldId={`reply-${b.key}`} disabled={sending} onBusyChange={setVoiceBusy} onTranscript={(value) => setText((old) => old.trim() ? `${old.trimEnd()}\n${value}` : value)} />
+        <small>{t.replyHint}</small>
+        {text.length > 1200 && <p className="form-error" lang="en" role="alert">Your reply is longer than 1200 characters. Shorten it before sending.</p>}
+        {error && <p className="form-error">{error}</p>}
+        <div className="fv-actions"><button className="button ink small" disabled={sending || voiceBusy || !text.trim() || text.length > 1200} onClick={send}>{sending ? t.sending : t.replySend} <span>↗</span></button>
+          <button className="text-btn" disabled={sending} onClick={() => { setWriting(false); setVoiceBusy(false) }}>{t.cancel}</button></div>
+      </div>
+    </td></tr>}
+    </>
   )
 }

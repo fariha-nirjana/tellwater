@@ -30,7 +30,7 @@ from pydantic import BaseModel
 from agent.loop import investigate
 from agent.models import ModelClient, ModelEndpoint
 from agent.tools import SIGNAL_INFO, CaseTools
-from api import limits, translate
+from api import limits, translate, voice
 from api.demo import BANGLA, CARE, CATALOG, COMPOSITION, DEMO, DEMO_ROOT
 from core.physics import treatment_interval
 from passport import record as passport_record
@@ -241,7 +241,7 @@ def trace(key: str, which: str = "saved") -> dict:
 def limits_left(request: Request) -> dict:
     """What this visitor has left today of the calls that spend model credit."""
     who = limits.visitor(request)
-    return {"runs": limits.remaining("runs", who), "questions": limits.remaining("questions", who)}
+    return {kind: limits.remaining(kind, who) for kind in limits.DEFAULTS}
 
 
 @app.post("/api/cases/{key}/investigate")
@@ -577,6 +577,28 @@ def clear_evidence(key: str) -> dict:
 
 class Reply(BaseModel):
     note: str
+
+
+@app.post("/api/voice/transcribe")
+def transcribe_voice(request: Request, audio: UploadFile = File(...)) -> dict:
+    """Return an editable transcript; audio is neither stored nor submitted to the buyer."""
+    try:
+        data = audio.file.read(voice.MAX_BYTES + 1)
+    finally:
+        audio.file.close()
+    try:
+        seconds = voice.duration(data)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    if reason := limits.take("voice", limits.visitor(request)):
+        raise HTTPException(429, reason)
+    try:
+        text = voice.transcribe(data)
+    except voice.TranscriptionError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    if not text:
+        raise HTTPException(422, "No speech was found. Try again or type your reply.")
+    return {"transcript": text, "model": voice.MODEL, "seconds": round(seconds, 2)}
 
 
 @app.post("/api/cases/{key}/reply")

@@ -426,3 +426,13 @@ main{overflow-x:clip}
 .shade-swatch.small{flex:0 0 14px;width:14px;height:14px}
 .pp-para.small{padding:0}
 .pp-facts dd .shade-swatch{display:inline-block;width:14px;height:14px;min-width:14px;max-width:14px;aspect-ratio:1;flex:0 0 14px;padding:0}
+.fv-voice{margin:10px 0 12px;padding:11px 12px;border:1px solid #e1dde8;border-radius:6px;background:#f8f7fc}
+.fv-voice-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.fv-voice-button{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #b9b4f5;border-radius:5px;background:#fff;color:var(--purple);font:600 12px/1.4 var(--font);text-align:left}
+.fv-voice-button svg{width:17px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;flex-shrink:0}
+.fv-voice-button:disabled{opacity:.6;cursor:default}
+.fv-voice[data-phase=recording] .fv-voice-button{background:#fff0eb;border-color:#c67b67;color:#9c392b}
+.fv-voice-time{font:12px ui-monospace,monospace;color:#9c392b;white-space:nowrap}
+.fv-voice-status{font-size:11px;line-height:1.6;color:#6d6a7c;margin-top:7px}
+.fv .fv-reply-row td{padding:12px;background:#faf9fc}
+.fv .fv-reply-row .fv-label{margin-top:0}
