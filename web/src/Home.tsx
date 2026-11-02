@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { api, type CatalogBatch } from './api'
 import { dayHm, wall } from './evidence'
-import { Garment, SHADE } from './Garments'
+import { Garment, SHADE, photo } from './Garments'
 import TAGS from './tags.json'
 
 export function ScanLabel() {
@@ -13,6 +13,8 @@ export function ScanLabel() {
   const [gtin, setGtin] = useState('')
   const [qr, setQr] = useState('')
   useEffect(() => { api.catalog().then(setLog).catch(() => setLog([])) }, [])
+  // fetch every tagged garment photo up front, so picking a garment shows it at once
+  useEffect(() => { new Set(log.flatMap((b) => b.products.map((p) => p.kind))).forEach((k) => { new Image().src = photo(k, true) }) }, [log])
   const batch = log.find((b) => b.key === key) ?? log[0]
   const product = batch?.products.find((p) => p.gtin === gtin) ?? batch?.products[0]
   const url = product ? `${location.origin}${product.link}` : ''
