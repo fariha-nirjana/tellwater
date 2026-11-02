@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { api, type CatalogBatch } from './api'
 import { dayHm, wall } from './evidence'
-import { Garment, SHADE, photo } from './Garments'
+import { Garment, SHADE, photo, photoKind } from './Garments'
 import TAGS from './tags.json'
 
 export function ScanLabel() {
@@ -14,7 +14,7 @@ export function ScanLabel() {
   const [qr, setQr] = useState('')
   useEffect(() => { api.catalog().then(setLog).catch(() => setLog([])) }, [])
   // fetch every tagged garment photo up front, so picking a garment shows it at once
-  useEffect(() => { new Set(log.flatMap((b) => b.products.map((p) => p.kind))).forEach((k) => { new Image().src = photo(k, true) }) }, [log])
+  useEffect(() => { new Set(log.flatMap((b) => b.products.map((p) => photo(p.kind, true, b.batch.shade)))).forEach((src) => { new Image().src = src }) }, [log])
   const batch = log.find((b) => b.key === key) ?? log[0]
   const product = batch?.products.find((p) => p.gtin === gtin) ?? batch?.products[0]
   const url = product ? `${location.origin}${product.link}` : ''
@@ -44,7 +44,7 @@ export function ScanLabel() {
           <div className="product-row">
             {batch.products.map((p) => (
               <button key={p.gtin} aria-pressed={p.gtin === product.gtin} onClick={() => setGtin(p.gtin)}>
-                <Garment kind={p.kind} /><span>{p.name}</span>
+                <Garment kind={p.kind} shade={batch.batch.shade} /><span>{p.name}</span>
               </button>
             ))}
           </div>
@@ -52,7 +52,7 @@ export function ScanLabel() {
         <div className="scan-tag">
           <span className="scan-step">3 · SCAN ITS TAG</span>
           <div className="tag-stage">
-            <Garment kind={product.kind} tag qr={qr} className="tag-garment" />
+            <Garment kind={product.kind} shade={batch.batch.shade} tag qr={qr} className="tag-garment" />
             <span className="tag-pointer">the QR lives here,<br />on the hang tag<svg viewBox="0 0 80 50" aria-hidden="true"><path d="M74 6Q24 2 10 44M10 44L22 37M10 44L5 30" /></svg></span>
           </div>
           <div className="tag-qr">
@@ -105,7 +105,7 @@ export function PhoneStory() {
   }, [auto, inView])
   useEffect(() => { if (step === 2) setSeen(true) }, [step])
   if (!batch || !product) return null
-  const box = (TAGS as Record<string, { x: number; y: number; w: number; h: number }>)[product.kind]
+  const box = (TAGS as Record<string, { x: number; y: number; w: number; h: number }>)[photoKind(product.kind, batch.batch.shade)]
   const go = (i: number) => { setAuto(false); setStep(i) }
   // where the QR printed on the tag sits on the phone's screen, in % of it: the camera zooms in around it and centres it
   // (the print starts 24% down the card and is as tall as it is wide: 72% of the card's width, the photo being 4:5)
@@ -127,10 +127,10 @@ export function PhoneStory() {
       <div className="ps-phone" aria-hidden={step !== 2}>
         <div className="phone">
           <div className="phone-screen" data-step={step}>
-            <div className="ps-screen ps-tag"><Garment kind={product.kind} tag qr={qr} /></div>
+            <div className="ps-screen ps-tag"><Garment kind={product.kind} shade={batch.batch.shade} tag qr={qr} /></div>
             <div className="ps-screen ps-camera">
               {/* the camera framed on the tag: the same photo, close in on it */}
-              <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${50 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} tag qr={qr} /></div>
+              <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${50 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} shade={batch.batch.shade} tag qr={qr} /></div>
               <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport ↗</span>
             </div>
             <div className="ps-screen ps-passport">
