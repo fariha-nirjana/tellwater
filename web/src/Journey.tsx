@@ -104,7 +104,7 @@ export function useCurtain(motion: boolean) {
   return { curtain, run }
 }
 
-export function Hero({ onEnter }: { onEnter: () => void }) {
+export function Hero({ entry, onEnter }: { entry: string; onEnter: () => void }) {
   return (
     <>
       <section id="top" className="hero">
@@ -128,12 +128,12 @@ export function Hero({ onEnter }: { onEnter: () => void }) {
           <span className="round-seal">EVERY DROP<br /><b>HAS A</b><br />STORY ↗</span>
         </div>
       </section>
-      <div className="chapter-bar"><span>FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><a href="#/case/B">OPEN THE CASE FILE ↗</a></div>
+      <div className="chapter-bar"><span>FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><a href={entry}>{entry.startsWith('#/case') ? 'OPEN THE CASE FILE' : entry === '#/trace' ? 'TRACE A GARMENT' : 'SEE THE REQUESTS'} ↗</a></div>
     </>
   )
 }
 
-export function Story() {
+export function Story({ next }: { next: [string, string, string] }) {
   return (
     <>
       <section className="story-intro" id="origin">
@@ -182,7 +182,7 @@ export function Story() {
             <p>I help you follow a claim back to its records. And when the evidence is missing, I say so. A small thread, asking an important question.</p></div>
         </article>
         <div className="road-finish"><span className="micro">ONE THREAD. ALL THE WAY THROUGH.</span><h3>A little curiosity.<br /><em>A clearer picture.</em></h3>
-          <a href="#/case/C" className="button acid">Follow another story <span>↗</span></a></div>
+          <a href={next[1]} className="button acid">{next[2]} <span>↗</span></a></div>
       </section>
     </>
   )

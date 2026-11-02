@@ -33,7 +33,8 @@ const MODELS: [string, string, string][] = [
   ['Muse Spark', 'The investigator', 'Chooses one check at a time from a small set of tools, says why, and keeps competing explanations open until the evidence settles them. Every citation is checked against the record before a finding is accepted. 56 of 60 development cases agree with the justified answer, with no unsupported accusations.'],
   ['Muse Spark (vision)', 'Reads the paperwork', 'Reads handwritten logbook photos, meter photos and lab reports itself; no transcription is given. We measured where it finds each logbook line: sending the photo padded to a square takes it from 34% to 99.5% of lines placed right.'],
   ['Muse Spark', 'The thread guide', 'Answers your questions about a case only from that case’s investigation, and every record it cites must exist there; citations that don’t are removed.'],
-  ['Muse Spark Open', 'Open weights', 'The same investigation on open weights (served on Fireworks): 54 of 60 development cases.'],
+  ['Muse Spark Open', 'Open weights', 'The same investigation on open weights (served on Fireworks): 54 of 60 development cases, 99 of 120 on the held-out test.'],
+  ['Muse Voice Transcribe', 'Hears the factory', 'A factory can answer a request by voice, in Bangla or English; the transcript goes into the reply box to check and edit before sending. On three Bangla voice notes it got all 23 times, numbers and facts we scored right.'],
   ['Muse Glimmer', 'Distilled from our own runs', "A small open model, fine-tuned on Muse Spark's own correct investigations (never the test set) and run on our own GPU, the way a factory could run it on site. It reads every case a second time; where the two disagree, a person decides."],
 ]
 
@@ -104,7 +105,7 @@ export function HowItWorks() {
             <div key={role} className="model-card"><span className="micro">{model}</span><b>{role}</b><p>{what}</p></div>
           ))}
         </div>
-        <p className="how-note">Development-set results on simulated factories. The held-out test (120 cases, two factories, frozen before any test run) is still to come. <a href="#/results">The results ↗</a></p>
+        <p className="how-note">Results on simulated factories, including the held-out test: 120 cases from two factories, frozen before any test run. <a href="#/results">The results ↗</a></p>
       </div>
     </section>
   )

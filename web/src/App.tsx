@@ -28,9 +28,16 @@ type Page = 'home' | 'case' | 'report' | 'passport' | 'results' | 'how' | 'trace
 const ROLES: [Role, string, string][] = [['all', 'Everything', 'All'], ['buyer', 'Buyer’s reviewer', 'Buyer'], ['factory', 'Factory', 'Factory'], ['shopper', 'Shopper', 'Shopper']]
 // each audience's own pages, and where it starts
 const PAGES: Record<Exclude<Role, 'all'>, Page[]> = {
-  buyer: ['case', 'report', 'passport', 'how', 'results'],
-  factory: ['factory', 'passport', 'how'],
-  shopper: ['home', 'trace', 'passport', 'how'],
+  buyer: ['home', 'case', 'report', 'passport', 'how', 'results'],
+  factory: ['home', 'factory', 'passport', 'how', 'results'],
+  shopper: ['home', 'trace', 'passport', 'how', 'results'],
+}
+// where the home page's "follow the thread" links lead for each audience: [first story, another story, its label]
+export const ENTRY: Record<Role, [string, string, string]> = {
+  all: ['#/case/B', '#/case/C', 'Follow another story'],
+  buyer: ['#/case/B', '#/case/C', 'Follow another story'],
+  factory: ['#/factory', '#/factory', 'See your buyers’ requests'],
+  shopper: ['#/trace', '#/trace', 'Trace a garment'],
 }
 const START: Record<Exclude<Role, 'all'>, string> = { buyer: '#/case/B', factory: '#/factory', shopper: '#/' }
 const NAV: Record<Role, [string, string, Page | 'story'][]> = {
@@ -75,7 +82,6 @@ export function App() {
     else scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [hash])
 
-  const openCase = (k: CaseKey = 'B') => run(() => { location.hash = `#/case/${k}` })
   // the guide opens where you are: in a case file its own panel, on a passport about that batch, elsewhere about Tellwater
   const [chat, setChat] = useState(false)
   useEffect(() => setChat(false), [hash])
@@ -110,10 +116,10 @@ export function App() {
       <main>
         {!allowed ? <OtherView role={role as Exclude<Role, 'all'>} onEverything={() => setRole('all')} /> : passport ? <Passport key={`${passport}${scannedGtin ?? ''}${role}`} caseKey={passport} gtin={scannedGtin} role={role} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : factoryId ? <Factory key={factoryId} which={factoryId} /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
-            <Hero onEnter={() => openCase('B')} />
+            <Hero entry={ENTRY[role][0]} onEnter={() => run(() => { location.hash = ENTRY[role][0] })} />
             <PhoneStory />
             <HowTeaser />
-            <Story />
+            <Story next={ENTRY[role]} />
           </>
         )}
         <Footer motion={motion} setMotion={setMotion} replay={() => { location.hash = '#/'; setReplay((r) => r + 1) }} companion={companion} setCompanion={setCompanion} />

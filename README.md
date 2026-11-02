@@ -161,6 +161,7 @@ Every model the project calls while it runs is a Meta model.
 | **Muse Spark, vision** | Finds where each logbook line sits on the photo, so the case file can highlight it. Padding the photo to a square took lines placed right from 34% to 99.5% (60 pages, 442 lines) | Meta Model API |
 | **Muse Spark Open** | The same investigation on open weights, for comparison: 54 of 60 development cases, 99 of 120 on the held-out test | Fireworks (serverless) |
 | **Muse Glimmer 30B**, fine-tuned | The second reader, distilled from Muse Spark's investigations; a LoRA adapter published on Hugging Face | Trained on one H200 on Modal; served with vLLM on Modal, the same way it could run on a factory's own GPU |
+| **Muse Voice Transcribe** (`muse-voice-transcribe-1.0`) | Lets a factory reply by voice in Bangla or English; the transcript fills the reply box to check and edit before sending. On three Bangla voice notes (scripted, recorded in a normal room, a woman's voice among them) it got all 23 times, numbers and facts we scored right, with "ETP" and three other plant terms given as keywords; without them it heard "ETP" as a Bangla word | Meta Model API |
 | **Muse Image** | Made the garment photographs once, for the home page, trace page and passport (not called at runtime) | Meta |
 
 ## Try it
