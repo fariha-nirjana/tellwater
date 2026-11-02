@@ -145,7 +145,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
             <Garment kind={p.product.kind} shade={p.batch.shade} className="pp-garment" />
             <span className="micro">{(p.scanned ? ui('you_scanned', 'You scanned') : ui('made_from_run', 'Made from this run')).toUpperCase()}</span>
             <b className="pp-name">{t(`product.${p.product.name}`, p.product.name)}</b>
-            <p>{t('composition', p.garment.composition)} · {t(`shade.${p.batch.shade}`, shade)} {ui('shade', 'shade')}</p>
+            <p>{t('composition', p.garment.composition)} · {t(`shade.${p.batch.shade}`, shade)}</p>
             <p className="pp-ids">GTIN {p.product.gtin} · Lot {p.product.lot}</p>
           </div>
         </aside>
@@ -204,7 +204,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               <dl className="pp-facts">
                 <div><dt>{ui('made_of', 'Made of')}</dt><dd>{t('composition', p.garment.composition)}</dd></div>
                 <div><dt>{ui('made_in', 'Made in')}</dt><dd>{t('origin', p.garment.origin)} · {factory}</dd></div>
-                <div><dt>{ui('colour', 'Colour')}</dt><dd><i className="shade-swatch small" style={{ background: SHADE[p.batch.shade]?.fill }} />{t(`shade.${p.batch.shade}`, shade)} {ui('shade', 'shade')}</dd></div>
+                <div><dt>{ui('colour', 'Colour')}</dt><dd><i className="shade-swatch small" style={{ background: SHADE[p.batch.shade]?.fill }} />{t(`shade.${p.batch.shade}`, shade)}</dd></div>
               </dl>
               <div className="pp-care" aria-label="Care instructions">
                 {p.garment.care.map((c, i) => <span key={c}><CareIcon i={i} />{t(`care.${i}`, c)}</span>)}

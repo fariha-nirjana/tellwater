@@ -86,7 +86,7 @@ export function Factory({ which }: { which: 'A' | 'B' }) {
   if (!runs) return <section className="fv"><p className="loading">{t.loading}</p></section>
 
   const status = (s: Passport['status']) => (s === 'pending_review' ? 'Held for review' : s ? (lang === 'bn' ? STATUS_BN[s] : STATUS_LABEL[s]) : '–')
-  const shade = (s: string) => `${lang === 'bn' ? SHADE_BN[s] ?? s : SHADE[s]?.name ?? s} ${t.shade}`
+  const shade = (s: string) => lang === 'bn' ? `${SHADE_BN[s] ?? s} ${t.shade}` : SHADE[s]?.name ?? s
   const sigName = (c: CF, sig: string) => (lang === 'bn' ? SIGNAL_BN[sig] : c.signals[sig]?.[0]?.replace('Equalization tank level', 'Tank level').replace('Outfall conductivity', 'Conductivity')) ?? sig
   // a request is open from the buyer's evidence request until the factory sends a record for it
   const asked = runs.filter((r) => r.ask && !r.c.awaiting_person)

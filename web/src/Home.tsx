@@ -26,15 +26,15 @@ export function ScanLabel() {
       <div className="scan-heading">
         <div><span className="micro">THE PASSPORT ON THE LABEL</span>
           <h2>Every label can lead<br /><span className="serif">back to its water.</span></h2></div>
-        <p>Garments don’t make wastewater; dye runs do. Pick a run from the production log, pick a garment cut from its fabric, and scan the tag. Every garment from a run carries that run’s answer.</p>
+        <p>A garment’s wastewater comes from its dye run. Pick a run from the production log, pick a garment cut from its fabric, and scan the tag. Every garment from a run carries that run’s water record.</p>
       </div>
       <div className="scan-grid">
         <div className="scan-log">
-          <span className="scan-step">1 · PRODUCTION LOG <small>{batch.factory} (demo) · knit dyehouse</small></span>
+          <span className="scan-step">1 · PRODUCTION LOG <small>Two demo knit dyehouses</small></span>
           {log.map((b) => (
             <button key={b.key} aria-pressed={b.key === batch.key} onClick={() => { setKey(b.key); setGtin('') }}>
               <i className="shade-swatch" style={{ background: SHADE[b.batch.shade]?.fill }} />
-              <span><b>Lot {lot(b)}</b><small>{dayHm(wall(b.batch.production_start))}–{dayHm(wall(b.batch.production_end)).split(' ').at(-1)} · {SHADE[b.batch.shade]?.name ?? b.batch.shade} shade · {b.fabric.toLowerCase()}</small></span>
+              <span><b>Lot {lot(b)}</b><small>{b.factory} · {dayHm(wall(b.batch.production_start))}–{dayHm(wall(b.batch.production_end)).split(' ').at(-1)} · {SHADE[b.batch.shade]?.name ?? b.batch.shade} · {b.fabric.toLowerCase()}</small></span>
             </button>
           ))}
           <p className="scan-note">Several dyeing machines run side by side, so runs can share a time. Simulated records.</p>
@@ -115,7 +115,7 @@ export function PhoneStory() {
       <div className="ps-copy">
         <span className="micro">THE PASSPORT ON THE LABEL</span>
         <h2>Scan the tag.<br /><span className="serif">Read the water behind it.</span></h2>
-        <p>Garments don’t make wastewater; dye runs do. So every garment cut from a run carries that run’s answer, one scan away.</p>
+        <p>A garment’s wastewater comes from its dye run. So every garment cut from a run carries that run’s water record, one scan away.</p>
         <ol className="ps-steps">
           {STORY.map((s, i) => (
             <li key={s.title}><button aria-pressed={i === step} onClick={() => go(i)}><b>{String(i + 1).padStart(2, '0')} · {s.title}</b><span>{s.text}</span></button></li>

@@ -4,9 +4,9 @@ import { useState } from 'react'
 import TAGS from './tags.json'
 
 export const SHADE: Record<string, { fill: string; detail: string; name: string }> = {
-  light: { fill: '#c9d3ef', detail: '#9aaacf', name: 'Light' },
-  medium: { fill: '#57372b', detail: '#af8971', name: 'Medium' },
-  dark: { fill: '#2b2f66', detail: '#7d84c8', name: 'Dark' },
+  light: { fill: '#c9d3ef', detail: '#9aaacf', name: 'Pale blue' },
+  medium: { fill: '#57372b', detail: '#af8971', name: 'Coffee' },
+  dark: { fill: '#2b2f66', detail: '#7d84c8', name: 'Navy' },
 }
 
 const NAME: Record<string, string> = {
@@ -14,7 +14,7 @@ const NAME: Record<string, string> = {
   'polo-w': "women's polo shirt", hoodie: 'hoodie', sweatshirt: 'sweatshirt', joggers: 'joggers',
 }
 export const photoKind = (kind: string, shade?: string) => shade === 'light' && ['tee', 'longsleeve'].includes(kind) ? `${kind}-light` : kind
-export const photo = (kind: string, tag = false, shade?: string) => `${import.meta.env.BASE_URL}garments/${photoKind(kind, shade)}${tag ? '-tag' : ''}.jpg`
+export const photo = (kind: string, tag = false, shade?: string) => `${import.meta.env.BASE_URL}garments/${photoKind(kind, shade)}${tag ? '-tag' : ''}.jpg?v=2`  // ?v= changes whenever the photos are regenerated
 
 /** The garment's photo; with `tag`, the one with its hang tag, and `qr` (a data URL) printed on the tag. */
 export function Garment({ kind, shade, tag = false, qr, className }: { kind: string; shade?: string; tag?: boolean; qr?: string; className?: string }) {

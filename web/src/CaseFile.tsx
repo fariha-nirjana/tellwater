@@ -1,3 +1,4 @@
+import { SHADE } from './Garments'
 // The case file, the buyer's reviewer's workspace, on real engine output. It fits the window: a top row (the batch, its
 // status stamp, the cases, the human decision), the desk where the companion tells the finding or the replay step by step,
 // and three panels that scroll inside themselves: documents threaded to the signals (with the gap in the story or the
@@ -220,7 +221,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
     <section className="case-view case-stage">
       <header className="case-header">
         <div className="case-identity">
-          <span className="micro">{factory} (demo) · {ov.batch.shade} shade</span>
+          <span className="micro">{factory} (demo) · {SHADE[ov.batch.shade]?.name ?? ov.batch.shade}</span>
           <h1>Batch {ov.batch.id.split('-').at(-1)}</h1>
         </div>
         {status ? secondReader || needsPerson ? (
@@ -235,7 +236,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
             onPick={(name) => { location.hash = `#/case/${SUPPLIERS.find(([n]) => n === name)![1][0]}` }} />
           <Picker label="CASE" value={caseKey} options={SUPPLIERS.find(([n]) => n === supplier)![1].map((k) => {
             const b = catalog.find((c) => c.key === k)?.batch
-            return { value: k, title: SCENARIO[k], sub: b ? `Run ${b.id.split('-').at(-1)} · ${b.shade} shade` : '' }
+            return { value: k, title: SCENARIO[k], sub: b ? `Run ${b.id.split('-').at(-1)} · ${SHADE[b.shade]?.name ?? b.shade}` : '' }
           })} onPick={(k) => { location.hash = `#/case/${k}` }} />
         </div>
         {data.bangla_view && (

@@ -1,3 +1,4 @@
+import { SHADE } from './Garments'
 // The audit report: what an auditor files for one batch, laid out to print or save as a PDF.
 // The finding and its scope, the key evidence, the evidence request, lab results, every check the
 // investigation ran with its reason, the reviewer's decisions, the signed record and all limitations.
@@ -31,7 +32,7 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
         <span className="micro">AUDIT REPORT · WASTEWATER TREATMENT CLAIM</span>
         <h1>Batch {p.batch.id}</h1>
         {held && <p className="report-held">Not yet decided: held for review</p>}
-        <p>{p.garment.factory} · {p.garment.origin} · {p.batch.shade} shade · produced {dayHm(wall(p.batch.production_start))} to {dayHm(wall(p.batch.production_end))}</p>
+        <p>{p.garment.factory} · {p.garment.origin} · {SHADE[p.batch.shade]?.name ?? p.batch.shade} · produced {dayHm(wall(p.batch.production_start))} to {dayHm(wall(p.batch.production_end))}</p>
         <p>Treatment interval {dayHm(wall(p.treatment_interval[0]))} to {dayHm(wall(p.treatment_interval[1]))} · report prepared {dayHm(new Date())}</p>
         <p className="report-disclosure">{p.disclosure}</p>
       </header>
