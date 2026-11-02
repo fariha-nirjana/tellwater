@@ -159,6 +159,10 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
   const supplier = SUPPLIERS.find(([, keys]) => keys.includes(caseKey))![0]
   const reviews = data.review ?? []
   const lastReview = reviews.at(-1)
+  // the API pairs the second reading with the saved investigation or its replay, never a fresh live run
+  const secondReader = which !== 'live' ? data.second_reader : null
+  const readersDisagree = secondReader?.agrees === false
+  const needsPerson = live !== 'running' && data.awaiting_person
   // the gap in the story: what the maintenance record claims against how long power really stayed low
   const lowPower = keyIds.map((id) => parseEvidence(id)).find((e) => e.label?.toLowerCase().includes('power') && e.start && e.end)
   const gap = status === 'contradicts' && claims[0] && lowPower?.end && lowPower.end.getTime() > claims[0].end.getTime() + 30 * 60_000
@@ -219,7 +223,12 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           <span className="micro">{factory} (demo) · {ov.batch.shade} shade</span>
           <h1>Batch {ov.batch.id.split('-').at(-1)}</h1>
         </div>
-        {status ? <Stamp status={status} /> : <span className="stamp stamp-working"><span className="stamp-mark"><i className="pulse" /></span><span>Investigating · step {Math.max(1, at + 1)}</span></span>}
+        {status ? secondReader || needsPerson ? (
+          <div className="case-readers-status" data-pending={needsPerson || undefined}>
+            <Stamp status={needsPerson ? 'review_required' : status} label={needsPerson ? 'Needs a person · the two readers disagree' : undefined} />
+            {secondReader?.agrees && <small>Second reader agrees · Muse Glimmer, an open model that can run at the factory</small>}
+          </div>
+        ) : <Stamp status={status} /> : <span className="stamp stamp-working"><span className="stamp-mark"><i className="pulse" /></span><span>Investigating · step {Math.max(1, at + 1)}</span></span>}
         <div className="case-pick">
           {/* two tiles: the supplier, then one of its dye runs */}
           <Picker label="FACTORY" value={supplier} options={SUPPLIERS.map(([name, keys]) => ({ value: name, title: `${name} (demo)`, sub: `${keys.length} dye runs checked` }))}
@@ -237,7 +246,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           </div>
         )}
         <div className="case-decision">
-          <small>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : 'Ready for a reviewer'}</small>
+          <small>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : needsPerson ? 'Waiting for a person: the readers disagree' : 'Ready for a reviewer'}</small>
           {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
             : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
         </div>
@@ -315,6 +324,16 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                     <div><span className="micro">THE GAP IN THE STORY</span>
                       <p>Logged service <b>{hm(gap.claim.start)}–{hm(gap.claim.end)}</b><span>→</span>Low power <b>{hm(gap.low.start!)}–{hm(gap.low.end!)}</b></p></div>
                     {physicalId && <button onClick={() => follow(physicalId)}>Follow the physical evidence ↗</button>}
+                  </section>
+                )}
+                {readersDisagree && secondReader && (
+                  <section className="reader-slip" aria-label="The two readings">
+                    <span className="reader-icon" aria-hidden="true">⇄</span>
+                    <div><span className="micro">TWO READERS, TWO ANSWERS</span>
+                      <p><b>Muse Spark</b> (cloud): {STATUS_LABEL[status!]}.</p>
+                      <p><b>Muse Glimmer</b> (open model, can run at the factory): {STATUS_LABEL[secondReader.status]}. “{secondReader.summary}”</p>
+                      <small>{needsPerson ? 'Neither answer is used until you decide. Nothing is published to the batch passport before then.' : 'A person has reviewed the readings. The latest decision is recorded above.'}</small></div>
+                    {bangla ? <a className="button acid small" href={`#/case/${caseKey}`}>Review both ↗</a> : <button className="button acid small" onClick={() => setDialog('review')}>Review both ↗</button>}
                   </section>
                 )}
                 {request && (which === 'saved' || which === 'live') && (

@@ -17,7 +17,8 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
   }, [caseKey])
   if (!p || !c || !trace) return <p className="loading">Preparing the audit report…</p>
 
-  const status = p.status ?? 'insufficient'
+  const held = !!p.held
+  const status = p.status === 'pending_review' ? 'review_required' : p.status ?? 'insufficient'
   const steps = trace.steps.filter((s) => s.tool !== 'update_hypotheses')
   return (
     <article className="report">
@@ -29,13 +30,18 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
       <header className="report-head">
         <span className="micro">AUDIT REPORT · WASTEWATER TREATMENT CLAIM</span>
         <h1>Batch {p.batch.id}</h1>
+        {held && <p className="report-held">Not yet decided: held for review</p>}
         <p>{p.garment.factory} · {p.garment.origin} · {p.batch.shade} shade · produced {dayHm(wall(p.batch.production_start))} to {dayHm(wall(p.batch.production_end))}</p>
         <p>Treatment interval {dayHm(wall(p.treatment_interval[0]))} to {dayHm(wall(p.treatment_interval[1]))} · report prepared {dayHm(new Date())}</p>
         <p className="report-disclosure">{p.disclosure}</p>
       </header>
 
-      <Part title="The finding">
-        <div className="report-finding"><Stamp status={status} /><p>{p.summary}</p></div>
+      <Part title={held ? 'Readings awaiting a decision' : 'The finding'}>
+        {held ? <>
+          <p>No finding is published until a person at the buyer decides. The readings below are for the reviewer's consideration.</p>
+          <p><b>First reading:</b> {trace.status ? STATUS_LABEL[trace.status] : 'No answer'}. {trace.final?.summary ?? trace.final?.reason}</p>
+          {c.second_reader && <p><b>Second reading:</b> {STATUS_LABEL[c.second_reader.status]}. {c.second_reader.summary}</p>}
+        </> : <div className="report-finding"><Stamp status={status} /><p>{p.summary}</p></div>}
         {p.review?.action === 'change' && p.assessed_status && <p className="report-note">Changed by the reviewer. The investigator assessed: {STATUS_LABEL[p.assessed_status]}.</p>}
         {p.scope_line && <p className="report-note"><b>Scope.</b> {p.scope_line}</p>}
       </Part>

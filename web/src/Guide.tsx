@@ -1,8 +1,8 @@
 // The thread guide: iteration 02's chat panel, answered by Muse Spark. In a case file and on a batch passport it answers from
-// that case's investigation only; elsewhere on the site from a short brief, the three cases' findings and the measured results.
+// that case's investigation only; elsewhere on the site from a short brief, the five cases' findings and the measured results.
 // Citations in an answer become chips that thread to their record.
 import { useEffect, useRef, useState } from 'react'
-import { api, type Allowance, type ViewKey } from './api'
+import { api, type Allowance, type CaseKey, type ViewKey } from './api'
 import { setGuideBusy } from './companion'
 import { docLabel, parseEvidence } from './evidence'
 
@@ -26,7 +26,7 @@ const PROMPTS: Record<GuideScope, string[]> = {
 const INTRO: Record<GuideScope, string> = {
   case: 'Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.',
   passport: 'Ask me about the water behind this garment. I answer from the investigation of the dye run it was cut from.',
-  site: 'Ask me about Tellwater: what it checks, how it works, the three cases or the results.',
+  site: 'Ask me about Tellwater: what it checks, how it works, the five cases or the results.',
 }
 
 export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', languages = 'all' }: {
@@ -40,12 +40,28 @@ export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', l
   const [lang, setLang] = useState(caseKey.endsWith('-bn') ? 'bn' : 'en')
   const choices = languages === 'en-bn' ? LANGS.slice(0, 2) : LANGS
   const [left, setLeft] = useState<Allowance | null>(null)
+  const [passportState, setPassportState] = useState<'checking' | 'held' | 'open' | 'unavailable'>('checking')
+  useEffect(() => {
+    if (!open || scope !== 'passport') return
+    let current = true
+    setPassportState('checking')
+    api.passport(caseKey as CaseKey).then((p) => {
+      if (current) setPassportState(p.held ? 'held' : 'open')
+    }).catch(() => { if (current) setPassportState('unavailable') })
+    return () => { current = false }
+  }, [open, scope, caseKey])
   const end = useRef<HTMLDivElement>(null)
   useEffect(() => { if (open) api.limits().then((l) => setLeft(l.questions)).catch(() => setLeft(null)) }, [open, msgs.length])
   useEffect(() => setMsgs([]), [caseKey])
   useEffect(() => end.current?.scrollIntoView({ block: 'nearest' }), [msgs, busy])
   useEffect(() => setGuideBusy(busy), [busy])  // the companion reads while an answer is written
   if (!open) return null
+  if (scope === 'passport' && passportState !== 'open') return (
+    <aside className="chat" aria-label="Thread guide">
+      <div className="chat-head"><div><span className="micro">THE BATCH PASSPORT</span><h3>About this batch</h3></div><button className="close" onClick={onClose} aria-label="Close thread guide">×</button></div>
+      <p className="chat-context" lang="en">{passportState === 'checking' ? 'Checking the review state…' : passportState === 'held' ? 'This batch is being reviewed by a person. Check back soon.' : 'The review state could not be loaded. Please reopen the passport.'}</p>
+    </aside>
+  )
 
   const ask = async (question: string) => {
     if (!question.trim() || busy) return
@@ -67,7 +83,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', l
         <div><span className="micro">YOUR THREAD FRIEND</span><h3>Let’s untangle it.</h3></div>
         <button className="close" onClick={onClose} aria-label="Close thread guide">×</button>
       </div>
-      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : scope === 'site' ? 'Tellwater: how it works, the three cases and the results.'
+      <p className="chat-context">{focus ? `Looking at: ${chipName(focus)}` : scope === 'site' ? 'Tellwater: how it works, the five cases and the results.'
         : scope === 'passport' ? `This garment’s dye run (case ${caseKey}): ask about its water.` : `Case ${caseKey.replace('-bn', ', Bangla logbook')}: ask about anything in this investigation.`}</p>
       <div className="messages" aria-live="polite">
         {msgs.length === 0 && <div className="message">{INTRO[scope]}</div>}
@@ -92,7 +108,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', l
         <input value={input} onChange={(e) => setInput(e.target.value)} aria-label="Ask about the evidence" placeholder={scope === 'site' ? 'Ask about Tellwater…' : scope === 'passport' ? 'Ask about this garment’s water…' : 'Ask about this evidence…'} maxLength={600} autoComplete="off" />
         <button aria-label="Send question" disabled={busy}>↗</button>
       </form>
-      <small className="chat-disclosure">{scope === 'site' ? 'Answered by Muse Spark from the site’s brief, the three cases and the results' : 'Answered by Muse Spark from this case’s records only'} · citations are checked against them
+      <small className="chat-disclosure">{scope === 'site' ? 'Answered by Muse Spark from the site’s brief, the five cases and the results' : 'Answered by Muse Spark from this case’s records only'} · citations are checked against them
         {left && (left.live ? ` · ${left.left} of ${left.per_visitor} questions left today` : ' · questions are off in this demo')}</small>
     </aside>
   )

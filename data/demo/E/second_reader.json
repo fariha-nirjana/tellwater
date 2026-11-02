@@ -1,0 +1,6 @@
+{
+  "model": "Muse Glimmer 30B (fine-tuned)",
+  "status": "review_required",
+  "summary": "Outfall flow stayed well above treated flow for hours while pH stayed near neutral and conductivity fell, showing added low-conductivity water at the outfall. Power matched the inflow load and a meter photo confirmed the power feed, so aeration ran while the extra flow passed. Because the outfall readings no longer represent treated effluent alone, a human must judge the measurement point tampering.",
+  "agrees": true
+}

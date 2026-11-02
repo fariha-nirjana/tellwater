@@ -95,6 +95,37 @@ def _basis(key: str) -> tuple[dict | None, dict | None]:
     return (after, sub) if after else (_trace(key), None)
 
 
+HELD = {"reason": "two_readers_disagree"}
+HELD_SHOPPER = "This batch is being reviewed by a person. Check back soon."
+HELD_BUYER = "Held for review: the automatic checks did not agree, so no finding is published until a person at the buyer decides."
+
+
+def _second_reader(key: str, which: str = "saved") -> dict | None:
+    """A second reading belongs to one investigation, just like trace.json or trace-after.json."""
+    name = "second_reader.json" if which == "saved" else f"second_reader-{which}.json"
+    folders = [_view_folder(key).parent] if key.endswith("-bn") else [RUNTIME / key, _view_folder(key).parent]
+    for folder in folders:
+        path = folder / name
+        if path.exists():
+            return json.loads(path.read_text())
+    return None
+
+
+def _awaiting_person(key: str) -> bool:
+    """Only a decision or an agreeing second reading of the replay can release a disagreement."""
+    state = _state()
+    reviews = state["reviews"].get(key, [])
+    if reviews and reviews[-1]["action"] in ("approve", "change"):
+        return False
+    original = _second_reader(key)
+    if state["submissions"].get(key) and _trace(key, "after"):
+        replay = _second_reader(key, "after")
+        if replay and replay.get("agrees") is True:
+            return False
+        return bool((original and original.get("agrees") is False) or (replay and replay.get("agrees") is False))
+    return bool(original and original.get("agrees") is False)
+
+
 def _bundle(key: str) -> Bundle:
     """The case as the investigator sees it, plus any record the factory has submitted."""
     bundle = load_bundle(_view_folder(key))
@@ -133,10 +164,15 @@ def _lines(folder: Path) -> dict[str, list[dict]]:
 def cases() -> list[dict]:
     out = []
     for key in DEMO:
-        bundle, trace = load_bundle(_folder(key)), _trace(key)
+        bundle, trace = load_bundle(_folder(key)), _basis(key)[0]
         final = (trace or {}).get("final") or {}
+        held = _awaiting_person(key)
+        reviews = _state()["reviews"].get(key, [])
+        last = reviews[-1] if reviews else None
+        status = last["status"] if last and last["action"] == "change" and last.get("status") else (trace or {}).get("status")
         out.append({"key": key, "case_id": bundle.case_id, "batch": bundle.target_batch["id"],
-                    "status": (trace or {}).get("status"), "summary": final.get("summary") or final.get("reason")})
+                    "status": "pending_review" if held else status,
+                    "summary": None if held else final.get("summary") or final.get("reason"), "held": HELD if held else None})
     return out
 
 
@@ -153,9 +189,11 @@ def case(key: str) -> dict:
                      "image": f"/api/cases/{key}/documents/{d['id']}/image" if d.get("image") else None,
                      "content": d.get("content"), "lines": lines.get(d["id"])})
     base = key.removesuffix("-bn")
+    which = "after" if _basis(key)[1] else "saved"
     return {"key": key, "overview": overview, "documents": docs, "signals": SIGNAL_INFO,
             "submission": _state()["submissions"].get(key), "review": _state()["reviews"].get(key),
             "replies": _state().get("replies", {}).get(base, []),
+            "second_reader": _second_reader(key, which), "awaiting_person": _awaiting_person(key),
             "logbook_language": "bn" if key != base else "en", "bangla_view": base in BANGLA}
 
 
@@ -312,6 +350,9 @@ def ask(key: str, q: Question, request: Request) -> dict:
         raise HTTPException(404, "no investigation to ask about")
     if not q.question.strip() or len(q.question) > 600:
         raise HTTPException(400, "ask a question of up to 600 characters")
+    if _awaiting_person(key):
+        return {"answer": HELD_SHOPPER if q.reader == "shopper" else HELD_BUYER, "held": HELD,
+                "lang": "en", "cited": [], "removed_citations": [], "model": None, "usage": {}}
     if reason := limits.take("questions", limits.visitor(request)):
         raise HTTPException(429, reason)
     known = {s["result"].get("evidence_id") for s in t["steps"] if isinstance(s.get("result"), dict) and s["result"].get("evidence_id")}
@@ -359,7 +400,8 @@ HOW IT WORKS
    evidence, in which case it asks the factory for the one record that would settle it.
 4. A person reviews the finding. The signed result becomes the batch passport, reached by scanning the QR code (GS1 Digital Link)
    on a garment's hang tag, with views for shoppers, buyers and auditors. Anyone can check the record hasn't been changed.
-It also reads Bangla logbooks and answers in Bangla or Banglish. The factory records are simulated by the Tellwater simulator; the
+It also reads Bangla logbooks, and this guide answers in the reader's chosen language (English, Bangla or one of ten buyer
+languages), understanding questions that mix Bangla and English. The factory records are simulated by the Tellwater simulator; the
 garment photographs were generated with Muse Image. Nothing here describes a real factory."""
 
 
@@ -368,10 +410,12 @@ CASE_LABELS = {"A": "maintenance", "B": "a contradiction", "C": "a missing recor
 
 def _site_brief() -> str:
     lines = [ABOUT, "", "THE DEMO CASES (A to C from factory A, D and E from a second supplier, factory B)"]
-    for key, label in CASE_LABELS.items():
-        t, _ = _basis(key)
-        final = (t or {}).get("final") or {}
-        lines.append(f"case:{key} ({label}): status {(t or {}).get('status')}. {final.get('summary') or final.get('reason') or ''}"[:900])
+    for item in cases():
+        key = item["key"]
+        if item["held"]:
+            lines.append(f"case:{key}: {HELD_BUYER}")
+            continue
+        lines.append(f"case:{key} ({CASE_LABELS[key]}): status {item['status']}. {item['summary'] or ''}"[:900])
     dev = (json.loads((DEMO_ROOT / "results.json").read_text()) if (DEMO_ROOT / "results.json").exists() else {}).get("dev", {})
     if dev:
         lines += ["", "MEASURED RESULTS (60 simulated development cases; a held-out test set is run at the end)"]
@@ -398,7 +442,10 @@ def ask_site(q: SiteQuestion, request: Request) -> dict:
         raise HTTPException(429, reason)
     extra = _language_rule(q.lang)
     messages = [{"role": "system", "content": SITE_GUIDE + extra + "\n\n" + _site_brief()}]
-    for h in q.history[-6:]:
+    # an earlier answer may state a finding that has since been held again; drop only answers citing a held case
+    held = [f"case:{k}" for k in DEMO if _awaiting_person(k)]
+    history = [h for h in q.history[-6:] if not any(tag in str(h.get("content", "")) for tag in held)]
+    for h in history:
         if h.get("role") in ("user", "assistant") and isinstance(h.get("content"), str):
             messages.append({"role": h["role"], "content": h["content"][:1500]})
     messages.append({"role": "user", "content": q.question})
@@ -444,6 +491,8 @@ def letter(key: str, request: Request) -> dict:
     """The investigation's evidence request drafted as a message to the factory, in Bangla with the English beside it.
     Written by Muse Spark and labelled as such; refused unless every number and time survives in the Bangla."""
     _folder(key)
+    if _awaiting_person(key):
+        return {"held": HELD, "status": "pending_review", "en": HELD_BUYER, "bn": "", "model": None, "note": HELD_BUYER}
     t, _ = _basis(key)
     final = (t or {}).get("final") or {}
     req = final if final.get("kind") == "evidence_request" else final.get("evidence_request")
@@ -613,6 +662,8 @@ def _products(key: str) -> list[dict]:
 
 def _record(key: str) -> dict | None:
     """The latest signed record, unless the case has since been sent back."""
+    if _awaiting_person(key):
+        return None
     s = _state()
     reviews, records = s["reviews"].get(key, []), s.get("records", {}).get(key, [])
     if not records or (reviews and reviews[-1]["action"] == "return"):
@@ -647,7 +698,7 @@ def passport(key: str, gtin: str | None = None) -> dict:
     ti = treatment_interval(pd.Timestamp(b["start"]), pd.Timestamp(b["end"]), cfg)
     request = final if final.get("kind") == "evidence_request" else final.get("evidence_request") if isinstance(final.get("evidence_request"), dict) else None
     labs = next((s["result"].get("lab_results") for s in t.get("steps", []) if s.get("tool") == "get_lab_results" and isinstance(s.get("result"), dict)), None) or []
-    return {"batch": _batch(key), "product": scanned or products[0], "products": products, "scanned": bool(scanned), "status": status, "assessed_status": t.get("status"),
+    out = {"batch": _batch(key), "product": scanned or products[0], "products": products, "scanned": bool(scanned), "status": status, "assessed_status": t.get("status"),
             "summary": final.get("summary"), "scope_line": final.get("scope_line"),
             "limitations": final.get("limitations", []), "key_evidence": final.get("key_evidence", []),
             "evidence_request": request and {"items": request.get("items", []), "interval": request.get("interval"), "reason": request.get("reason")},
@@ -659,13 +710,22 @@ def passport(key: str, gtin: str | None = None) -> dict:
                               "finished_at": t.get("finished_at"), "citations_validated": t.get("valid")},
             "reviews": reviews, "review": last, "record": rec, "verification": _verification(key, rec) if rec else None,
             "disclosure": "Prototype. Simulated records. A batch-level assessment, not a certificate."}
+    if _awaiting_person(key):
+        out.update(status="pending_review", held=HELD, assessed_status=None, summary=None, scope_line=None,
+                   limitations=[], key_evidence=[], evidence_request=None, review=None, reviews=[], record=None, verification=None,
+                   investigation={k: None for k in out["investigation"]})
+    return out
 
 
 @app.get("/api/passport/{key}/translate")
 def passport_translation(key: str, lang: str, request: Request, gtin: str | None = None) -> dict:
     """The passport's text in a buyer's language, machine-translated by Muse Spark (api/translate.py).
     Cached per source text; a new translation counts against the visitor's guide allowance."""
-    src = translate.source(passport(key, gtin))
+    public = passport(key, gtin)
+    if public.get("held"):
+        return {"status": "pending_review", "held": HELD, "lang": "en", "language": "English", "model": None,
+                "fields": {}, "note": HELD_BUYER}
+    src = translate.source(public)
     if lang == "bn" and translate.bangla():
         return {"lang": "bn", "language": "বাংলা", "model": None, "fields": translate.bangla_fields(src),
                 "note": "Labels in Bangla, reviewed by a person. This case's own findings stay in English; "

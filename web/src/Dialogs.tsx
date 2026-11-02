@@ -59,7 +59,7 @@ function PassportQR({ caseKey }: { caseKey: CaseKey }) {
   )
 }
 
-type LetterDraft = { en: string; bn: string; note: string }
+type LetterDraft = { en: string; bn: string; note: string; held?: { reason: string } }
 export type LetterLang = 'en' | 'bn'
 export const LETTER_LANGS: [LetterLang, string][] = [['en', 'English'], ['bn', 'বাংলা']]
 
@@ -78,11 +78,11 @@ function Letter({ caseKey }: { caseKey: CaseKey }) {
     <div className="letter">
       <span className="micro">THE REQUEST, FOR THE FACTORY</span>
       <h2>A message to send the factory.</h2>
-      <div className="letter-lang" role="group" aria-label="Language of the message">
+      {!draft?.held && <div className="letter-lang" role="group" aria-label="Language of the message">
         <span>Write it in</span>
         {LETTER_LANGS.map(([code, name]) => <button key={code} lang={code} aria-pressed={lang === code} onClick={() => setLang(code)}>{name}</button>)}
-      </div>
-      {error ? <p className="form-error">{error}</p> : !draft ? <p>Muse Spark is drafting the message…</p> : (
+      </div>}
+      {error ? <p className="form-error">{error}</p> : !draft ? <p>Opening the message…</p> : draft.held ? <p lang="en">{draft.en}</p> : (
         <>
           <div className="letter-one" lang={lang}><p>{text}</p></div>
           <button className="text-btn" onClick={() => navigator.clipboard?.writeText(text).catch(() => {})}>Copy ↗</button>

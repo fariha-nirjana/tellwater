@@ -77,23 +77,39 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
   const [tr, setTr] = useState<Translation | null>(null)
   const [trState, setTrState] = useState('')
   useEffect(() => {
-    api.passport(caseKey, gtin).then(setP)
-    api.case(caseKey).then((c) => setDocs(c.documents))
+    let current = true
+    setP(null); setDocs([]); setOpen(null); setTr(null); setLang('en')
+    api.passport(caseKey, gtin).then((next) => {
+      if (!current) return
+      setP(next)
+      if (!next.held) api.case(caseKey).then((c) => { if (current) setDocs(c.documents) })
+    })
     api.languages().then(setLangs).catch(() => setLangs({}))
+    return () => { current = false }
   }, [caseKey, gtin])
+  const held = !!p?.held || p?.status === 'pending_review'
   useEffect(() => {
-    if (lang === 'en') { setTr(null); setTrState(''); return }
+    if (lang === 'en' || held) { setTr(null); setTrState(''); return }
+    let current = true
     setTrState('loading')
     fetch(`/api/passport/${caseKey}/translate?lang=${lang}${gtin ? `&gtin=${gtin}` : ''}`)
-      .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.detail ?? r.status); setTr(d); setTrState('') })
-      .catch((e) => { setTr(null); setTrState((e as Error).message); setLang('en') })
-  }, [lang, caseKey, gtin])
+      .then(async (r) => {
+        const d = await r.json()
+        if (!current) return
+        if (!r.ok) throw new Error(d.detail ?? r.status)
+        if (d.held) { api.passport(caseKey, gtin).then(setP); setTr(null); setLang('en') }
+        else setTr(d)
+        setTrState('')
+      })
+      .catch((e) => { if (current) { setTr(null); setTrState((e as Error).message); setLang('en') } })
+    return () => { current = false }
+  }, [lang, caseKey, gtin, held])
   if (!p) return <p className="loading">Opening the passport…</p>
 
   // English unless a checked machine translation is showing
-  const t = (key: string, en: string) => tr?.fields[key] ?? en
+  const t = (key: string, en: string) => held ? en : tr?.fields[key] ?? en
   const ui = (key: string, en: string) => t(`ui.${key}`, en)
-  const status = (p.status ?? 'insufficient') as Status
+  const status = p.status === 'pending_review' ? 'review_required' : p.status ?? 'insufficient'
   const shade = SHADE[p.batch.shade]?.name ?? p.batch.shade
   const factory = t('factory', p.garment.factory)
   const records: { doc: Doc; why: string }[] = []
@@ -110,11 +126,11 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
 
   return (
     <section className="pp-view">
-      <div className="pp-shell" lang={tr?.lang ?? 'en'}>
+      <div className="pp-shell" lang={held ? 'en' : tr?.lang ?? 'en'}>
         <aside className="pp-side">
           <div className="pp-top">
             {(role === 'all' || role === 'buyer') && <a className="passport-back" href={`#/case/${caseKey}`}>← {ui('open_case', 'Open case file')}</a>}
-            {Object.keys(langs).length > 0 && (
+            {!held && Object.keys(langs).length > 0 && (
               <label className="lang-pick"><span>Read in</span>
                 <select value={lang} onChange={(e) => setLang(e.target.value)} disabled={trState === 'loading'} aria-label="Passport language">
                   <option value="en">English</option>
@@ -142,6 +158,18 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               ))}
             </div>
           )}
+          {held ? (
+            <section className="pp-held" aria-label="Held for review" lang="en">
+              <span className="micro">HELD FOR REVIEW</span>
+              <h2>{view === 'you' ? 'This batch is being reviewed by a person.' : 'Held for review'}</h2>
+              <p>{view === 'you' ? 'Check back soon.' : 'Held for review: the automatic checks did not agree, so no finding is published until a person at the buyer decides.'}</p>
+              <dl className="pp-facts">
+                <div><dt>Made of</dt><dd>{p.garment.composition}</dd></div>
+                <div><dt>Made in</dt><dd>{p.garment.origin} · {p.garment.factory}</dd></div>
+              </dl>
+              <p className="pp-fine">{p.disclosure}</p>
+            </section>
+          ) : <>
           {trState === 'loading' && <p className="translation-note">Muse Spark is translating the passport…</p>}
           {trState && trState !== 'loading' && <p className="translation-note warn">{trState}</p>}
           {tr && <p className="translation-note">{tr.note} <button className="text-btn" onClick={() => setLang('en')}>Show the English original</button></p>}
@@ -264,6 +292,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               </div>
             </div>
           )}
+          </>}
           <div className="passport-foot">Prototype · records from the Tellwater simulator</div>
         </div>
       </div>

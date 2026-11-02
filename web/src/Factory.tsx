@@ -84,11 +84,11 @@ export function Factory({ which }: { which: 'A' | 'B' }) {
   useEffect(() => { load() }, [load])
   if (!runs) return <section className="fv"><p className="loading">{t.loading}</p></section>
 
-  const status = (s: Status | null) => (s ? (lang === 'bn' ? STATUS_BN[s] : STATUS_LABEL[s]) : '–')
+  const status = (s: Passport['status']) => (s === 'pending_review' ? 'Held for review' : s ? (lang === 'bn' ? STATUS_BN[s] : STATUS_LABEL[s]) : '–')
   const shade = (s: string) => `${lang === 'bn' ? SHADE_BN[s] ?? s : SHADE[s]?.name ?? s} ${t.shade}`
   const sigName = (c: CF, sig: string) => (lang === 'bn' ? SIGNAL_BN[sig] : c.signals[sig]?.[0]?.replace('Equalization tank level', 'Tank level').replace('Outfall conductivity', 'Conductivity')) ?? sig
   // a request is open from the buyer's evidence request until the factory sends a record for it
-  const asked = runs.filter((r) => r.ask)
+  const asked = runs.filter((r) => r.ask && !r.c.awaiting_person)
   const open = asked.filter((r) => !r.c.submission).length
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -149,7 +149,11 @@ export function Factory({ which }: { which: 'A' | 'B' }) {
   )
 }
 
-type RowProps = { run: Run; t: typeof EN; status: (s: Status | null) => string; shade: (s: string) => string; onChange: () => void }
+type RowProps = { run: Run; t: typeof EN; status: (s: Passport['status']) => string; shade: (s: string) => string; onChange: () => void }
+
+function WithBuyer() {
+  return <span className="fv-with-buyer" lang="en"><span className="fv-review-pill">With a person at the buyer</span><small>The automatic checks didn't agree on this run, so a person at the buyer is looking before anything is published. Sending your maintenance record or meter photos can help them decide.</small></span>
+}
 
 function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps) {
   const [note, setNote] = useState(t.noteDefault)
@@ -220,7 +224,8 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
   const [text, setText] = useState('')
   const [error, setError] = useState('')
   const s = p.status
-  const finding = s === 'contradicts' || s === 'review_required'
+  const needsPerson = c.awaiting_person
+  const finding = needsPerson || s === 'contradicts' || s === 'review_required'
   const send = async () => {
     setError('')
     try { await api.reply(b.key, text); setText(''); setWriting(false); onChange() } catch (e) { setError((e as Error).message) }
@@ -228,7 +233,7 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
   return (
     <tr>
       <td><i className="fv-swatch" style={{ background: SHADE[b.batch.shade]?.fill }} />{b.products[0].lot}<small>{shade(b.batch.shade)}</small></td>
-      <td>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></td>
+      <td>{needsPerson ? <WithBuyer /> : <>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></>}</td>
       <td>
         {s === 'insufficient' && !c.submission ? <button className="text-btn" onClick={onRequest}>{t.sendIt((ask?.items ?? [''])[0].replace(/ T1$/, ''))} ↑</button>
           : finding ? (

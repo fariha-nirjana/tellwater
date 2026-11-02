@@ -1,0 +1,6 @@
+{
+  "model": "Muse Glimmer 30B (fine-tuned)",
+  "status": "insufficient",
+  "summary": "The ETP stopped for about two and a half hours during the treatment interval, with power at standby and both ETP inflow and outfall flow at zero. Outfall pH stayed near neutral through the stop, showing no raw wastewater reached the outfall while flow was zero. The equalization tank level is missing over the whole treatment interval, so it cannot be shown that arriving wastewater was held in the tank.",
+  "agrees": true
+}

@@ -1,6 +1,7 @@
 // Types and fetchers for the Tellwater API (api/app.py).
 
 export type Status = 'supports' | 'contradicts' | 'review_required' | 'insufficient'
+export type PublishedStatus = Status | 'pending_review'
 export type CaseKey = 'A' | 'B' | 'C' | 'D' | 'E'
 // a case, or its view with the logbook pages in Bangla (read-only)
 export type ViewKey = CaseKey | `${CaseKey}-bn`
@@ -22,9 +23,12 @@ export type Overview = {
 export type Submission = { signal: string; file: string; note: string; at: string; covers: [string, string] }
 export type Reply = { note: string; at: string }
 export type Review = { action: 'approve' | 'change' | 'return'; status: Status | null; reason: string; reviewer: string; at: string }
+export type SecondReader = { model: string; status: Status; summary: string; agrees: boolean }
 export type CaseFile = {
   key: ViewKey; overview: Overview; documents: Doc[]; signals: SignalInfo; submission: Submission | null; review: Review[] | null
   replies: Reply[]; logbook_language: 'en' | 'bn'; bangla_view: boolean
+  second_reader: SecondReader | null
+  awaiting_person: boolean
 }
 
 export type Explanation = { id: string; label: string; supporting: string[]; contradicting: string[]; missing: string[]; status: 'open' | 'supported' | 'contradicted' }
@@ -53,7 +57,8 @@ export type Verification = {
 export type Allowance = { left: number; per_visitor: number; live: boolean }
 export type Limits = { runs: Allowance; questions: Allowance }
 export type Passport = {
-  batch: Overview['batch']; product: Product; products: Product[]; scanned: boolean; status: Status | null; assessed_status: Status | null; summary: string | null
+  batch: Overview['batch']; product: Product; products: Product[]; scanned: boolean; status: PublishedStatus | null; assessed_status: Status | null; summary: string | null
+  held?: { reason: 'two_readers_disagree' }
   scope_line: string | null; limitations: string[]; key_evidence: { id: string; why: string }[]; review: Review | null
   record: SignedRecord | null; verification: Verification | null; disclosure: string
   evidence_request: { items?: string[]; interval?: string; reason?: string } | null; treatment_interval: [string, string]
@@ -70,7 +75,7 @@ async function get<T>(path: string): Promise<T> {
 }
 
 export const api = {
-  cases: () => get<{ key: CaseKey; case_id: string; batch: string; status: Status; summary: string }[]>('/api/cases'),
+  cases: () => get<{ key: CaseKey; case_id: string; batch: string; status: PublishedStatus; summary: string | null }[]>('/api/cases'),
   case: (k: ViewKey) => get<CaseFile>(`/api/cases/${k}`),
   signals: (k: ViewKey, start?: string, end?: string, step = 15) =>
     get<Series>(`/api/cases/${k}/signals?step=${step}${start ? `&start=${start}` : ''}${end ? `&end=${end}` : ''}`),

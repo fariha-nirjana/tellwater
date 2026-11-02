@@ -1,0 +1,6 @@
+{
+  "model": "Muse Glimmer 30B (fine-tuned)",
+  "status": "insufficient",
+  "summary": "Outfall pH stayed strongly alkaline for hours while outfall flow stayed high and ETP inflow stayed low, with a large excess over treated flow. The logbook claim of normal operation is contradicted by the signals. The tank level record is missing over the stretch, so the bypass cannot be fully quantified and the claim cannot be assessed.",
+  "agrees": false
+}
