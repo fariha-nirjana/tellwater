@@ -25,7 +25,7 @@ SKIP_RUNTIME = ["state.json", "usage.json", "*/trace-live.json"]  # local runtim
 image = (
     modal.Image.debian_slim(python_version="3.14")
     .pip_install("numpy>=2.5", "pandas>=3.1", "pydantic>=2.9,<2.13", "pyyaml>=6.0", "openai>=3.0", "pillow>=13.0",
-                 "fastapi>=0.162", "uvicorn>=0.54", "python-multipart>=0.0.20", "cryptography>=44")
+                 "fastapi>=0.162", "uvicorn>=0.54", "python-multipart>=0.0.20", "cryptography>=44", "httpx>=0.28")
     .env({"TW_RUNTIME_DIR": RUNTIME, "TW_TRUST_PROXY": "1", "PYTHONPATH": APP})
 )
 for package in ("agent", "api", "core", "passport", "review", "sim", "store", "config", "assets"):
