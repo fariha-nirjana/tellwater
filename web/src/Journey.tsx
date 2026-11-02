@@ -149,19 +149,31 @@ export function Story() {
         <article className="story-stop stop-one">
           <div className="photo-frame"><img src="/assets/garment-worker.jpg" alt="A garment worker tending spools of blue yarn" loading="lazy" /><span className="photo-sticker">IT STARTS<br />WITH PEOPLE.</span></div>
           <div className="story-text"><span className="micro">01 / THE GARMENT</span><h3>More than<br />something <em>you wear.</em></h3>
-            <p>Behind a shirt are people, skills, and livelihoods. That’s where my story begins—with something familiar.</p>
+            <p>I live in Mirpur, with garment factories all around. Some days I’d see the waste cleared out and left at the side of the road: the smell, the blocked path.</p>
             <small>Contextual photograph · Unsplash<br />Not from the demo factory.</small></div>
         </article>
         <article className="story-stop stop-two">
           <div className="story-text"><span className="micro">02 / THE WATER</span><h3>The part<br /><em>you don’t see.</em></h3>
-            <p>Dyeing and washing leave water behind. What happens to it matters to the people living beside the river.</p>
+            <p>When Hatirjheel was new, it was beautiful. I went back last year. The water had turned black, and the stench caught my nose.</p>
             <small>Contextual photograph · Unsplash<br />Not evidence of pollution by any factory.</small></div>
           <div className="photo-frame"><img src="/assets/river.jpg" alt="Wooden boats on a river beside a city" loading="lazy" /><span className="photo-sticker coral">THE STORY<br />KEEPS FLOWING.</span></div>
         </article>
-        <blockquote className="story-quote">
-          <p>“The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”</p>
-          <footer><b>Rajib Singha</b> · Vice President, Human Resources &amp; Administration, Pearl Global Industries Ltd</footer>
-        </blockquote>
+        <div className="story-facts">
+          <div className="story-fact">
+            <b className="fact-num"><mark>2,046</mark></b>
+            <p>factories in Dhaka, Gazipur, Narayanganj and Narsingdi were served final notices in 2025 to keep their treatment plants running at all times.</p>
+            <a href="https://www.tbsnews.net/bangladesh/operate-etps-or-face-action-govt-issues-final-warning-2046-factories-1077411" target="_blank" rel="noreferrer">The Business Standard, 2025 ↗</a>
+          </div>
+          <blockquote className="story-quote">
+            <p>“The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”</p>
+            <footer><b>Rajib Singha</b> · Vice President, Human Resources &amp; Administration, Pearl Global Industries Ltd</footer>
+          </blockquote>
+          <div className="story-fact">
+            <b className="fact-num"><mark>2.4</mark><span>billion litres</span></b>
+            <p>of untreated wastewater flow into Dhaka’s waterways every day, from more than 7,000 factories.</p>
+            <a href="https://www.worldbank.org/en/news/press-release/2026/02/10/world-bank-helps-reduce-dhaka-s-water-pollution" target="_blank" rel="noreferrer">World Bank, 2026 ↗</a>
+          </div>
+        </div>
         <article className="story-stop stop-three">
           <div className="connection-art" aria-hidden="true"><span className="art-label">THE CLAIM</span><span className="art-paper">“All treated.”</span>
             <svg viewBox="0 0 340 90"><path d="M30 40C70 0 95 85 140 45S220 5 260 45S300 80 330 30" /></svg>

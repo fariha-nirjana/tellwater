@@ -48,7 +48,11 @@ data/demo/letters/
 # Vendored external repos (not ours)
 third_party/
 data/distill/
+release/
 
 # Other participants' posts (reference only)
 participant ideas/
 *.tsbuildinfo
+
+# Private review and workflow handoff
+/finalist-review-private.md
