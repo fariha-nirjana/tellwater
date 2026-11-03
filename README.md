@@ -247,7 +247,7 @@ If PowerShell says *running scripts is disabled on this system* for `npm` or `np
 
 </details>
 
-**What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
+**What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. A fresh copy starts with nothing signed: open a case, press *Review assessment* and approve it, and that dye run's passport then carries a signed record, checked again in its *For auditors* tab. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
 
 **To use the live parts,** copy `.env.example` to `.env` and put a Meta Model API key in `MODEL_API_KEY`, then restart step 2.
 

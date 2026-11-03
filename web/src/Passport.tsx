@@ -253,7 +253,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
                 </div>
               </Section>
               <p className="pp-fine">{t('limitation.0', p.limitations[0] ?? '')} {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('all_limits', 'All limitations')} ↗</button>}</p>
-              <a className="button acid small" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <span>↗</span></a>
+              {p.record && <a className="button acid small" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <span>↗</span></a>}
             </div>
           )}
 
@@ -286,7 +286,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               </Section>
               <div className="pp-links">
                 <a className="button ink small" href={`#/case/${caseKey}`}>{ui('open_case', 'Open case file')} <span>↗</span></a>
-                <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} ↗</a>
+                {p.record && <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} ↗</a>}
                 <a className="text-btn" href="/api/passport-key" target="_blank" rel="noreferrer">{ui('public_key', 'The public key that checks it')} ↗</a>
                 <a className="text-btn" href={`#/report/${caseKey}`}>Audit report (print or PDF) ↗</a>
               </div>
