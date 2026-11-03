@@ -169,7 +169,7 @@ Every model the project calls while it runs is a Meta model.
 
 ### Just want to see it?
 
-Open the [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run). It starts in the “Everything” view, so you can move between the buyer's reviewer, the factory and the shopper. The investigation replays step by step; *Trace a garment* shows a shirt's QR code leading to its dye run's passport.
+Open the [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run). It starts in the “All” view, so you can move between the buyer's reviewer, the factory and the shopper. The investigation replays step by step; *Trace a garment* shows a shirt's QR code leading to its dye run's passport.
 
 <!-- Demo video link (3 minutes) once recorded. -->
 
