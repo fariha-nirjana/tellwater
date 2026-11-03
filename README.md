@@ -229,7 +229,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 <details>
 <summary>Evaluation, Muse Glimmer and deployment</summary>
 
-Tests: `.venv/bin/pytest` (89 tests).
+Tests: `.venv/bin/pytest` (136 tests, no key needed; 11 skip because they read Muse Glimmer training runs that aren't in the repo).
 
 Evaluation:
 
