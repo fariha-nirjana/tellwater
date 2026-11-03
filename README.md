@@ -180,7 +180,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 
 | | |
 |---|---|
-| A Mac, Linux or Windows computer | Tested on macOS and Linux. On Windows, use the steps under “On Windows” below. |
+| A Mac, Linux or Windows computer | Tested on macOS, Linux and Windows. On Windows, use the steps under “On Windows” below. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
 | Python 3.12, 3.13 or 3.14 | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
 | Node.js 20 or newer | From [nodejs.org](https://nodejs.org). To check, type `node -v`. |
