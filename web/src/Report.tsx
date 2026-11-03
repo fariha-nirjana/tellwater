@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { api, STATUS_LABEL, type CaseFile as CF, type CaseKey, type Passport as P, type Trace } from './api'
 import { Stamp, TOOL } from './CaseFile'
 import { dayHm, wall } from './evidence'
+import { Icon } from './Icon'
 
 export function Report({ caseKey }: { caseKey: CaseKey }) {
   const [p, setP] = useState<P | null>(null)
@@ -24,8 +25,8 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
   return (
     <article className="report">
       <div className="report-actions">
-        <a href={`#/case/${caseKey}`}>← Case file</a>
-        <button className="button acid small" onClick={() => print()}>Print or save as PDF <span>↗</span></button>
+        <a href={`#/case/${caseKey}`}><Icon n="left" /> Case file</a>
+        <button className="button acid small" onClick={() => print()}>Print or save as PDF <span><Icon n="ne" /></span></button>
       </div>
 
       <header className="report-head">

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { api } from './api'
 import { Stamp } from './CaseFile'
+import { Icon } from './Icon'
 
 type S = Record<string, unknown>
 const CONDITIONS: [string, string, string][] = [
@@ -57,7 +58,7 @@ export function Results() {
       </div>
       {t4 && (
         <div className="workspace">
-          <div className="workspace-top"><div className="batch"><span className="batch-icon">〰</span><div><b>The held-out test: {n(t4, 'cases')} cases it had never seen</b><small>TEST SET · FACTORY A AND FACTORY B · RUN ONCE, ON THE FROZEN INVESTIGATOR</small></div></div></div>
+          <div className="workspace-top"><div className="batch"><span className="batch-icon"><Icon n="wave" /></span><div><b>The held-out test: {n(t4, 'cases')} cases it had never seen</b><small>TEST SET · FACTORY A AND FACTORY B · RUN ONCE, ON THE FROZEN INVESTIGATOR</small></div></div></div>
           {table(test, TEST_CONDITIONS)}
           <div className="explanation">
             <div className="explanation-copy"><span className="micro">WHAT IT SHOWS</span>
@@ -68,7 +69,7 @@ export function Results() {
         </div>
       )}
       <div className="workspace">
-        <div className="workspace-top"><div className="batch"><span className="batch-icon">〰</span><div><b>Five ways to check the same 60 cases</b><small>DEVELOPMENT SET · FACTORY A · C4 RERUN ON THE FROZEN INVESTIGATOR</small></div></div></div>
+        <div className="workspace-top"><div className="batch"><span className="batch-icon"><Icon n="wave" /></span><div><b>Five ways to check the same 60 cases</b><small>DEVELOPMENT SET · FACTORY A · C4 RERUN ON THE FROZEN INVESTIGATOR</small></div></div></div>
         {table(dev, CONDITIONS)}
         <div className="explanation">
           <div className="explanation-copy"><span className="micro">WHAT IT SHOWS</span>

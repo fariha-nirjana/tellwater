@@ -3,13 +3,14 @@ import { SHADE } from './Garments'
 // status stamp, the cases, the human decision), the desk where the companion tells the finding or the replay step by step,
 // and three panels that scroll inside themselves: documents threaded to the signals (with the gap in the story or the
 // evidence request), and the explanations board.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, STATUS_LABEL, type Allowance, type CaseFile as CF, type CaseKey, type Explanation, type ViewKey, type Series, type Status, type Step, type Trace, type CatalogBatch } from './api'
 import { setMood, setStepLine, toolMood, type Mood } from './companion'
 import { Dialogs, type DialogKind } from './Dialogs'
 import { Guide } from './Guide'
 import { CALC_SIGNALS, dayHm, docLabel, hm, parseEvidence, wall, type Target } from './evidence'
 import { ORDER, Timeline } from './Timeline'
+import { Icon } from './Icon'
 
 // the buyer's suppliers and their dye runs: factory A's three, a second supplier's two. Each is named for what drew a
 // look (the alert or the claim), never for the answer
@@ -32,7 +33,7 @@ const NEXT: Record<string, string> = {
   check_reading_against_feed: 'Check a photo against the feed', get_lab_results: 'Read the lab results',
   get_production: 'Read the production plan', submit_assessment: 'Give the assessment', request_evidence: 'Ask for evidence',
 }
-const STAMP: Record<Status, [number, string]> = { supports: [0, '↗'], contradicts: [1, '!'], review_required: [2, '↻'], insufficient: [3, '?'] }
+const STAMP: Record<Status, [number, ReactNode]> = { supports: [0, <Icon n="ne" />], contradicts: [1, '!'], review_required: [2, <Icon n="redo" />], insufficient: [3, '?'] }
 const ROUTINE = /^Lime dosed|^চুন দেওয়া/
 
 export function Stamp({ status, label }: { status: Status; label?: string }) {
@@ -248,8 +249,8 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
         )}
         <div className="case-decision">
           <small>{lastReview ? `${lastReview.action === 'change' && lastReview.status ? `Changed to ${STATUS_LABEL[lastReview.status]}` : lastReview.action === 'approve' ? 'Approved' : 'Sent back'} · “${lastReview.reason}”` : needsPerson ? 'Waiting for a person: the readers disagree' : 'Ready for a reviewer'}</small>
-          {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}>Review on the English case ↗</a>
-            : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}>Review assessment ↗</button>}
+          {bangla ? <a className="button ink small" href={`#/case/${caseKey}`}><span className="btn-words">Review on the English case <Icon n="ne" /></span></a>
+            : <button className="button acid small" disabled={!status} onClick={() => setDialog('review')}><span className="btn-words">Review assessment <Icon n="ne" /></span></button>}
         </div>
       </header>
 
@@ -260,7 +261,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
               <h2>The finding, line by line</h2>
               <div className="finding-lines">
                 {(final?.key_evidence ?? []).slice(0, 6).map((k) => (
-                  <button key={k.id} aria-pressed={active === k.id} onClick={() => follow(k.id)}>{k.why} <span>↗</span></button>
+                  <button key={k.id} aria-pressed={active === k.id} onClick={() => follow(k.id)}>{k.why} <span><Icon n="ne" /></span></button>
                 ))}
               </div>
               <h3>The records</h3>
@@ -270,7 +271,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                     {d.image ? <img src={d.image} alt="" /> : <span className="text-thumb">Aa</span>}<span>{docLabel(d.id)}</span>
                   </button>
                 ))}
-                <button aria-pressed={active === 'all'} onClick={() => follow('all')}><span className="text-thumb">〰</span><span>Every meter</span></button>
+                <button aria-pressed={active === 'all'} onClick={() => follow('all')}><span className="text-thumb"><Icon n="wave" /></span><span>Every meter</span></button>
               </div>
             </>
           ) : (
@@ -288,18 +289,18 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           )}
           <div className="stage-play">
             <button className="button ink small" onClick={() => { if (playing) return setPlaying(false); if (atRest || at >= steps.length - 1) { setAt(0); setPhase('reason') } setPlaying(true) }} disabled={live === 'running'}>
-              {playing ? <>Pause <span>Ⅱ</span></> : atRest ? <>Watch the investigation <span>▶</span></> : <>Play <span>▶</span></>}
+              {playing ? <>Pause <span><Icon n="pause" /></span></> : atRest ? <>Watch the investigation <span><Icon n="play" /></span></> : <>Play <span><Icon n="play" /></span></>}
             </button>
             {!atRest && <>
               <input type="range" min={0} max={Math.max(0, steps.length - 1)} value={Math.max(0, at)} aria-label="Scrub the investigation's steps"
                 onChange={(e) => { setPlaying(false); setPhase('result'); setAt(Number(e.target.value)) }} />
               <small>{Math.max(1, at + 1)} / {steps.length}</small>
             </>}
-            {!atRest && live !== 'running' && <button className="text-btn" onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>The finding ↗</button>}
+            {!atRest && live !== 'running' && <button className="text-btn" onClick={() => { setPlaying(false); setPhase('result'); setAt(steps.length - 1) }}>The finding <Icon n="ne" /></button>}
             {atRest && !bangla && (
               <div className="stage-live">
                 <button className="text-btn" onClick={runLive} disabled={runs?.left === 0}>
-                  {runs && !runs.live ? 'Live runs are off in this demo' : runs?.left === 0 ? 'Live runs used up for today' : 'Run it live with Muse Spark ↗'}
+                  {runs && !runs.live ? 'Live runs are off in this demo' : runs?.left === 0 ? 'Live runs used up for today' : <>Run it live with Muse Spark <Icon n="ne" /></>}
                 </button>
                 {runs?.live && runs.left > 0 && <small>{runs.left} of {runs.per_visitor} left today</small>}
               </div>
@@ -312,7 +313,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           <div className="stage-head">
             <span className="micro">{atRest ? 'THE FINDING' : step ? `STEP ${step.n} · ${(TOOL[step.tool] ?? step.tool).toUpperCase()}` : 'LIVE RUN'}</span>
             {atRest
-              ? <div className="stage-links"><button onClick={() => setDialog('limits')}>What this can’t show ↗</button><button onClick={() => setDialog('qr')}>Batch passport ▦</button>{!bangla && <a href={`#/report/${caseKey}`}>Audit report ↗</a>}</div>
+              ? <div className="stage-links"><button onClick={() => setDialog('limits')}>What this can’t show <Icon n="ne" /></button><button onClick={() => setDialog('qr')}>Batch passport <Icon n="qr" /></button>{!bangla && <a href={`#/report/${caseKey}`}>Audit report <Icon n="ne" /></a>}</div>
               : <small>{caption}</small>}
           </div>
           <div className="stage-view">
@@ -323,18 +324,18 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                 {gap && (
                   <section className="contradiction-ribbon">
                     <div><span className="micro">THE GAP IN THE STORY</span>
-                      <p>Logged service <b>{hm(gap.claim.start)}–{hm(gap.claim.end)}</b><span>→</span>Low power <b>{hm(gap.low.start!)}–{hm(gap.low.end!)}</b></p></div>
-                    {physicalId && <button onClick={() => follow(physicalId)}>Follow the physical evidence ↗</button>}
+                      <p>Logged service <b>{hm(gap.claim.start)}–{hm(gap.claim.end)}</b><span><Icon n="right" /></span>Low power <b>{hm(gap.low.start!)}–{hm(gap.low.end!)}</b></p></div>
+                    {physicalId && <button onClick={() => follow(physicalId)}>Follow the physical evidence <Icon n="ne" /></button>}
                   </section>
                 )}
                 {readersDisagree && secondReader && (
                   <section className="reader-slip" aria-label="The two readings">
-                    <span className="reader-icon" aria-hidden="true">⇄</span>
+                    <span className="reader-icon" aria-hidden="true"><Icon n="swap" /></span>
                     <div><span className="micro">TWO READERS, TWO ANSWERS</span>
                       <p><b>Muse Spark</b> (cloud): {STATUS_LABEL[status!]}.</p>
                       <p><b>Muse Glimmer</b> (open model, can run at the factory): {STATUS_LABEL[secondReader.status]}. “{secondReader.summary}”</p>
                       <small>{needsPerson ? 'Neither answer is used until you decide. Nothing is published to the batch passport before then.' : 'A person has reviewed the readings. The latest decision is recorded above.'}</small></div>
-                    {bangla ? <a className="button acid small" href={`#/case/${caseKey}`}>Review both ↗</a> : <button className="button acid small" onClick={() => setDialog('review')}>Review both ↗</button>}
+                    {bangla ? <a className="button acid small" href={`#/case/${caseKey}`}><span className="btn-words">Review both <Icon n="ne" /></span></a> : <button className="button acid small" onClick={() => setDialog('review')}><span className="btn-words">Review both <Icon n="ne" /></span></button>}
                   </section>
                 )}
                 {request && (which === 'saved' || which === 'live') && (
@@ -342,17 +343,17 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                     <span className="request-icon">?</span>
                     <div><span className="micro">A GAP, NOT A VERDICT</span>
                       <p>Requested: {(request.items ?? []).join(', ')}{request.interval ? `, ${spanText(request.interval)}` : ''}. Why: {request.reason}</p>
-                      {!bangla && which === 'saved' && <small className="request-wait">Waiting for the factory’s record · <a href="#/factory">See the factory’s side ↗</a></small>}</div>
-                    <div className="request-actions"><button className="text-btn" onClick={() => setDialog('letter')}>Draft it for the factory ↗</button></div>
+                      {!bangla && which === 'saved' && <small className="request-wait">Waiting for the factory’s record · <a href="#/factory">See the factory’s side <Icon n="ne" /></a></small>}</div>
+                    <div className="request-actions"><button className="text-btn" onClick={() => setDialog('letter')}>Draft it for the factory <Icon n="ne" /></button></div>
                   </section>
                 )}
                 {which === 'after' && data.submission && (
                   <section className="request-slip received">
-                    <span className="request-icon">↗</span>
+                    <span className="request-icon"><Icon n="ne" /></span>
                     <div><span className="micro">RECORD RECEIVED</span>
                       <p>{data.submission.file} · {spanText([wall(data.submission.covers[0]), wall(data.submission.covers[1])])}. Investigated again with the factory’s record; it still counts as the factory’s word until it agrees with the other signals.</p>
                       {data.submission.note && <small>Factory note: {data.submission.note}</small>}</div>
-                    <button className="button ink small" onClick={async () => { await api.clearSubmission(caseKey); load('saved') }}>Reset the demo ↺</button>
+                    <button className="button ink small" onClick={async () => { await api.clearSubmission(caseKey); load('saved') }}><span className="btn-words">Reset the demo <Icon n="undo" /></span></button>
                   </section>
                 )}
                 {data.replies.length > 0 && (
@@ -372,7 +373,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
           <div className="stage-say">
             <div id="caseDock" className="desk-perch" aria-hidden="true" />
             <div><span className="micro">{sayLabel}</span><p aria-live="polite">{sayText}</p></div>
-            <button className="text-btn" onClick={() => setGuideOpen(true)}>Explain this simply ↗</button>
+            <button className="text-btn" onClick={() => setGuideOpen(true)}>Explain this simply <Icon n="ne" /></button>
           </div>
         </section>
 
@@ -384,11 +385,11 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
               const chips = e.status === 'contradicted' ? e.contradicting : e.supporting.length ? e.supporting : e.contradicting
               return (
                 <article key={e.id} className={`explanation-card ${state.replace(' ', '-')}`}>
-                  <span className="explanation-state">{state === 'supported' ? '↗' : state === 'ruled out' ? '−' : '○'} {state}</span>
+                  <span className="explanation-state">{state === 'supported' ? <Icon n="ne" /> : state === 'ruled out' ? <Icon n="minus" /> : <Icon n="circle" />} {state}</span>
                   <h3>{e.label}</h3>
                   {atRest && (
                     <div className="evidence-chips">
-                      {chips.slice(0, 3).map((id) => <button key={id} aria-pressed={active === id} onClick={() => follow(id)}>{chipText(id)} ↗</button>)}
+                      {chips.slice(0, 3).map((id) => <button key={id} aria-pressed={active === id} onClick={() => follow(id)}>{chipText(id)} <Icon n="ne" /></button>)}
                       {e.missing.length > 0 && <span>Missing: {e.missing.map(chipText).join(', ')}</span>}
                     </div>
                   )}
@@ -553,7 +554,7 @@ function DocView({ doc, lit, focused, onEnlarge }: { doc: CF['documents'][number
           <blockquote id={focused ? 'docAnchor' : undefined}>“{String((doc.content as { text?: string })?.text ?? '')}”</blockquote>
         </div>
       )}
-      <div className="doc-caption"><span>{caption}</span>{doc.image && <button onClick={onEnlarge}>Enlarge ↗</button>}</div>
+      <div className="doc-caption"><span>{caption}</span>{doc.image && <button onClick={onEnlarge}>Enlarge <Icon n="ne" /></button>}</div>
       {doc.lines?.some((l) => l.en) && <Translation lines={doc.lines} lit={lit} />}
     </div>
   )
@@ -654,7 +655,7 @@ function Physical({ steps, documents, only, onPick }: { steps: Step[]; documents
           <button key={String(l.evidence_id)} className="lab-moment" onClick={() => onPick(String(l.evidence_id))}>
             <span>{String(l.sample_point).toUpperCase()} · {String(l.sample_time).slice(-5)}</span>
             <strong>BOD {String(l.bod_mg_l)} <small>mg/L</small></strong>
-            <span>Limit {String(l.bod_limit_mg_l)} mg/L · pH {String(l.ph)} <b>{over ? 'Above the limit ↗' : 'Within the limit ↗'}</b></span>
+            <span>Limit {String(l.bod_limit_mg_l)} mg/L · pH {String(l.ph)} <b>{over ? 'Above the limit' : 'Within the limit'} <Icon n="ne" /></b></span>
           </button>
         )
       })}
@@ -677,7 +678,7 @@ function Picker({ label, value, options, onPick }: { label: string; value: strin
   return (
     <div className="picker" ref={box}>
       <button className="picker-tile" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className="micro">{label}</span><b>{current?.title}</b><small>{current?.sub}</small><i aria-hidden="true">▾</i>
+        <span className="micro">{label}</span><b>{current?.title}</b><small>{current?.sub}</small><i aria-hidden="true"><Icon n="chevron" /></i>
       </button>
       {open && (
         <ul className="picker-list" role="listbox" aria-label={label}>

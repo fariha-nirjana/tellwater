@@ -6,6 +6,7 @@ import { api, type CatalogBatch } from './api'
 import { dayHm, wall } from './evidence'
 import { Garment, SHADE, photo, photoKind } from './Garments'
 import TAGS from './tags.json'
+import { Icon } from './Icon'
 
 export function ScanLabel() {
   const [log, setLog] = useState<CatalogBatch[]>([])
@@ -60,7 +61,7 @@ export function ScanLabel() {
             <div>
               <b>Point your phone here</b>
               <p>Opens the batch passport for this {product.name.toLowerCase()}.</p>
-              <a className="button acid small" href={`#/passport/${batch.key}/${product.gtin}/scan`}>Or open it here <span>↗</span></a>
+              <a className="button acid small" href={`#/passport/${batch.key}/${product.gtin}/scan`}>Or open it here <span><Icon n="ne" /></span></a>
               <code>GTIN {product.gtin} · Lot {product.lot}</code>
             </div>
           </div>
@@ -121,7 +122,7 @@ export function PhoneStory() {
             <li key={s.title}><button aria-pressed={i === step} onClick={() => go(i)}><b>{String(i + 1).padStart(2, '0')} · {s.title}</b><span>{s.text}</span></button></li>
           ))}
         </ol>
-        <a className="button ink" href="#/trace">Trace a garment <span>↗</span></a>
+        <a className="button ink" href="#/trace">Trace a garment <span><Icon n="ne" /></span></a>
         <small className="ps-note">Pick a run, pick a garment and scan its real code on the next page. Garment photos are generated with Muse Image.</small>
       </div>
       <div className="ps-phone" aria-hidden={step !== 2}>
@@ -131,7 +132,7 @@ export function PhoneStory() {
             <div className="ps-screen ps-camera">
               {/* the camera framed on the tag: the same photo, close in on it */}
               <div className="ps-zoom" style={{ transformOrigin: `${ox}% ${oy}%`, transform: step === 1 ? `translate(${50 - ox}%, ${50 - oy}%) scale(3.2)` : 'scale(1.4)' }}><Garment kind={product.kind} shade={batch.batch.shade} tag qr={qr} /></div>
-              <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport ↗</span>
+              <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport <Icon n="ne" /></span>
             </div>
             <div className="ps-screen ps-passport">
               {seen && <iframe title="The batch passport, as it opens on a phone" src={`/?v=3#/passport/${batch.key}/${product.gtin}/scan`} loading="lazy" />}
@@ -152,7 +153,7 @@ export function HowTeaser() {
         <li><b>02 · The investigation</b><p>Muse Spark picks one record at a time, says why, and reads the meters, photos and lab reports. The arithmetic is done in code.</p></li>
         <li><b>03 · The passport</b><p>A person reviews the finding. The signed result travels on the label, and anyone can check it hasn’t been changed.</p></li>
       </ol>
-      <a className="text-btn" href="#/how">How it works, in full ↗</a>
+      <a className="text-btn" href="#/how">How it works, in full <Icon n="ne" /></a>
     </section>
   )
 }

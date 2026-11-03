@@ -6,6 +6,7 @@ import { api, STATUS_LABEL, type CaseKey, type Doc, type Passport as P, type Sig
 import { Stamp } from './CaseFile'
 import { dayHm, docLabel, parseEvidence, wall } from './evidence'
 import { Garment, SHADE } from './Garments'
+import { Icon } from './Icon'
 
 type Translation = { lang: string; language: string; model: string; fields: Record<string, string>; note: string }
 type View = 'you' | 'buyer' | 'auditor'
@@ -129,7 +130,7 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
       <div className="pp-shell" lang={held ? 'en' : tr?.lang ?? 'en'}>
         <aside className="pp-side">
           <div className="pp-top">
-            {(role === 'all' || role === 'buyer') && <a className="passport-back" href={`#/case/${caseKey}`}>← {ui('open_case', 'Open case file')}</a>}
+            {(role === 'all' || role === 'buyer') && <a className="passport-back" href={`#/case/${caseKey}`}><Icon n="left" /> {ui('open_case', 'Open case file')}</a>}
             {!held && Object.keys(langs).length > 0 && (
               <label className="lang-pick"><span>Read in</span>
                 <select value={lang} onChange={(e) => setLang(e.target.value)} disabled={trState === 'loading'} aria-label="Passport language">
@@ -186,14 +187,14 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               <ol className="pp-journey">
                 {ORDER.map((s) => [
                   <li key={s} className={`j-${marks[s]}`}>
-                    <i aria-hidden="true">{marks[s] === 'ok' ? '✓' : marks[s] === 'problem' ? '!' : marks[s] === 'missing' ? '?' : marks[s] === 'affected' ? '↓' : '·'}</i>
+                    <i aria-hidden="true">{marks[s] === 'ok' ? <Icon n="check" /> : marks[s] === 'problem' ? '!' : marks[s] === 'missing' ? '?' : marks[s] === 'affected' ? <Icon n="down" /> : '·'}</i>
                     <b>{ui(`stage_${s}`, STAGE_NAME[s])}</b>
                     <span>{ui(`state_${s}_${marks[s] === 'ok' && s === 'river' && status !== 'supports' ? 'seen' : marks[s]}`,
                       marks[s] === 'ok' && s === 'river' && status !== 'supports' ? 'Nothing untreated seen at the outfall' : STATE_TEXT[s][marks[s]] ?? '')}
                       {s === 'river' && p.garment.reuse_share ? ` · ${ui('reused_prefix', 'about')} ${Math.round(p.garment.reuse_share * 100)}% ${ui('reused_suffix', 'reused in the factory')}` : ''}</span>
                   </li>,
                   s === 'intake' && (
-                <li key="dyeing" className="j-info"><i aria-hidden="true">〰</i><b>{ui('stage_intake_dyeing', STAGE_NAME.dyeing)}</b>
+                <li key="dyeing" className="j-info"><i aria-hidden="true"><Icon n="wave" /></i><b>{ui('stage_intake_dyeing', STAGE_NAME.dyeing)}</b>
                   <span>{dayHm(wall(p.batch.production_start))} · {Math.round(p.batch.planned_wastewater_m3)} m³ {ui('of_water', 'of water used by this run')}</span></li>
                   ),
                 ])}
@@ -211,8 +212,8 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               </div>
               {tabs.length > 1 && (
                 <div className="pp-more">
-                  {tabs.includes('buyer') && <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'The details a buyer checks')} ↗</button>}
-                  {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Everything, for auditors')} ↗</button>}
+                  {tabs.includes('buyer') && <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'The details a buyer checks')} <Icon n="ne" /></button>}
+                  {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Everything, for auditors')} <Icon n="ne" /></button>}
                 </div>
               )}
             </div>
@@ -247,13 +248,13 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
                   {records.slice(0, 4).map(({ doc, why }) => (
                     <button key={doc.id} onClick={() => setOpen(doc)}>
                       <img src={doc.image!} alt="" />
-                      <span>{docName(doc)}<small>{doc.is_claim ? ui('factory_claim', 'Factory claim') : ui('physical_record', 'Physical record')} ↗{why ? ` · ${why}` : ''}</small></span>
+                      <span>{docName(doc)}<small>{doc.is_claim ? ui('factory_claim', 'Factory claim') : ui('physical_record', 'Physical record')} <Icon n="ne" />{why ? ` · ${why}` : ''}</small></span>
                     </button>
                   ))}
                 </div>
               </Section>
-              <p className="pp-fine">{t('limitation.0', p.limitations[0] ?? '')} {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('all_limits', 'All limitations')} ↗</button>}</p>
-              {p.record && <a className="button acid small" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <span>↗</span></a>}
+              <p className="pp-fine">{t('limitation.0', p.limitations[0] ?? '')} {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('all_limits', 'All limitations')} <Icon n="ne" /></button>}</p>
+              {p.record && <a className="button acid small" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <span><Icon n="ne" /></span></a>}
             </div>
           )}
 
@@ -285,10 +286,10 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
                 <p className="pp-fine">{ui('disclosure', p.disclosure)}</p>
               </Section>
               <div className="pp-links">
-                <a className="button ink small" href={`#/case/${caseKey}`}>{ui('open_case', 'Open case file')} <span>↗</span></a>
-                {p.record && <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} ↗</a>}
-                <a className="text-btn" href="/api/passport-key" target="_blank" rel="noreferrer">{ui('public_key', 'The public key that checks it')} ↗</a>
-                <a className="text-btn" href={`#/report/${caseKey}`}>Audit report (print or PDF) ↗</a>
+                <a className="button ink small" href={`#/case/${caseKey}`}>{ui('open_case', 'Open case file')} <span><Icon n="ne" /></span></a>
+                {p.record && <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <Icon n="ne" /></a>}
+                <a className="text-btn" href="/api/passport-key" target="_blank" rel="noreferrer">{ui('public_key', 'The public key that checks it')} <Icon n="ne" /></a>
+                <a className="text-btn" href={`#/report/${caseKey}`}>Audit report (print or PDF) <Icon n="ne" /></a>
               </div>
             </div>
           )}
@@ -350,7 +351,7 @@ function RecordCheck({ caseKey, rec, v, ui }: { caseKey: CaseKey; rec: SignedRec
       <details><summary>{v.items} fingerprinted records</summary>
         {rec.evidence.items.map((it) => <p key={it.id} className="fingerprint">{itemName(it.id)} · {it.sha256.slice(0, 24)}…</p>)}
       </details>
-      <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} ↗</a>
+      <a className="text-btn" href={`/api/passport/${caseKey}/record`} target="_blank" rel="noreferrer">{ui('download_record', 'The signed record (JSON)')} <Icon n="ne" /></a>
     </div>
   )
 }

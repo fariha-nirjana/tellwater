@@ -10,6 +10,7 @@ import { Results } from './Pages'
 import { Passport } from './Passport'
 import { Factory } from './Factory'
 import { Report } from './Report'
+import { Icon } from './Icon'
 
 // Hash routes: #/ (the garment and the story), #/story (the same, at the story), #/case/A (the case file; #/case/C/bn with its logbook in Bangla),
 // #/passport/A, #/report/A (the audit report), #/results, #/trace (pick a run and a garment, scan its tag), #/factory (the factory's page)
@@ -137,7 +138,7 @@ export function App() {
         <Footer motion={motion} setMotion={setMotion} replay={() => { location.hash = '#/'; setReplay((r) => r + 1) }} companion={companion} setCompanion={setCompanion} />
       </main>
       {(home || caseKey) && allowed && <Companion hidden={!companion} motion={motion} onClick={ask} inCase={!!caseKey} />}
-      {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide ↗</button>}
+      {caseKey && !companion && <button className="guide-pill" onClick={ask}>Ask the guide <Icon n="ne" /></button>}
       <ChatLauncher key={caseKey ? 'case' : 'page'} page={caseKey ? 'case' : passport ? 'passport' : report ? 'report' : results ? 'results' : how ? 'how' : trace ? 'trace' : factory ? 'factory' : 'home'} hidden={chat || (!!caseKey && !companion)} motion={motion} onOpen={ask} />
       {!caseKey && <Guide key={passport ?? 'site'} caseKey={passport ?? 'B'} scope={passport ? 'passport' : 'site'} languages={factory ? 'en-bn' : 'all'} focus={null} open={chat} onClose={() => setChat(false)} onCite={cite} />}
     </>
@@ -151,8 +152,8 @@ function OtherView({ role, onEverything }: { role: Exclude<Role, 'all'>; onEvery
     <section className="other-view">
       <span className="micro">VIEWING AS {who.toUpperCase()}</span>
       <h1>This page isn’t part of the {who.toLowerCase()} view.</h1>
-      <div><a className="button ink small" href={START[role]}>Go to the {who.toLowerCase()} view <span>↗</span></a>
-        <button className="text-btn" onClick={onEverything}>See everything ↗</button></div>
+      <div><a className="button ink small" href={START[role]}>Go to the {who.toLowerCase()} view <span><Icon n="ne" /></span></a>
+        <button className="text-btn" onClick={onEverything}>See everything <Icon n="ne" /></button></div>
     </section>
   )
 }

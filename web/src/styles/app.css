@@ -1,5 +1,11 @@
 /* Additions to iteration 03's stylesheet (it03.css) for what runs on real engine output. */
 
+/* line icons (Icon.tsx), and the same shapes for CSS-drawn marks; symbol characters show as colour emoji on phones */
+.icon{display:inline-block;width:1em;height:1em;vertical-align:-.14em;flex:none;overflow:visible}
+/* a button's words and the icon after them stay one flex item, as the character was (.button span sets the big arrow size) */
+.button .btn-words{font-size:inherit;line-height:inherit}
+:root{--i-check:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3.5 8.5 3 3 6-7'/%3E%3C/svg%3E");--i-right:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8h10M9 4l4 4-4 4'/%3E%3C/svg%3E");--i-down:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3v10M4 9l4 4 4-4'/%3E%3C/svg%3E");--i-lines:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%234945FF' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 4.5h9M3.5 8h9M3.5 11.5h6'/%3E%3C/svg%3E")}
+
 .loading{padding:60px 5%;color:#767482}
 .header nav a{cursor:pointer}
 .header nav a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
@@ -66,7 +72,7 @@ dialog .passport-link p{margin:2px 0}
 .passport-record .micro{font-size:8px;color:var(--purple)}
 .passport-record p{font-size:12px;line-height:1.5;margin-top:8px;padding-left:20px;position:relative}
 .passport-record p[data-ok]::before{position:absolute;left:0;top:0;font-weight:700}
-.passport-record p[data-ok=true]::before{content:'✓';color:var(--purple)}
+.passport-record p[data-ok=true]::before{content:'';top:3px;width:12px;height:12px;background:var(--purple);-webkit-mask:var(--i-check) center/contain no-repeat;mask:var(--i-check) center/contain no-repeat}
 .passport-record p[data-ok=false]::before{content:'!';color:var(--coral)}
 .passport-record .fingerprint{font:10px ui-monospace,Menlo,monospace;color:#767482;padding-left:0;word-break:break-all}
 
@@ -202,7 +208,7 @@ main{overflow-x:clip}
 .how-note a{color:var(--purple)}
 .plant-line{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
 .plant-node{border:1px solid var(--ink);background:#fff;padding:16px;margin-right:26px;position:relative;border-radius:6px}
-.plant-node:not(:last-child)::after{content:'→';position:absolute;right:-22px;top:50%;transform:translateY(-50%);color:var(--purple);font-size:18px}
+.plant-node:not(:last-child)::after{content:'';position:absolute;right:-19px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:var(--purple);-webkit-mask:var(--i-right) center/contain no-repeat;mask:var(--i-right) center/contain no-repeat}
 .plant-node b{display:block;font-size:14px;margin-bottom:10px}
 .plant-node span{display:block;font-size:11px;color:#5d5b6a;margin-top:5px}
 .plant-node code,.can-name code{font:700 10px var(--font);color:var(--purple);margin-right:7px}
@@ -267,7 +273,7 @@ main{overflow-x:clip}
   .how-block.two{grid-template-columns:1fr;gap:30px}
   .plant-line{grid-template-columns:1fr;gap:26px}
   .plant-node{margin-right:0}
-  .plant-node:not(:last-child)::after{content:'↓';right:auto;left:50%;top:auto;bottom:-24px;transform:none}
+  .plant-node:not(:last-child)::after{-webkit-mask-image:var(--i-down);mask-image:var(--i-down);right:auto;left:50%;top:auto;bottom:-22px;transform:translateX(-50%)}
   .loop{grid-template-columns:1fr}
   .story-facts{grid-template-columns:1fr;gap:18px;margin:10px 18px 40px 6px}
   .fact-num{font-size:48px}

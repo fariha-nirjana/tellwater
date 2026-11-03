@@ -2,6 +2,7 @@
 // loop, the four statuses, why a batch and not a garment, the signed passport, and which Meta model does what.
 import type { Status } from './api'
 import { Stamp } from './CaseFile'
+import { Icon } from './Icon'
 
 const PLANT: { node: string; name: string; records: [string, string][] }[] = [
   { node: 'Intake', name: 'Groundwater intake', records: [['S1', 'Intake flow']] },
@@ -105,7 +106,7 @@ export function HowItWorks() {
             <div key={role} className="model-card"><span className="micro">{model}</span><b>{role}</b><p>{what}</p></div>
           ))}
         </div>
-        <p className="how-note">Results on simulated factories, including the held-out test: 120 cases from two factories, frozen before any test run. <a href="#/results">The results ↗</a></p>
+        <p className="how-note">Results on simulated factories, including the held-out test: 120 cases from two factories, frozen before any test run. <a href="#/results">The results <Icon n="ne" /></a></p>
       </div>
     </section>
   )

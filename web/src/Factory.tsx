@@ -8,6 +8,7 @@ import { dayHm, hm, wall } from './evidence'
 import { SHADE } from './Garments'
 import { ORDER } from './Timeline'
 import { VoiceReply } from './VoiceReply'
+import { Icon } from './Icon'
 
 type Lang = 'en' | 'bn'
 const EN = {
@@ -192,8 +193,8 @@ function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps
           <p>{t.sent(sub.file, dayHm(wall(sub.at)))}</p>
           <p className="fv-now">{t.nowAnswer}: <b>{status(p.status)}</b></p>
           <div className="fv-actions">
-            <a className="button ink small" href={`#/case/${b.key}`}>{t.seeBuyer} <span>↗</span></a>
-            <button className="text-btn" onClick={async () => { await api.clearSubmission(b.key); onChange() }}>{t.takeBack} ↺</button>
+            <a className="button ink small" href={`#/case/${b.key}`}>{t.seeBuyer} <span><Icon n="ne" /></span></a>
+            <button className="text-btn" onClick={async () => { await api.clearSubmission(b.key); onChange() }}>{t.takeBack} <Icon n="undo" /></button>
           </div>
         </div>
       ) : (
@@ -204,8 +205,8 @@ function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps
           <VoiceReply fieldId={`note-${b.key}`} disabled={busy} onBusyChange={setVoiceBusy} onTranscript={(text) => setNote((old) => old.trim() ? `${old.trimEnd()}\n${text}` : text)} />
           {error && <p className="form-error">{error}</p>}
           <div className="fv-actions">
-            <button className="button acid small" disabled={busy || voiceBusy} onClick={send}>{busy ? t.sending : t.send} <span>↗</span></button>
-            <button className="text-btn" onClick={readLetter}>{t.letter} ↗</button>
+            <button className="button acid small" disabled={busy || voiceBusy} onClick={send}>{busy ? t.sending : t.send} <span><Icon n="ne" /></span></button>
+            <button className="text-btn" onClick={readLetter}>{t.letter} <Icon n="ne" /></button>
           </div>
           {letter && (letter.bn ? (
             <div className="fv-letter">
@@ -243,15 +244,15 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
       <td><i className="fv-swatch" style={{ background: SHADE[b.batch.shade]?.fill }} />{b.products[0].lot}<small>{shade(b.batch.shade)}</small></td>
       <td>{needsPerson ? <WithBuyer /> : <>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></>}</td>
       <td>
-        {s === 'insufficient' && !c.submission ? <button className="text-btn" onClick={onRequest}>{t.sendIt((ask?.items ?? [''])[0].replace(/ T1$/, ''))} ↑</button>
+        {s === 'insufficient' && !c.submission ? <button className="text-btn" onClick={onRequest}>{t.sendIt((ask?.items ?? [''])[0].replace(/ T1$/, ''))} <Icon n="up" /></button>
           : finding ? (
             <div className="fv-reply">
-              <a className="text-btn" href={`#/passport/${b.key}`}>{t.passport} ↗</a>
-              {!writing && <button className="text-btn" onClick={() => setWriting(true)}>{t.reply} ↗</button>}
+              <a className="text-btn" href={`#/passport/${b.key}`}>{t.passport} <Icon n="ne" /></a>
+              {!writing && <button className="text-btn" onClick={() => setWriting(true)}>{t.reply} <Icon n="ne" /></button>}
               {c.replies.length > 0 && (
                 <div className="fv-replies"><span className="micro">{t.replies}</span>
                   {c.replies.map((r) => <p key={r.at + r.note}>“{r.note}” <small>{dayHm(wall(r.at))}</small></p>)}
-                  <button className="text-btn" onClick={async () => { await api.clearReplies(b.key); onChange() }}>{t.clearReplies} ↺</button>
+                  <button className="text-btn" onClick={async () => { await api.clearReplies(b.key); onChange() }}>{t.clearReplies} <Icon n="undo" /></button>
                 </div>
               )}
             </div>
@@ -266,7 +267,7 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
         <small>{t.replyHint}</small>
         {text.length > 1200 && <p className="form-error" lang="en" role="alert">Your reply is longer than 1200 characters. Shorten it before sending.</p>}
         {error && <p className="form-error">{error}</p>}
-        <div className="fv-actions"><button className="button ink small" disabled={sending || voiceBusy || !text.trim() || text.length > 1200} onClick={send}>{sending ? t.sending : t.replySend} <span>↗</span></button>
+        <div className="fv-actions"><button className="button ink small" disabled={sending || voiceBusy || !text.trim() || text.length > 1200} onClick={send}>{sending ? t.sending : t.replySend} <span><Icon n="ne" /></span></button>
           <button className="text-btn" disabled={sending} onClick={() => { setWriting(false); setVoiceBusy(false) }}>{t.cancel}</button></div>
       </div>
     </td></tr>}

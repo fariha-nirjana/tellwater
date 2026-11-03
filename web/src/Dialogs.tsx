@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { api, STATUS_LABEL, type CaseKey, type Review, type Status } from './api'
 import { dayHm, wall } from './evidence'
+import { Icon } from './Icon'
 
 export type DialogKind = 'review' | 'limits' | 'qr' | 'letter' | null
 
@@ -53,7 +54,7 @@ function PassportQR({ caseKey }: { caseKey: CaseKey }) {
       <h2>The story travels<br />with the label.</h2>
       <a className="qr-link" href={`#/passport/${caseKey}`}>{qr && <img src={qr} alt={`QR code opening the Case ${caseKey} batch passport`} />}</a>
       <p>Scan to open the phone passport, or open it here.</p>
-      <a className="button acid" href={`#/passport/${caseKey}`}>Open passport <span>↗</span></a>
+      <a className="button acid" href={`#/passport/${caseKey}`}>Open passport <span><Icon n="ne" /></span></a>
       <p className="scope">The QR holds the product’s GS1 Digital Link. A reviewer’s decision signs the passport; until then it shows the investigator’s assessment, unsigned.</p>
     </div>
   )
@@ -85,7 +86,7 @@ function Letter({ caseKey }: { caseKey: CaseKey }) {
       {error ? <p className="form-error">{error}</p> : !draft ? <p>Opening the message…</p> : draft.held ? <p lang="en">{draft.en}</p> : (
         <>
           <div className="letter-one" lang={lang}><p>{text}</p></div>
-          <button className="text-btn" onClick={() => navigator.clipboard?.writeText(text).catch(() => {})}>Copy ↗</button>
+          <button className="text-btn" onClick={() => navigator.clipboard?.writeText(text).catch(() => {})}>Copy <Icon n="ne" /></button>
           <p className="scope">{draft.note}</p>
         </>
       )}
@@ -122,7 +123,7 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
         setError('')
         try { await api.review(caseKey, { action, reason, ...(action === 'change' ? { status: to } : {}) }); setReason(''); onReviewed() }
         catch (e) { setError((e as Error).message) }
-      }}>Record the decision <span>↗</span></button>
+      }}>Record the decision <span><Icon n="ne" /></span></button>
       {reviews.length > 0 && (
         <div className="audit">
           <span className="micro">AUDIT TRAIL</span>
@@ -134,7 +135,7 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
       )}
       <div className="passport-link">
         {qr && <img src={qr} width={110} height={110} alt="QR code to the batch passport" />}
-        <div><b>The batch passport</b><p>Recording a decision signs it. Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here ↗</button></div>
+        <div><b>The batch passport</b><p>Recording a decision signs it. Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here <Icon n="ne" /></button></div>
       </div>
     </div>
   )

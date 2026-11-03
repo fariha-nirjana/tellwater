@@ -2,6 +2,7 @@
 // the footer, and the one companion that docks beside explanations and walks the story path.
 import { useEffect, useRef, useState } from 'react'
 import { art, MOODS, type Cloth, type Mood } from './companion'
+import { Icon } from './Icon'
 
 export function Symbols() {
   return (
@@ -17,7 +18,8 @@ export function Symbols() {
           <path d="M283 265Q291 235 300 262" fill="none" stroke="#4945ff" strokeWidth="3" />
           <text x="272" y="300" fill="#e5ff52" fontSize="10" fontFamily="Arial" fontWeight="bold" transform="rotate(8 292 318)">FOLLOW</text>
           <text x="272" y="318" fill="#fff" fontSize="10" fontFamily="Arial" fontWeight="bold" transform="rotate(8 292 318)">MY</text>
-          <text x="272" y="337" fill="#fff" fontSize="10" fontFamily="Arial" fontWeight="bold" transform="rotate(8 292 318)">THREAD ↗</text>
+          <text x="272" y="337" fill="#fff" fontSize="10" fontFamily="Arial" fontWeight="bold" transform="rotate(8 292 318)">THREAD</text>
+          <path d="M317 336l7-7m-5 0h5v5" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" transform="rotate(8 292 318)" />
         </symbol>
       </defs>
     </svg>
@@ -86,7 +88,7 @@ export function Arrival({ motion, onDone, replay }: { motion: boolean; onDone: (
         <Spark x={140} y={210} s={18} delay={2.86} /><Spark x={468} y={168} s={14} delay={2.94} /><Spark x={122} y={300} s={11} delay={3.02} />
         <text className="arr-line" x="300" y="500" textAnchor="middle">Every story starts with a thread.</text>
       </svg>
-      <button id="skipArrival" onClick={finish}>Skip intro ↗</button>
+      <button id="skipArrival" onClick={finish}>Skip intro <Icon n="ne" /></button>
     </div>
   )
 }
@@ -112,7 +114,7 @@ export function Hero({ entry, onEnter }: { entry: string; onEnter: () => void })
           <span className="micro light"><i className="dot" /> FROM THE LABEL TO THE TRUTH</span>
           <h1>Nice shirt.<br />What about<br /><em>its water?</em></h1>
           <p>There’s a story behind every garment.<br />Let’s follow the thread to the evidence.</p>
-          <button className="button acid" onClick={onEnter}>Follow the thread <span>↗</span></button>
+          <button className="button acid" onClick={onEnter}>Follow the thread <span><Icon n="ne" /></span></button>
           <span className="hero-foot">EVERY GARMENT HAS A DYE RUN. EVERY RUN LEAVES RECORDS.</span>
           <svg className="hero-scribble" viewBox="0 0 600 90" aria-hidden="true"><path d="M-10 65C70 0 100 100 200 50S310 20 360 50S460 90 610 10" /></svg>
         </div>
@@ -125,10 +127,10 @@ export function Hero({ entry, onEnter }: { entry: string; onEnter: () => void })
           <div className="label-note"><span>pull here</span><svg viewBox="0 0 100 55"><path d="M90 4Q80 53 12 32M12 32L27 28M12 32L20 45" /></svg></div>
           <div id="heroDock" className="hero-friend-anchor" />
           <span className="stitch-tag">B04<br /><small>100% COTTON · DEMO BATCH</small></span>
-          <span className="round-seal">EVERY DROP<br /><b>HAS A</b><br />STORY ↗</span>
+          <span className="round-seal">EVERY DROP<br /><b>HAS A</b><br />STORY <Icon n="ne" /></span>
         </div>
       </section>
-      <div className="chapter-bar"><span>FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><a href={entry}>{entry.startsWith('#/case') ? 'OPEN THE CASE FILE' : entry === '#/trace' ? 'TRACE A GARMENT' : 'SEE THE REQUESTS'} ↗</a></div>
+      <div className="chapter-bar"><span>FOLLOW THE EVIDENCE</span><span>A claim is where the story starts. It isn’t where it ends.</span><a href={entry}>{entry.startsWith('#/case') ? 'OPEN THE CASE FILE' : entry === '#/trace' ? 'TRACE A GARMENT' : 'SEE THE REQUESTS'} <Icon n="ne" /></a></div>
     </>
   )
 }
@@ -141,7 +143,7 @@ export function Story({ next }: { next: [string, string, string] }) {
         <span className="micro light"><i className="dot" /> FOLLOW ME A LITTLE FURTHER</span>
         <h2>But why<br />was I <span className="serif">born?</span></h2>
         <p>You’ve seen the records.<br />Let me tell you how I came to be.</p>
-        <span className="scroll-prompt">KEEP SCROLLING. I’LL WALK WITH YOU. ↓</span>
+        <span className="scroll-prompt">KEEP SCROLLING. I’LL WALK WITH YOU. <Icon n="down" /></span>
         <div className="story-loop" aria-hidden="true" />
       </section>
       <section className="story-road" id="storyRoad" aria-label="Follow the thread through our origin story">
@@ -164,7 +166,7 @@ export function Story({ next }: { next: [string, string, string] }) {
           <div className="story-fact">
             <b className="fact-num"><mark>2,046</mark></b>
             <p>factories in Dhaka, Gazipur, Narayanganj and Narsingdi were served final notices in 2025 to keep their treatment plants running at all times.</p>
-            <a href="https://www.tbsnews.net/bangladesh/operate-etps-or-face-action-govt-issues-final-warning-2046-factories-1077411" target="_blank" rel="noreferrer">The Business Standard, 2025 ↗</a>
+            <a href="https://www.tbsnews.net/bangladesh/operate-etps-or-face-action-govt-issues-final-warning-2046-factories-1077411" target="_blank" rel="noreferrer">The Business Standard, 2025 <Icon n="ne" /></a>
           </div>
           <blockquote className="story-quote">
             <p>“The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”</p>
@@ -173,18 +175,18 @@ export function Story({ next }: { next: [string, string, string] }) {
           <div className="story-fact">
             <b className="fact-num"><mark>2.4</mark><span>billion litres</span></b>
             <p>of untreated wastewater flow into Dhaka’s waterways every day, from more than 7,000 factories.</p>
-            <a href="https://www.worldbank.org/en/news/press-release/2026/02/10/world-bank-helps-reduce-dhaka-s-water-pollution" target="_blank" rel="noreferrer">World Bank, 2026 ↗</a>
+            <a href="https://www.worldbank.org/en/news/press-release/2026/02/10/world-bank-helps-reduce-dhaka-s-water-pollution" target="_blank" rel="noreferrer">World Bank, 2026 <Icon n="ne" /></a>
           </div>
         </div>
         <article className="story-stop stop-three">
           <div className="connection-art" aria-hidden="true"><span className="art-label">THE CLAIM</span><span className="art-paper">“All treated.”</span>
             <svg viewBox="0 0 340 90"><path d="M30 40C70 0 95 85 140 45S220 5 260 45S300 80 330 30" /></svg>
-            <span className="art-record">THE RECORD<br /><b>Let’s check. ↗</b></span></div>
+            <span className="art-record">THE RECORD<br /><b>Let’s check. <Icon n="ne" /></b></span></div>
           <div className="story-text"><span className="micro">03 / THE MISSING CONNECTION</span><h3>That’s where<br /><em>I come in.</em></h3>
             <p>I help you follow a claim back to its records. And when the evidence is missing, I say so. A small thread, asking an important question.</p></div>
         </article>
         <div className="road-finish"><span className="micro">ONE THREAD. ALL THE WAY THROUGH.</span><h3>A little curiosity.<br /><em>A clearer picture.</em></h3>
-          <a href={next[1]} className="button acid">{next[2]} <span>↗</span></a></div>
+          <a href={next[1]} className="button acid">{next[2]} <span><Icon n="ne" /></span></a></div>
       </section>
     </>
   )
@@ -197,7 +199,7 @@ export function Footer({ motion, setMotion, replay, companion, setCompanion }: {
       <p>Made to make the invisible understandable.</p>
       <div>
         <span>PROTOTYPE · SIMULATED RECORDS · REAL MUSE SPARK INVESTIGATIONS</span>
-        <button onClick={replay}>Replay my arrival ↻</button>
+        <button onClick={replay}>Replay my arrival <Icon n="redo" /></button>
         <button aria-pressed={motion} onClick={() => setMotion(!motion)}>{motion ? 'Motion on' : 'Motion off'}</button>
         <button aria-pressed={companion} onClick={() => setCompanion(!companion)}>{companion ? 'Companion on' : 'Companion off'}</button>
       </div>

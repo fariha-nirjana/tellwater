@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { api, type Allowance, type CaseKey, type ViewKey } from './api'
 import { setGuideBusy } from './companion'
 import { docLabel, parseEvidence } from './evidence'
+import { Icon } from './Icon'
 
 type Msg = { role: 'user' | 'assistant'; content: string; cited?: string[]; lang?: string }
 
@@ -106,7 +107,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', l
       <div className="prompts">{PROMPTS[scope].map((p) => <button key={p} onClick={() => ask(p)} disabled={busy}>{p}</button>)}</div>
       <form onSubmit={(e) => { e.preventDefault(); ask(input) }}>
         <input value={input} onChange={(e) => setInput(e.target.value)} aria-label="Ask about the evidence" placeholder={scope === 'site' ? 'Ask about Tellwater…' : scope === 'passport' ? 'Ask about this garment’s water…' : 'Ask about this evidence…'} maxLength={600} autoComplete="off" />
-        <button aria-label="Send question" disabled={busy}>↗</button>
+        <button aria-label="Send question" disabled={busy}><Icon n="ne" /></button>
       </form>
       <small className="chat-disclosure">{scope === 'site' ? 'Answered by Muse Spark from the site’s brief, the five cases and the results' : 'Answered by Muse Spark from this case’s records only'} · citations are checked against them
         {left && (left.live ? ` · ${left.left} of ${left.per_visitor} questions left today` : ' · questions are off in this demo')}</small>
