@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/readme/header.svg" alt="Tellwater: a hang tag drawn as one thread, and the wordmark" width="100%"></p>
+<p align="center"><img src="docs/readme/header.svg" alt="Tellwater. Every garment has a tale to tell. What does yours say?" width="100%"></p>
 
 # Tellwater
 
