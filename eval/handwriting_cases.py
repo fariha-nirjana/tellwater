@@ -9,7 +9,7 @@ that). Two copies of each case are written, identical except for the logbook
 page:
 
   hw_typed   the page's entries rendered by the simulator (the usual fonts)
-  hw_photo   Anika's phone photo of the real handwritten page
+  hw_photo   the phone photo of the real handwritten page
 
 Both are honest, so the justified answer is "supports". Any accusation, or any
 difference between the two copies, comes from reading the page.

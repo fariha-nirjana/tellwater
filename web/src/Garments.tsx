@@ -1,6 +1,6 @@
 import { useState } from 'react'
-// Garment photographs for the label section, the phone story and the passport: one per product, made with
-// Muse Image (design/photos/gen.py) in one look, each in its run's dye shade. Generated pictures, not of real stock.
+// Garment photographs for the label section, the phone story and the passport: one per product, made once with
+// Muse Image in one look, each in its run's dye shade. Generated pictures, not of real stock.
 import TAGS from './tags.json'
 
 export const SHADE: Record<string, { fill: string; detail: string; name: string }> = {

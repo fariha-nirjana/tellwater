@@ -109,7 +109,7 @@ FIXED_MISSING["check_reason"] = ([[]] * 4 + [["S4a"], ["S2"], ["S3"], ["S4a"]]
                                  + [["S4a"], ["S2"], ["S2"], ["S3"]] + [[]] * 2 + [["S4a"], []])
 FIXED_TANK["check_reason"] = [False] * 4 + [True] * 10 + [True, False]
 SETS["check_reason"] = [("factory", 130_000, 16)]
-# The fresh set that judges round 3 (design/glimmer-round3-plan.md), chosen before training. 14 "insufficient": 4 dilution
+# The fresh set that judges round 3 (eval/frozen/glimmer_round3_rule.md), chosen before training. 14 "insufficient": 4 dilution
 # without ETP inflow (S2), 4 maintenance without outfall flow (S4a), 4 maintenance without the tank log, 2 normal without
 # ETP power (S3); 6 "supports" with a gap (maintenance without S3 or S2, normal without S4a or S2); 2 clean; 2
 # "contradicts" with a gap (bypass without S4a, shutdown without the tank log); then 4 matched controls: the first case

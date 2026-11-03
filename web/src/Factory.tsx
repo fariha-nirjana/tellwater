@@ -32,7 +32,7 @@ const EN = {
   cant: 'The factory can’t see the buyer’s review notes, can’t change an answer, and can’t sign a passport. A record it sends still counts as the factory’s word until it agrees with the plant’s other records.',
   loading: 'Opening the factory’s page…', shade: 'shade', signedIn: 'Signed in as',
 }
-// Drafted for Anika's review (design/copy-review.md, section F)
+// The factory page in Bangla, drafted alongside the English
 const BN: typeof EN = {
   label: 'কারখানার ভিউ', lede: 'ক্রেতাদের অনুরোধ, তাদের যাচাই করা ডাই রান, আর যে রেকর্ড দিয়ে এর উত্তর দেওয়া যায়।',
   requests: 'ক্রেতাদের অনুরোধ', open: (n: number) => (n ? `${n}টি খোলা অনুরোধ` : 'কোনো খোলা অনুরোধ নেই'),

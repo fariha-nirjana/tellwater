@@ -1,5 +1,5 @@
 // What the companion is doing, told by the page that knows: the case file (which step the investigation is on)
-// and the guide (while it writes an answer). The art lives in public/companion, drawn by design/mascot/moods.py.
+// and the guide (while it writes an answer). The art lives in public/companion.
 /** The companion's name, once it has one: the corner chat then reads "Ask <name>". */
 export const NAME = ''
 

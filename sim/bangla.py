@@ -1,4 +1,4 @@
-"""Bangla logbook pages: the simulator's English entries in the wording Anika approved.
+"""Bangla logbook pages: the simulator's English entries in the wording Fariha approved.
 
 Mixed Bangla with English digits, as operators write: ETP, pH, units, shift
 letters, equipment numbers and work-order IDs stay as they are; the sentences
