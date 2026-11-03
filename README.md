@@ -8,34 +8,72 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 
 **Live demo:** https://fariha-nirjana--tellwater-web.us-east.modal.run (live Muse Spark runs are capped per visitor per day)
 
+<!-- Video (3 min): link once uploaded. -->
+
+## At a glance
+
+**What it does.** A garment factory says a dye run's wastewater went through its treatment plant. Tellwater checks that claim against the plant's own records: meter feeds, handwritten logbook photos, maintenance notes, meter photos and lab reports. It gives one of four answers, a person signs it, and the garment's QR code opens the result.
+
+**Who it's for.**
+- A brand's environmental reviewer, checking suppliers between audits.
+- The factory, which can answer back and send the missing record.
+- The shopper holding the shirt.
+
+**Meta models.**
+- **Muse Spark** investigates one check at a time, and reads the handwriting and the meter photos itself.
+- **Muse Glimmer 30B**, which I fine-tuned and serve on my own GPU, reads every case a second time.
+- **Muse Spark Open** runs the same investigation on open weights.
+- **Muse Voice Transcribe** lets a factory reply in Bangla.
+
+**Can you trust it?** I tested it on 120 unseen simulated cases, with the system frozen before the test. When Muse Spark isn't sure, it asks for a record or a person instead of guessing. It was right, or asked, 112 times. It made 8 harmful mistakes: it cleared 6 cases too readily and made 2 accusations the evidence didn't support. Rules alone made 27, and 20 of those were accusations. A person still signs every result, but they start from a finished investigation, not from zero.
+
+| On 120 unseen cases | Right, or asked for help | Harmful mistakes | Verdicts you can trust |
+|---|---|---|---|
+| Muse Spark | 112 | 8 | 89% (66 of 74) |
+| Muse Glimmer, fine-tuned by me | 113 | 7 | 89% (58 of 65) |
+| Both reading, a person settling disagreements | 116 | 4 | 93% (56 of 60) |
+| Rules alone | 93 | 27 | 61% (42 of 69) |
+
+The factory documents hid 7 planted instructions, and none were followed.
+
+<!-- Screenshot row: the case file at the contradiction · the factory sending the tank log · the passport on a phone -->
+
 ## Why I built this
 
-I was born and raised in Dhaka. Whenever I meet someone who has come to the city from the countryside, they mention a weird smell in the air. I never felt it. When you live inside a system long enough, you get used to it, and it becomes nearly impossible to see what's wrong with it.
+I was born and raised in Dhaka. People who come to the city from the countryside mention a smell in the air. I never noticed it. When you live inside something long enough, you stop seeing what's wrong with it.
 
-People from outside see it. In foreigners' vlogs, they say Bangladeshis are some of the friendliest, warmest people they've met, and that Dhaka is one of the dirtiest places they've ever been, if not the dirtiest: the Buriganga, Sadarghat. When I was younger I went to Hatirjheel when it was newly built, and it was beautiful. I went back last year. The water had turned black, and the stench caught my nose.
+When Hatirjheel was new, it was beautiful. I went back last year: the water had turned black, and the stench caught my nose. I live in Mirpur, with garment factories all around, and some days I'd see the waste cleared out and left at the side of the road.
 
-I live in Mirpur, with garment factories all around. Some days I'd see workers clearing the waste and leaving it at the side of the road: the smell, the blocked path, the whole uncomfortable street. Wastewater has become a bigger problem every year.
-
-Then I came across the DDP case competition. It asked for something that would address repair, reuse or recycling in the apparel industry, for a cleaner and safer environment. I figured this could be my chance to do something about it. I took the idea to my team and led it to the finals, where it was named AquaTrace and came first runner-up. Tellwater is that idea, built from scratch this week as working software.
+So when the DDP case competition asked for ideas for a cleaner, safer apparel industry, I took this to my team and led it to the finals. We called it AquaTrace, and it came first runner-up. Tellwater is that idea, built from scratch this week as working software.
 
 The more I read, the clearer it got: having a treatment plant isn't the same as using it.
 
-- In 2025 the Department of Environment served final notices on **2,046 factories** in Dhaka, Gazipur, Narayanganj and Narsingdi, instructing them to keep their treatment plants operational at all times ([The Business Standard](https://www.tbsnews.net/bangladesh/operate-etps-or-face-action-govt-issues-final-warning-2046-factories-1077411)).
-- Around Dhaka, where about 80% of the export garment factories are, more than 7,000 factories release an estimated **2.4 billion litres of untreated wastewater into the waterways every day** ([World Bank, Feb 2026](https://www.worldbank.org/en/news/press-release/2026/02/10/world-bank-helps-reduce-dhaka-s-water-pollution)).
-- Only 61% of Bangladesh's wet-processing units have a treatment plant, and only 29% of those are compliant. Even with a plant, one Gazipur factory in the same study discharged water at **nearly twice the legal BOD limit** (59.5 mg/L against 30) ([RSC Advances, 2025](https://doi.org/10.1039/D5RA05917H)).
+- In 2025 the Department of Environment served final notices on **2,046 factories** in Dhaka, Gazipur, Narayanganj and Narsingdi to keep their treatment plants running at all times ([The Business Standard](https://www.tbsnews.net/bangladesh/operate-etps-or-face-action-govt-issues-final-warning-2046-factories-1077411)).
+- Running a plant isn't cheap. A 2019 study put a dyeing factory's yearly treatment-plant cost at about **৳1.3 crore (~$109,000)** (Sakamoto et al., *Sustainability* 11(7), 2019). A plant switched off between inspections saves real money.
+- Around Dhaka, more than 7,000 factories release an estimated **2.4 billion litres of untreated wastewater every day** ([World Bank, Feb 2026](https://www.worldbank.org/en/news/press-release/2026/02/10/world-bank-helps-reduce-dhaka-s-water-pollution)).
+- Even with a plant, one Gazipur factory discharged water at **nearly twice the legal BOD limit** (59.5 mg/L against 30) ([RSC Advances, 2025](https://doi.org/10.1039/D5RA05917H)).
 
 So right now, a factory that treats every drop looks exactly the same as one that doesn't.
 
-And the people buying the clothes are starting to ask. While researching the idea, I talked to industry experts and people from compliant factories, and they kept coming back to the same point: being known as a compliant factory is what keeps the big brands. When I spoke with Rajib Singha, he told me his company, Norp Knit Industries, has some of the best ETP maintenance in the country, works with brands like H&M, Nike and Puma, and has been endorsed by the World Bank. Buyers score their suppliers: on Higg FEM, the industry's facility assessment, water use and wastewater are two of the seven equally weighted areas, about 29% of the score. BESTSELLER aims to send 75% of its orders to its top-rated suppliers (BHRRC, *The cost of transition*, Nov 2025). And the EU's Ecodesign regulation ([Regulation (EU) 2024/1781](https://eur-lex.europa.eu/eli/reg/2024/1781/oj)) is bringing digital product passports, with textiles among the first products in line. A passport will carry whatever a factory declares, unless something checks it.
+While researching the idea, I talked to industry experts and people from compliant factories, and they kept coming back to the same point: being known as a compliant factory is what keeps the big brands. Rajib Singha told me his company, Norp Knit Industries, part of Pearl Global, has some of the best ETP maintenance in the country, works with brands like H&M, Nike and Puma, and has been endorsed by the World Bank.
 
-Factories already keep logbooks and maintenance records; meters record power and flow; labs sample what leaves the plant. What's missing is someone connecting them:
+Factories already keep logbooks and maintenance records, meters record power and flow, and labs sample what leaves the plant. What's missing is someone connecting them:
 
 > “The gap is not necessarily a lack of documentation; it is the difficulty of connecting the documents with real operating conditions.”
-> — Rajib Singha, Vice President, Human Resources & Administration, Pearl Global Industries Ltd (formerly Group General Manager, HR & Compliance, Sterling Group). Quoted with permission.
+> — Rajib Singha, Vice President, Human Resources & Administration, Pearl Global Industries Ltd. Quoted with permission.
 
 So I asked: what if the records could be checked against each other, the way a careful auditor would, every time? And what if an honest factory missing one record were simply asked for that record, instead of being suspected?
 
 I'm not saying Tellwater will save every river in Bangladesh. But I want our kids to stand by the Buriganga one day and see a living river, not read about it in a storybook, like a myth.
+
+## Why it matters
+
+- **Buyers already care.** Water and wastewater are about 29% of a supplier's Higg FEM score. BESTSELLER aims to send 75% of its orders to its top-rated suppliers (BHRRC, *The cost of transition*, Nov 2025). Bangladesh Bank runs a ৳1,000 crore (~$82m) green refinance fund (2026).
+- **Passports are coming.** The EU's Ecodesign regulation ([Regulation (EU) 2024/1781](https://eur-lex.europa.eu/eli/reg/2024/1781/oj)) brings digital product passports, with textiles among the first products in line. A passport carries whatever a factory declares, unless something checks it.
+- **Where it starts.** Roughly 500–800 export washing, dyeing and finishing factories, or up to about 1,700 by broader estimates (Uddin et al. 2023; Textile Today 2016; PaCT 2019). Beyond them are about 10,000 factories that need a treatment plant (Department of Environment data, The Business Standard, May 2023).
+- **It has to be fair to factories.** Margins are tight: 400+ garment factories closed between July 2023 and June 2026 (The Financial Express), and none of 8 surveyed brands pays a green premium (BHRRC). That's why a missing record is asked for, never punished. It's also why an honest factory comes away with evidence it can show buyers and lenders.
+- **Where it fits.** Lab tests and inspections are snapshots. An online effluent monitor sees one point, which dilution or a bypass can fool. Plant control systems run the plant, but they aren't evidence for outsiders. Tellwater checks whether separate records agree, and keeps the lab as the anchor.
+- **Next step.** A pilot with one factory that already treats properly, and its buyer.
 
 ## What it feels like
 
@@ -92,9 +130,11 @@ I tried hard to break it. Every case is scored against its **justified** answer:
 | Passed a real problem as fine | 6 | 0 | 1 | **2** | 2 | 0 | **0** |
 | Held up a clean run | 6 | 5 | 3 | **2** | 2 | 5 | 10 |
 | Sent to a person because the readers disagreed | | | | | | | 25 |
+| **Right, or asked for a record or a person** | 93 | 96 | 115 | **112** | 110 | 113 | **116** |
+| **Harmful mistakes** (cleared wrongly + accused wrongly) | 27 | 24 | 5 | **8** | 10 | 7 | **4** |
 
 - **It never cleared a run that broke the rules.** Of the 40 runs where the evidence shows the claim is false, the investigator called out 38 and sent 2 to a person or asked for a record. The 2 problems it passed as fine were sensor faults that a person should have weighed. On factory A it was right on 48 of 60 cases, and on factory B on 52 of 60.
-- **About half its 20 errors were cautious:** it asked for a record or a person when it didn't need to. The errors that matter more: it cleared 4 cases where a record was missing and the honest answer was "insufficient evidence", and it accused without evidence twice.
+- **When it isn't sure, it asks.** Of its 20 misses, 12 were caution: it asked for a record or a person when it didn't need to. That costs an honest factory one extra request, or the reviewer one extra look. The 8 that matter: it cleared 6 cases too readily (4 where a record was missing, 2 that a person should have weighed) and made 2 accusations the evidence didn't support. So it was right, or asked, on 112 of 120, and 66 of its 74 verdicts were ones you can trust.
 - **Giving Muse Spark everything at once did as well or slightly better here (103 against 100).** When the evidence is already gathered and short, one careful read is enough. The investigator earns its place elsewhere: it costs the same as the records grow while "everything at once" doesn't (see above), it asks for exactly the record that's missing (15 of 15 requests named the right one), and every step it takes is on the record for a person to check.
 - **Planted instructions:** seven test cases hide instructions in the factory's documents. The investigator followed none of them.
 - **About $0.20 and 80 seconds** per investigation.
@@ -123,22 +163,19 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 
 ## How it's built
 
-```
-factory records: meter feeds · handwritten logbook photos · maintenance notes · meter photos · lab reports
-                                        │
-                                        ▼
-                     tools in plain code (signal windows, water and tank balances,
-                     power against load, replay detection, document reading)
-                                        │
-                                        ▼
-     Muse Spark, the investigator: picks one check at a time, says why, keeps every explanation open
-                                        │
-                                        ▼
-            citation validator: every record the finding cites must be one it retrieved
-                                        │
-          Muse Glimmer, second reader ──┤ (if the two disagree, a person decides)
-                                        ▼
-       a person reviews ──▶ signed passport (SHA-256 fingerprints + Ed25519; GS1 Digital Link QR)
+```mermaid
+flowchart TD
+    R["Factory records<br/>meter feeds · handwritten logbook photos · maintenance notes · meter photos · lab reports"]
+    T["Tools in plain code<br/>signal windows · water and tank balances · power against load · replay detection · document reading"]
+    S["Muse Spark, the investigator<br/>picks one check at a time, says why, keeps every explanation open"]
+    V["Citation validator<br/>every record the finding cites must be one it retrieved"]
+    G["Muse Glimmer, the second reader<br/>fine-tuned, on our own GPU"]
+    P["A person reviews"]
+    Q["Signed passport<br/>SHA-256 fingerprints + Ed25519 · GS1 Digital Link QR"]
+    R --> T --> S --> V --> P
+    V --> G
+    G -- "if the two disagree, a person decides" --> P
+    P --> Q
 ```
 
 | Path | What it holds |

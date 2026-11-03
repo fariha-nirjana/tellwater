@@ -19,6 +19,22 @@ const TEST_CONDITIONS: [string, string, string][] = [
 ]
 const n = (s: S | undefined, k: string) => (s?.[k] as number | null | undefined) ?? null
 
+/** Every answer by kind, from the confusion table (justified answer -> answer given): right; cautious (it asked for a record or a
+ * person instead); harmful (it cleared a case it shouldn't have, or accused without the evidence); and how often a verdict was right. */
+function split(s: S | undefined) {
+  const c = s?.confusion as Record<string, Record<string, number>> | undefined
+  if (!c) return null
+  let right = 0, cautious = 0, cleared = 0, accused = 0, verdicts = 0, verdictsRight = 0
+  for (const [justified, row] of Object.entries(c)) for (const [given, k] of Object.entries(row)) {
+    if (given === justified) right += k
+    else if (given === 'insufficient' || given === 'review_required') cautious += k
+    else if (given === 'supports') cleared += k
+    else if (given === 'contradicts') accused += k
+    if (given === 'supports' || given === 'contradicts') { verdicts += k; if (given === justified) verdictsRight += k }
+  }
+  return { right, cautious, safe: right + cautious, cleared, accused, harmful: cleared + accused, verdicts, verdictsRight }
+}
+
 export function Results() {
   const [r, setR] = useState<Record<string, Record<string, S>> | null>(null)
   useEffect(() => { api.results().then(setR) }, [])
@@ -36,7 +52,11 @@ export function Results() {
     </div>
   )
   const t4 = test.C4, two = test.two_readers
+  const k4 = split(t4), k1 = split(test.C1), kTwo = split(two)
   const rows: [string, (s: S | undefined) => string][] = [
+    ['Right, or asked for a record or a person', (s) => { const x = split(s); return x ? `${x.safe} / ${n(s, 'cases')}` : '–' }],
+    ['Harmful mistakes (cleared wrongly · accused wrongly)', (s) => { const x = split(s); return x ? `${x.harmful} (${x.cleared} · ${x.accused})` : '–' }],
+    ['Verdicts you can trust', (s) => { const x = split(s); return x && x.verdicts ? `${Math.round(100 * x.verdictsRight / x.verdicts)}% (${x.verdictsRight} of ${x.verdicts})` : '–' }],
     ['Agreement with the justified assessment', (s) => (s ? `${n(s, 'agreement')} / ${n(s, 'cases')}` : '–')],
     ['Unsupported accusations', (s) => String(n(s, 'unsupported_accusations') ?? '–')],
     ['Missed problems', (s) => String(n(s, 'missed_problems') ?? '–')],
@@ -59,12 +79,19 @@ export function Results() {
       {t4 && (
         <div className="workspace">
           <div className="workspace-top"><div className="batch"><span className="batch-icon"><Icon n="wave" /></span><div><b>The held-out test: {n(t4, 'cases')} cases it had never seen</b><small>TEST SET · FACTORY A AND FACTORY B · RUN ONCE, ON THE FROZEN INVESTIGATOR</small></div></div></div>
+          {k4 && k1 && (
+            <div className="trust-strip" aria-label="Can you trust it? Muse Spark investigating, against rules alone">
+              <div><b>{k4.safe}<small> / {n(t4, 'cases')}</small></b><span>right, or asked for a record or a person</span><small>rules alone: {k1.safe}</small></div>
+              <div><b>{k4.harmful}</b><span>harmful mistakes: {k4.cleared} cleared too readily, {k4.accused} accused without the evidence</span><small>rules alone: {k1.harmful}, {k1.accused} of them accusations</small></div>
+              <div><b>{Math.round(100 * k4.verdictsRight / k4.verdicts)}%</b><span>of its verdicts you can trust ({k4.verdictsRight} of {k4.verdicts})</span><small>rules alone: {Math.round(100 * k1.verdictsRight / k1.verdicts)}%</small></div>
+            </div>
+          )}
           {table(test, TEST_CONDITIONS)}
           <div className="explanation">
             <div className="explanation-copy"><span className="micro">WHAT IT SHOWS</span>
-              <p>The investigator (C4) agreed with the justified answer on {n(t4, 'agreement')} of {n(t4, 'cases')}, with {n(t4, 'unsupported_accusations')} unsupported accusations against {n(test.C1, 'unsupported_accusations')} for rules alone. It never cleared a run that broke the rules; the {n(t4, 'missed_problems')} problems it passed were sensor faults a person should have weighed.
-                Given everything at once (C3), Muse Spark did as well or slightly better here; the investigator's edge is cost as the records grow (below) and asking for the one missing record.
-                {two && ` With Muse Glimmer as a second reader, ${n(two, 'missed_problems')} problems were passed as fine and ${n(two, 'unsupported_accusations')} accusation was unsupported; the price is ${n(two, 'routed_to_a_person')} of ${n(two, 'cases')} cases going to a person.`}</p></div>
+              <p>When the investigator (C4) isn't sure, it asks for a record or a person instead of guessing. {k4 && `Of its ${(n(t4, 'cases') ?? 0) - k4.right} misses, ${k4.cautious} were that caution, which costs an honest factory one extra request or the reviewer one extra look. The ${k4.harmful} that matter: ${k4.cleared} cases cleared too readily and ${k4.accused} accusations the evidence didn't support, against ${k1?.harmful} harmful mistakes for rules alone.`} It never cleared a run where the evidence showed a problem.
+                Given everything at once (C3), Muse Spark did as well or slightly better here; the investigator's edge is cost as the records grow (below), asking for the exact record that's missing, and every step on the record.
+                {two && kTwo && ` With Muse Glimmer as a second reader, harmful mistakes fell to ${kTwo.harmful}; the price is ${n(two, 'routed_to_a_person')} of ${n(two, 'cases')} cases going to a person.`} A person still signs every result, starting from a finished investigation, not from zero.</p></div>
           </div>
         </div>
       )}

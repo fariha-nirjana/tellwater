@@ -448,3 +448,13 @@ main{overflow-x:clip}
 .story-text .said-by::before{content:'— '}
 /* the progress thread's dash is measured in path units, so it must scale with the path (non-scaling-stroke measures dashes in screen pixels and left the thread short of the companion) */
 .story-road #roadProgress,#introProgress{vector-effect:none}
+
+/* results: can you trust it? three figures for the investigator, each beside rules alone */
+.trust-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.trust-strip>div{padding:22px 25px;display:grid;gap:6px;align-content:start;border-right:1px solid var(--line)}
+.trust-strip>div:last-child{border-right:0}
+.trust-strip b{font:700 40px/1 Manrope,var(--font);letter-spacing:-.05em;color:var(--purple)}
+.trust-strip b small{font-size:18px;color:#8a8698;letter-spacing:-.02em}
+.trust-strip span{font-size:13px;line-height:1.45}
+.trust-strip>div>small{font-size:11px;color:#6d6a7c}
+@media(max-width:760px){.trust-strip{grid-template-columns:1fr}.trust-strip>div{border-right:0;border-bottom:1px solid var(--line);padding:18px 16px}.trust-strip>div:last-child{border-bottom:0}.trust-strip b{font-size:34px}}
