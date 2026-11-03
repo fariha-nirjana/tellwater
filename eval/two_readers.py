@@ -33,7 +33,7 @@ def combine(first: dict, second: dict) -> dict:
 def run(name: str) -> dict:
     rows = {}
     for cond in (FIRST, SECOND):
-        rows[cond] = {r["case_id"]: r for r in json.loads((RUNS / name / cond / "summary.json").read_text())["rows"]}
+        rows[cond] = {r["case_id"]: r for r in json.loads((RUNS / name / cond / "summary.json").read_text(encoding="utf-8"))["rows"]}
     ids = sorted(set(rows[FIRST]) & set(rows[SECOND]))
     combined = [combine(rows[FIRST][i], rows[SECOND][i]) for i in ids]
     agreed = [r for r in combined if not r["routed"]]
@@ -47,7 +47,7 @@ def run(name: str) -> dict:
         "first_alone": score([rows[FIRST][i] for i in ids]),
         "routed": [{"case_id": r["case_id"], "justified": r["justified"], "readers": r["readers"]} for r in combined if r["routed"]],
     }
-    (RUNS / name / "two_readers.json").write_text(json.dumps(out, indent=2))
+    (RUNS / name / "two_readers.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     return out
 
 

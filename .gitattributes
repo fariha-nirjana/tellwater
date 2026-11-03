@@ -1,0 +1,4 @@
+# Keep LF line endings on every platform: the frozen investigator and test set are checked by SHA-256 of
+# their exact bytes, which a CRLF checkout on Windows would change.
+* text=auto eol=lf
+assets/fonts/** -text

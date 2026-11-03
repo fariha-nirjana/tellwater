@@ -164,7 +164,7 @@ def main() -> None:
     def one(folder):
         path = out / f"{folder.name}.json"
         if path.exists() and not a.fresh:
-            return json.loads(path.read_text())
+            return json.loads(path.read_text(encoding="utf-8"))
         if a.guided:
             from eval.guidance import note
             client = GuidedClient(endpoint, note(folder))
@@ -174,7 +174,7 @@ def main() -> None:
         result["case_id"], result["summaries"] = folder.name, client.log
         if a.guided:
             result["guidance_note"] = client.note  # for the record; the training data is built from the trace only
-        path.write_text(json.dumps(result, indent=2, default=str))
+        path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
         return result
 
     with ThreadPoolExecutor(a.workers) as pool:

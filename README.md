@@ -180,7 +180,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 
 | | |
 |---|---|
-| A Mac or Linux computer | Tested on macOS. |
+| A Mac, Linux or Windows computer | Tested on macOS and Linux. On Windows, use the steps under “On Windows” below. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
 | Python 3.12 or newer | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
 | Node.js 20 or newer | From [nodejs.org](https://nodejs.org). To check, type `node -v`. |
@@ -203,7 +203,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
    .venv/bin/uvicorn api.app:app --port 8000
    ```
 
-3. In a second terminal, start the interface:
+3. In a second terminal, go to the same folder and start the interface:
 
    ```bash
    cd tellwater/web
@@ -212,6 +212,40 @@ This runs the whole interface on your computer, with investigations Muse Spark a
    ```
 
 4. Open http://localhost:5173 in your browser. Press Ctrl+C in each terminal to stop.
+
+<details>
+<summary>On Windows</summary>
+
+Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12 or newer from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 20 or newer from [nodejs.org](https://nodejs.org).
+
+1. Download the project and install what it needs:
+
+   ```powershell
+   git clone https://github.com/fariha-nirjana/tellwater
+   cd tellwater
+   py -3 -m venv .venv
+   .venv\Scripts\pip install -e ".[dev]"
+   ```
+
+2. Start the API, and leave this window open:
+
+   ```powershell
+   .venv\Scripts\uvicorn api.app:app --port 8000
+   ```
+
+3. In a second PowerShell window, go to the same folder and start the interface:
+
+   ```powershell
+   cd tellwater\web
+   npm install
+   npx vite
+   ```
+
+4. Open http://localhost:5173 in your browser. Press Ctrl+C in each window to stop.
+
+If PowerShell says *running scripts is disabled on this system* for `npm` or `npx`, type `npm.cmd` and `npx.cmd` instead. To use the live parts, `Copy-Item .env.example .env`, put the key in `MODEL_API_KEY`, and restart step 2. Tests: `.venv\Scripts\pytest`.
+
+</details>
 
 **What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
 

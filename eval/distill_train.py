@@ -36,7 +36,7 @@ def render_all(path, max_seq_len: int):
     tokenizer = get_tokenizer(TOKENIZER_MODEL)
     renderer = build_renderer(tokenizer, TOKENIZER_MODEL, RENDERER)
     datums, total, trained = [], 0, 0
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         row = json.loads(line)
         for r in render_messages_to_datums(row["messages"], renderer=renderer, tools=row["tools"],
                                            train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES, max_seq_len=max_seq_len):
@@ -79,7 +79,7 @@ def main() -> None:
                                                  train_mlp=True, train_attn=True, train_unembed=True)
     print(f"session {getattr(service, 'training_session_id', None)}", flush=True)
     adam = sdk.AdamParams(learning_rate=a.learning_rate, beta1=0.9, beta2=0.999, eps=1e-8, weight_decay=0.0, grad_clip_norm=1.0)
-    rng, step, log = random.Random(0), 0, (out / "metrics.jsonl").open("a")
+    rng, step, log = random.Random(0), 0, (out / "metrics.jsonl").open("a", encoding="utf-8")
     started = time.time()
     for epoch in range(a.epochs):
         order = list(range(len(datums)))
@@ -98,7 +98,7 @@ def main() -> None:
         path = client.save_weights_for_sampler(f"{a.run_id}-epoch{epoch + 1}").result().path
         (out / "checkpoint.json").write_text(json.dumps({"sampler_path": path, "epoch": epoch + 1, "steps": step,
                                                           "base_model": BASE_MODEL, "renderer": RENDERER,
-                                                          "tokenizer": TOKENIZER_MODEL, "lora_rank": a.lora_rank}, indent=1))
+                                                          "tokenizer": TOKENIZER_MODEL, "lora_rank": a.lora_rank}, indent=1), encoding="utf-8")
         print(f"saved epoch {epoch + 1}: {path}", flush=True)
 
 

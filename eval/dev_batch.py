@@ -49,7 +49,7 @@ def main() -> None:
         folder = save_case(case, lab, DEV)
         trace = investigate(load_bundle(folder), ModelClient(endpoint), pm)
         RUNS.mkdir(parents=True, exist_ok=True)
-        (RUNS / f"{case.scenario.id}-{endpoint.name}.json").write_text(trace.to_json())
+        (RUNS / f"{case.scenario.id}-{endpoint.name}.json").write_text(trace.to_json(), encoding="utf-8")
         return case.scenario.id, kind, lab, trace
 
     with ThreadPoolExecutor(a.workers) as pool:

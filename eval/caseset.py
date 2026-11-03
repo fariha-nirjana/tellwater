@@ -188,7 +188,7 @@ def main() -> None:
     p.add_argument("--freeze", action="store_true")
     a = p.parse_args()
     rows = build(a.name)
-    statuses = Counter(json.loads((GENERATED / a.name / r["case_id"] / "hidden" / "label.json").read_text())["justified"]
+    statuses = Counter(json.loads((GENERATED / a.name / r["case_id"] / "hidden" / "label.json").read_text(encoding="utf-8"))["justified"]
                        for r in rows)
     print(f"{a.name}: {len(rows)} cases; kinds {dict(Counter(r['kind'] for r in rows))}")
     print(f"justified statuses {dict(statuses)}")
@@ -198,9 +198,9 @@ def main() -> None:
         manifest = {"set": a.name, "cases": len(rows), "sha256_of_all_cases": digest,
                     "note": "Frozen before any test case was run. Regenerating must reproduce every hash.",
                     "rows": [{k: r[k] for k in ("case_id", "factory", "seed", "sha256")} for r in rows]}
-        (FROZEN / f"{a.name}_manifest.json").write_text(json.dumps(manifest, indent=2))
+        (FROZEN / f"{a.name}_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
         # the generation specs name the scenario kind, so they live with the hidden data
-        (GENERATED / a.name / "specs.json").write_text(json.dumps(rows, indent=2))
+        (GENERATED / a.name / "specs.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
         print(f"frozen: {digest}")
 
 

@@ -131,14 +131,14 @@ class FactoryConfig(BaseModel):
 
 def load_factory(name: str = "factory") -> FactoryConfig:
     path = CONFIG_DIR / f"{name}.yaml"
-    with path.open() as f:
+    with path.open(encoding="utf-8") as f:
         return FactoryConfig.model_validate(yaml.safe_load(f))
 
 
 def config_name(factory_id: str) -> str:
     """The config file name (without .yaml) for a factory ID."""
     for path in sorted(CONFIG_DIR.glob("*.yaml")):
-        with path.open() as f:
+        with path.open(encoding="utf-8") as f:
             if yaml.safe_load(f).get("id") == factory_id:
                 return path.stem
     raise KeyError(factory_id)

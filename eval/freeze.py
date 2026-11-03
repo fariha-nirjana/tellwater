@@ -34,7 +34,7 @@ def changed() -> list[str]:
     """Files that differ from the frozen record (all of them if there is no record)."""
     if not RECORD.exists():
         return FILES
-    frozen = json.loads(RECORD.read_text())["files"]
+    frozen = json.loads(RECORD.read_text(encoding="utf-8"))["files"]
     now = fingerprints()
     return [f for f in FILES if frozen.get(f) != now[f]]
 
@@ -45,7 +45,7 @@ def main() -> None:
             "note": "Investigator frozen before the held-out test. Nothing in these files changes after this.",
             "frozen_on": sys.argv[sys.argv.index("--write") + 1] if len(sys.argv) > sys.argv.index("--write") + 1 else None,
             "files": fingerprints(),
-        }, indent=2))
+        }, indent=2), encoding="utf-8")
         print(f"wrote {RECORD.relative_to(ROOT)}")
         return
     diff = changed()

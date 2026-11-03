@@ -32,12 +32,12 @@ def test_optional_second_reader(client, tmp_path, monkeypatch):
     assert client.get("/api/cases/B").json()["second_reader"] is None
     reading = {"model": "Muse Glimmer 30B (fine-tuned)", "status": "review_required",
                "summary": "The service record does not explain the whole interval.", "agrees": False}
-    (folder.parent / "second_reader.json").write_text(json.dumps(reading))
+    (folder.parent / "second_reader.json").write_text(json.dumps(reading), encoding="utf-8")
     assert client.get("/api/cases/B").json()["second_reader"] == reading
 
 
 def test_bangla_view_does_not_reuse_an_english_second_reading(client, tmp_path, monkeypatch):
-    (tmp_path / "second_reader.json").write_text(json.dumps({"agrees": False}))
+    (tmp_path / "second_reader.json").write_text(json.dumps({"agrees": False}), encoding="utf-8")
     bangla = tmp_path / "bangla" / "case"
     bangla.mkdir(parents=True)
     monkeypatch.setattr(api, "_view_folder", lambda _: bangla)
@@ -53,12 +53,12 @@ def readings(tmp_path, monkeypatch):
 
     def read(key, which="saved"):
         path = root / f"{key}-{which}.json"
-        return json.loads(path.read_text()) if path.exists() else None
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
     def write(key="B", *, agrees=False, which="saved"):
         reading = {"model": "Muse Glimmer 30B (fine-tuned)", "status": "supports" if agrees else "review_required",
                    "summary": "Private second reading.", "agrees": agrees}
-        (root / f"{key}-{which}.json").write_text(json.dumps(reading))
+        (root / f"{key}-{which}.json").write_text(json.dumps(reading), encoding="utf-8")
         return reading
 
     monkeypatch.setattr(api, "_second_reader", read)
@@ -139,7 +139,7 @@ def test_second_readings_are_loaded_for_their_own_run(tmp_path, monkeypatch):
     monkeypatch.setattr(api, "RUNTIME", tmp_path)
     (tmp_path / "B").mkdir()
     for name, agrees in (("second_reader.json", False), ("second_reader-after.json", True)):
-        (tmp_path / "B" / name).write_text(json.dumps({"agrees": agrees}))
+        (tmp_path / "B" / name).write_text(json.dumps({"agrees": agrees}), encoding="utf-8")
     assert api._second_reader("B")["agrees"] is False
     assert api._second_reader("B", "after")["agrees"] is True
 

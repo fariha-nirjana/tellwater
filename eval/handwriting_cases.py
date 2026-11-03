@@ -143,13 +143,13 @@ def _swap_photo(folder, doc_id, src) -> None:
     """Replace the rendered logbook page with the real photo, keeping every other file identical."""
     for name in ("documents.json", "hidden/documents_full.json"):
         path = folder / name
-        docs = json.loads(path.read_text())
+        docs = json.loads(path.read_text(encoding="utf-8"))
         for d in docs:
             if d["id"] == doc_id:
                 shutil.copy(src, folder / d["image"])
                 d["sha256"] = hashlib.sha256((folder / d["image"]).read_bytes()).hexdigest()
                 d.get("meta", {}).pop("lines", None)  # the line boxes belong to the rendered page
-        path.write_text(json.dumps(docs, indent=2))
+        path.write_text(json.dumps(docs, indent=2), encoding="utf-8")
 
 
 def main() -> None:
@@ -160,7 +160,7 @@ def main() -> None:
                 shutil.rmtree(GENERATED / out)
         rows = [build(page, cfg, suffix) for page in pages]
         for out in (f"hw_typed{suffix}", f"hw_photo{suffix}"):
-            (GENERATED / out / "specs.json").write_text(json.dumps(rows, indent=2))
+            (GENERATED / out / "specs.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
         for r in rows:
             print(suffix or "with record", r)
 

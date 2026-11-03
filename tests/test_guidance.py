@@ -23,7 +23,7 @@ def _load(case):
     path = RUNS / f"{case}.json"
     if not path.exists() or not (CASES / case).exists():
         pytest.skip("local round 3 runs not present")
-    return json.loads(path.read_text()), CASES / case
+    return json.loads(path.read_text(encoding="utf-8")), CASES / case
 
 
 def _fails(run, folder, words):
@@ -99,7 +99,7 @@ def test_supports_without_citing_the_outfall_flow():
 def test_supports_without_reading_the_catch_up():
     run, folder = _load(MAINTENANCE)
     run = copy.deepcopy(run)
-    stop = next(e for e in json.loads((folder / "hidden" / "scenario.json").read_text())["events"]
+    stop = next(e for e in json.loads((folder / "hidden" / "scenario.json").read_text(encoding="utf-8"))["events"]
                 if e["type"] == "maintenance")
     end = pd.Timestamp(stop["end"])
     for s in run["trace"]["steps"]:  # every read of the tank or outfall flow stops at the end of the stop

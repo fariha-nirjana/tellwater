@@ -1,0 +1,100 @@
+# Follows the README's "Run it on your own computer" on fresh Windows, macOS and Linux machines, with no key:
+# install, tests, the investigator's freeze fingerprints, the API (cases, passport, review and signing, the
+# garment QR's resolver) and the interface through its dev server.
+name: Run it from the README
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows (PowerShell steps)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: "Step 1: install"
+        run: |
+          py -3 --version
+          py -3 -m venv .venv
+          .venv\Scripts\pip install -e ".[dev]"
+
+      - name: Tests
+        run: .venv\Scripts\pytest -q
+
+      - name: The investigator is unchanged since the freeze (same bytes on a Windows checkout)
+        run: .venv\Scripts\python -m eval.freeze
+
+      - name: "Steps 2 and 3: the API and the interface"
+        run: |
+          $api = Start-Process -FilePath .venv\Scripts\uvicorn.exe -ArgumentList 'api.app:app','--port','8000' -PassThru -NoNewWindow -RedirectStandardOutput api.log -RedirectStandardError api.err
+          $base = 'http://127.0.0.1:8000'
+          for ($i = 0; $i -lt 60; $i++) { try { Invoke-RestMethod "$base/api/cases" | Out-Null; break } catch { Start-Sleep 1 } }
+          $cases = Invoke-RestMethod "$base/api/cases"
+          if ($cases.Count -ne 5) { throw "expected 5 cases, got $($cases.Count)" }
+          foreach ($p in '/api/cases/B', '/api/cases/B/signals', '/api/cases/B/trace', '/api/passport/B', '/api/passport/D', '/api/results', '/api/catalog', '/api/passport-key') {
+            Invoke-WebRequest "$base$p" | Out-Null; "ok $p"
+          }
+          .venv\Scripts\python -c "from api import translate; translate.bangla(); print('ok Bangla wording file reads')"
+          $body = '{"action":"approve","reason":"Checked on Windows","reviewer":"CI"}'
+          Invoke-RestMethod -Method Post -ContentType 'application/json' -Body $body "$base/api/cases/A/review" | Out-Null
+          $v = Invoke-RestMethod "$base/api/passport/A/verify"
+          if (-not ($v.signature_valid -and $v.evidence_matches -and $v.investigation_matches)) { throw "signed record did not verify: $($v | ConvertTo-Json)" }
+          'ok review, signing and verification'
+          $qr = Invoke-WebRequest "$base/01/02990000200013/10/460f93ca-B04" -MaximumRedirection 0 -SkipHttpErrorCheck
+          if ($qr.StatusCode -ne 307) { throw "QR resolver returned $($qr.StatusCode)" }
+          "ok QR resolver -> $($qr.Headers.Location)"
+
+          cd web
+          npm install
+          $web = Start-Process -FilePath npx.cmd -ArgumentList 'vite','--port','5173','--strictPort' -PassThru -NoNewWindow
+          for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest 'http://localhost:5173/' | Out-Null; break } catch { Start-Sleep 1 } }
+          $page = Invoke-WebRequest 'http://localhost:5173/'
+          if ($page.Content -notmatch 'id="root"') { throw 'the interface did not load' }
+          $proxied = Invoke-RestMethod 'http://localhost:5173/api/cases'
+          if ($proxied.Count -ne 5) { throw 'the interface could not reach the API' }
+          'ok interface at http://localhost:5173 and its /api proxy'
+          npx tsc --noEmit
+          npx vite build
+          Stop-Process -Id $web.Id, $api.Id -Force -ErrorAction SilentlyContinue
+
+      - name: API log
+        if: always()
+        run: Get-Content api.log, api.err -ErrorAction SilentlyContinue
+
+  unix:
+    name: ${{ matrix.os }} (terminal steps)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: "Step 1: install"
+        run: |
+          python3 --version
+          python3 -m venv .venv
+          .venv/bin/pip install -e ".[dev]"
+      - name: Tests
+        run: .venv/bin/pytest -q
+      - name: The investigator is unchanged since the freeze
+        run: .venv/bin/python -m eval.freeze
+      - name: "Step 3: the interface builds"
+        run: cd web && npm install && npx tsc --noEmit && npx vite build

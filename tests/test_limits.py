@@ -30,11 +30,11 @@ def test_the_day_has_a_total(monkeypatch):
 def test_counts_reset_each_day_and_never_store_addresses(monkeypatch):
     monkeypatch.setenv("TW_RUNS_PER_VISITOR", "1")
     limits.take("runs", "9.9.9.9")
-    stored = limits.USAGE.read_text()
+    stored = limits.USAGE.read_text(encoding="utf-8")
     assert "9.9.9.9" not in stored
     u = json.loads(stored)
     u["day"] = "2000-01-01"
-    limits.USAGE.write_text(json.dumps(u))
+    limits.USAGE.write_text(json.dumps(u), encoding="utf-8")
     assert limits.take("runs", "9.9.9.9") is None
 
 

@@ -26,7 +26,7 @@ def counts(set_name: str, adapter: str) -> dict:
     path = RUNS / set_name / runs_folder(adapter) / "summary.json"
     if not path.exists():
         raise SystemExit(f"{set_name}/{runs_folder(adapter)}: no runs yet")
-    rows = json.loads(path.read_text())["rows"]
+    rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
     # the rule is applied only to complete results: every case of the set, once
     ids = [r["case_id"] for r in rows]
     if len(ids) != EXPECTED[set_name] or set(ids) != {f.name for f in _case_dirs(set_name)}:

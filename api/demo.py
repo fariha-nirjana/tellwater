@@ -66,15 +66,15 @@ def build() -> None:
         if (dst / "case").exists():
             shutil.rmtree(dst / "case")
         shutil.copytree(src, dst / "case")
-        run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
-        (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
+        run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text(encoding="utf-8"))
+        (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str), encoding="utf-8")
         print(f"{key}: {case_id} -> {run['status']}")
     for key, (set_name, case_id) in BANGLA.items():
         dst = DEMO_ROOT / key / "bangla"
         shutil.rmtree(dst, ignore_errors=True)
         shutil.copytree(ROOT / "data" / "generated" / set_name / case_id, dst / "case")
-        run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text())
-        (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str))
+        run = json.loads((ROOT / "eval" / "runs" / set_name / "C4" / f"{case_id}.json").read_text(encoding="utf-8"))
+        (dst / "trace.json").write_text(json.dumps(run["trace"], indent=1, default=str), encoding="utf-8")
         print(f"{key} (Bangla logbook): {case_id} -> {run['status']}")
     snapshot_results()
 
@@ -87,16 +87,16 @@ def real_pages() -> None:
         dst = ROOT / "data" / "generated" / "demo_real" / case_id
         shutil.rmtree(dst, ignore_errors=True)
         shutil.copytree(ROOT / "data" / "generated" / source / case_id, dst)
-        lines = json.loads((pages / f"{page}-lines.json").read_text())
+        lines = json.loads((pages / f"{page}-lines.json").read_text(encoding="utf-8"))
         for name in ("documents.json", "hidden/documents_full.json"):
-            docs = json.loads((dst / name).read_text())
+            docs = json.loads((dst / name).read_text(encoding="utf-8"))
             for d in docs:
                 if d["id"] == doc_id:
                     shutil.copy(pages / f"{page}.jpg", dst / d["image"])
                     d["sha256"] = hashlib.sha256((dst / d["image"]).read_bytes()).hexdigest()
                     if "meta" in d:
                         d["meta"]["lines"] = lines
-            (dst / name).write_text(json.dumps(docs, indent=2))
+            (dst / name).write_text(json.dumps(docs, indent=2), encoding="utf-8")
         print(f"{key}: {case_id} with the handwritten {page} -> data/generated/demo_real/")
 
 
@@ -109,19 +109,19 @@ def snapshot_results() -> None:
         set_name, condition = summary.parent.parent.name, summary.parent.name
         # current conditions only (C1..C6): archived iterations are named C4_v1, C4-v1, C4-stopfix
         if re.fullmatch(r"C\d", condition) and condition != "C6":
-            results.setdefault(set_name, {})[condition] = json.loads(summary.read_text())["summary"]
+            results.setdefault(set_name, {})[condition] = json.loads(summary.read_text(encoding="utf-8"))["summary"]
         elif condition == PUBLISHED_RUNS:  # C6 is the published Muse Glimmer adapter, not the first Fireworks one
-            results.setdefault(set_name, {})["C6"] = json.loads(summary.read_text())["summary"]
+            results.setdefault(set_name, {})["C6"] = json.loads(summary.read_text(encoding="utf-8"))["summary"]
     # Muse Spark and Muse Glimmer as two readers (eval.two_readers): the combined score, without the per-case list
     for f in sorted((ROOT / "eval" / "runs").glob("*/two_readers.json")):
-        two = json.loads(f.read_text())
+        two = json.loads(f.read_text(encoding="utf-8"))
         results.setdefault(f.parent.name, {})["two_readers"] = {**two["combined"], "readers_agree": two["readers_agree"],
                                                                  "routed_to_a_person": two["routed_to_a_person"],
                                                                  "mean_seconds": None, "mean_cost": None}  # those are C4's alone
     # line-finding on logbook photos (eval.localize): raw and square-padded, per model
     for f in sorted((ROOT / "eval" / "runs" / "localize").glob("*/*.json")):
-        results.setdefault("localize", {})[f"{f.parent.name}/{f.stem}"] = json.loads(f.read_text())["summary"]
-    (DEMO_ROOT / "results.json").write_text(json.dumps(results, indent=1))
+        results.setdefault("localize", {})[f"{f.parent.name}/{f.stem}"] = json.loads(f.read_text(encoding="utf-8"))["summary"]
+    (DEMO_ROOT / "results.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":

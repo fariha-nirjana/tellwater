@@ -58,7 +58,7 @@ def _today() -> str:
 
 def _load() -> dict:
     try:
-        u = json.loads(USAGE.read_text())
+        u = json.loads(USAGE.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
         u = {}
     if u.get("day") != _today():  # a new day: fresh counts and a fresh salt
@@ -108,7 +108,7 @@ def take(kind: str, who: str) -> str | None:
         u[kind]["total"] += 1
         u[kind]["visitors"][vid] = u[kind]["visitors"].get(vid, 0) + 1
         USAGE.parent.mkdir(parents=True, exist_ok=True)
-        USAGE.write_text(json.dumps(u))
+        USAGE.write_text(json.dumps(u), encoding="utf-8")
     return None
 
 

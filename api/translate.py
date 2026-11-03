@@ -110,7 +110,7 @@ def fixed_strings() -> list[str]:
 def bangla() -> dict[str, str]:
     """The reviewed English -> Bangla wording; empty until a person has approved it."""
     try:
-        data = json.loads(BANGLA_FILE.read_text())
+        data = json.loads(BANGLA_FILE.read_text(encoding="utf-8"))
     except FileNotFoundError:
         return {}
     return data["strings"] if data.get("approved") else {}
@@ -197,7 +197,7 @@ def draft_bangla() -> None:
     out = translate(src, "bn", ModelClient(ModelEndpoint.muse_spark()))
     BANGLA_FILE.write_text(json.dumps({"approved": False, "reviewed_by": None,
                                        "note": "Drafted by Muse Spark; shown only after a person approves every line.",
-                                       "strings": {src[k]: out[k] for k in src}}, ensure_ascii=False, indent=1))
+                                       "strings": {src[k]: out[k] for k in src}}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(src)} strings drafted into {BANGLA_FILE}")
 
 

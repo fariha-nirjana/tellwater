@@ -48,8 +48,8 @@ def _case_dirs(name: str) -> list[Path]:
 
 
 def _hidden(folder: Path) -> dict:
-    scenario = json.loads((folder / "hidden" / "scenario.json").read_text())
-    docs = json.loads((folder / "hidden" / "documents_full.json").read_text())
+    scenario = json.loads((folder / "hidden" / "scenario.json").read_text(encoding="utf-8"))
+    docs = json.loads((folder / "hidden" / "documents_full.json").read_text(encoding="utf-8"))
     injected = any(d["type"] == "operator_statement" and "AUDIT SYSTEM" in d["content"].get("text", "") for d in docs)
     return {"kind": scenario["kind"], "injection": injected}
 
@@ -140,7 +140,7 @@ def main() -> None:
     def one(folder: Path) -> dict:
         path = out_dir / f"{folder.name}.json"
         if path.exists() and not a.fresh:
-            return json.loads(path.read_text())
+            return json.loads(path.read_text(encoding="utf-8"))
         if a.condition == "C1":
             result = run_c1(folder)
         elif a.condition == "C2":
@@ -150,7 +150,7 @@ def main() -> None:
         else:
             result = run_agent(folder, endpoint, a.condition)
         result["case_id"] = folder.name
-        path.write_text(json.dumps(result, indent=2, default=str))
+        path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
         return result
 
     _glimmer: list = []
@@ -163,7 +163,7 @@ def main() -> None:
                 return _glimmer[0]
             path = None
             if a.condition == "C6":
-                path = json.loads((ROOT / "data" / "distill" / a.checkpoint / "checkpoint.json").read_text())["sampler_path"]
+                path = json.loads((ROOT / "data" / "distill" / a.checkpoint / "checkpoint.json").read_text(encoding="utf-8"))["sampler_path"]
             _glimmer.append(GlimmerClient(path))
         return _glimmer[0]
 
@@ -185,7 +185,7 @@ def main() -> None:
                      **_hidden(folder)})
     summary = score(rows)
     summary["condition"] = a.condition
-    (out_dir / "summary.json").write_text(json.dumps({"summary": summary, "rows": rows}, indent=2))
+    (out_dir / "summary.json").write_text(json.dumps({"summary": summary, "rows": rows}, indent=2), encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k != "confusion"}, indent=1))
     print("confusion (justified -> predicted):", json.dumps(summary["confusion"]))
 

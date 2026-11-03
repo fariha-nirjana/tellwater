@@ -127,8 +127,8 @@ def test_nothing_the_agent_sees_names_the_scenario(tmp_path, kind):
     """Label leakage audit: IDs, file names and metadata must not hint at the event."""
     c = generate(build_scenario(kind, 6, CFG, photo=True, lab=True, adversarial=True), CFG)
     folder = save_case(c, label(c, CFG), tmp_path)
-    visible = [(folder / "case.json").read_text(), (folder / "batches.json").read_text()]
-    visible += [json.dumps({k: d[k] for k in ("id", "image", "author")}) for d in json.loads((folder / "documents.json").read_text())]
+    visible = [(folder / "case.json").read_text(encoding="utf-8"), (folder / "batches.json").read_text(encoding="utf-8")]
+    visible += [json.dumps({k: d[k] for k in ("id", "image", "author")}) for d in json.loads((folder / "documents.json").read_text(encoding="utf-8"))]
     visible += [p.name for p in (folder / "docs").iterdir()]
     words = {"replay", "bypass", "dilution", "aerator", "shutdown", "fault", "low_production", "low_load", "probe", "injection"}
     leaks = [w for w in words if any(w in v.lower() for v in visible)]

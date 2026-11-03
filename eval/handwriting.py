@@ -175,9 +175,9 @@ def read_page(client: ModelClient, path: Path) -> tuple[dict | None, str, dict]:
 def rescore(run: str) -> None:
     """Score a run's saved readings again, without calling the model."""
     for f in sorted((OUT / run).glob("page*.json")):
-        result = json.loads(f.read_text())
+        result = json.loads(f.read_text(encoding="utf-8"))
         result["score"] = score(result["page"], result["read"]) if result["read"] else None
-        f.write_text(json.dumps(result, ensure_ascii=False, indent=1))
+        f.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
         print(result["page"], json.dumps(result["score"]["summary"] if result["read"] else "no JSON", ensure_ascii=False))
 
 
@@ -189,7 +189,7 @@ def main(run: str, pages: list[str]) -> None:
         read, raw, usage = read_page(client, PAGES / f"{page}.jpg")
         result = {"page": page, "model": client.endpoint.model, "usage": usage, "raw": raw,
                   "read": read, "score": score(page, read) if read else None}
-        (out / f"{page}.json").write_text(json.dumps(result, ensure_ascii=False, indent=1))
+        (out / f"{page}.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
         print(page, json.dumps(result["score"]["summary"] if read else "no JSON", ensure_ascii=False), flush=True)
 
 

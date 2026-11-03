@@ -56,7 +56,7 @@ def main() -> None:
     trace = investigate(load_bundle(folder), ModelClient(endpoint), power_model(), on_step=show)
     RUNS.mkdir(parents=True, exist_ok=True)
     out = RUNS / f"{sc.id}-{endpoint.name}.json"
-    out.write_text(trace.to_json())
+    out.write_text(trace.to_json(), encoding="utf-8")
     print(f"\nstatus: {trace.status}   oracle: {lab.justified}   valid: {trace.valid}   error: {trace.error}")
     print(f"checks {trace.checks_used}, turns {trace.turns}, {trace.seconds}s, tokens {trace.prompt_tokens}+{trace.completion_tokens}, cost {trace.cost_usd}")
     if trace.final:

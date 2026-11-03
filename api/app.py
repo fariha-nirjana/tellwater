@@ -65,14 +65,14 @@ def _view_folder(key: str) -> Path:
 
 def _state() -> dict:
     try:
-        return json.loads(STATE.read_text())
+        return json.loads(STATE.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
         return {"reviews": {}, "submissions": {}, "records": {}}
 
 
 def _save_state(s: dict) -> None:
     with _lock:
-        STATE.write_text(json.dumps(s, indent=1))
+        STATE.write_text(json.dumps(s, indent=1), encoding="utf-8")
 
 
 def _trace(key: str, which: str = "saved") -> dict | None:
@@ -80,10 +80,10 @@ def _trace(key: str, which: str = "saved") -> dict | None:
     name = "trace.json" if which == "saved" else f"trace-{which}.json"
     if key.endswith("-bn"):
         path = _view_folder(key).parent / name
-        return json.loads(path.read_text()) if path.exists() else None
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
     for path in (RUNTIME / key / name, DEMO_ROOT / key / name):
         if path.exists():
-            return json.loads(path.read_text())
+            return json.loads(path.read_text(encoding="utf-8"))
     return None
 
 
@@ -107,7 +107,7 @@ def _second_reader(key: str, which: str = "saved") -> dict | None:
     for folder in folders:
         path = folder / name
         if path.exists():
-            return json.loads(path.read_text())
+            return json.loads(path.read_text(encoding="utf-8"))
     return None
 
 
@@ -147,7 +147,7 @@ def _bundle(key: str) -> Bundle:
 def _lines(folder: Path) -> dict[str, list[dict]]:
     """Where each logbook line sits on its photo (0 to 1000 grid), for highlighting. Layout only, no labels.
     A Bangla page's lines also carry the English each entry was written from (`en`), for the translation beside it."""
-    full = json.loads((folder / "hidden" / "documents_full.json").read_text())
+    full = json.loads((folder / "hidden" / "documents_full.json").read_text(encoding="utf-8"))
     out = {}
     for d in full:
         if d["type"] == "logbook" and d.get("meta", {}).get("lines"):
@@ -264,7 +264,7 @@ def investigate_live(key: str, request: Request) -> StreamingResponse:
             result = json.loads(t.to_json())
             which = "after" if _state()["submissions"].get(key) else "live"
             (RUNTIME / key).mkdir(parents=True, exist_ok=True)
-            (RUNTIME / key / f"trace-{which}.json").write_text(json.dumps(result, indent=1, default=str))
+            (RUNTIME / key / f"trace-{which}.json").write_text(json.dumps(result, indent=1, default=str), encoding="utf-8")
             events.put(("final", result))
         except Exception as exc:  # reported to the interface, never swallowed
             events.put(("error", {"error": f"{type(exc).__name__}: {exc}"}))
@@ -416,7 +416,7 @@ def _site_brief() -> str:
             lines.append(f"case:{key}: {HELD_BUYER}")
             continue
         lines.append(f"case:{key} ({CASE_LABELS[key]}): status {item['status']}. {item['summary'] or ''}"[:900])
-    dev = (json.loads((DEMO_ROOT / "results.json").read_text()) if (DEMO_ROOT / "results.json").exists() else {}).get("dev", {})
+    dev = (json.loads((DEMO_ROOT / "results.json").read_text(encoding="utf-8")) if (DEMO_ROOT / "results.json").exists() else {}).get("dev", {})
     if dev:
         lines += ["", "MEASURED RESULTS (60 simulated development cases; a held-out test set is run at the end)"]
         for cond, name in (("C4", "Tellwater (Muse Spark investigating)"), ("C1", "rules only, no model")):
@@ -502,7 +502,7 @@ def letter(key: str, request: Request) -> dict:
            "batch": _batch(key)["id"]}
     path = RUNTIME / "letters" / f"{key}-{translate.digest(src)}.json"
     if path.exists():
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     if reason := limits.take("questions", limits.visitor(request)):
         raise HTTPException(429, reason)
     client = ModelClient(ModelEndpoint.muse_spark())
@@ -525,7 +525,7 @@ def letter(key: str, request: Request) -> dict:
     result = {"en": en, "bn": bn, "model": reply_model(), "request": src,
               "note": "Drafted by Muse Spark, not checked by a person. Read it before sending."}
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(result, ensure_ascii=False, indent=1))
+    path.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result
 
 
@@ -756,7 +756,7 @@ def passport_translation(key: str, lang: str, request: Request, gtin: str | None
         raise HTTPException(400, f"choose one of: {', '.join(translate.LANGUAGES)}")
     path = RUNTIME / "translations" / f"{key}-{lang}-{translate.digest(src)}.json"
     if path.exists():
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     if reason := limits.take("questions", limits.visitor(request)):
         raise HTTPException(429, reason)
     try:
@@ -766,7 +766,7 @@ def passport_translation(key: str, lang: str, request: Request, gtin: str | None
     out = {"lang": lang, "language": translate.LANGUAGES[lang], "model": reply_model(), "fields": fields,
            "note": f"Machine translation by Muse Spark into {translate.LANGUAGES[lang]}. The signed record is the English original."}
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    path.write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     return out
 
 
@@ -816,7 +816,7 @@ def resolve(gtin: str, lot: str) -> RedirectResponse:
 def results() -> dict:
     """Evaluation summaries per case set and condition, snapshotted by `python -m api.demo`."""
     path = DEMO_ROOT / "results.json"
-    return json.loads(path.read_text()) if path.exists() else {}
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 # ---- the interface itself, when it has been built (web/dist): one origin for the pages, the API and the QR links

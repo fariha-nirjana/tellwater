@@ -101,7 +101,7 @@ def collect(sources: list[str], runs: str = "C4", reasoning: bool = False) -> tu
     for set_name in sources:
         assert not set_name.startswith("test"), "never train on the held-out test set"
         for path in sorted((ROOT / "eval" / "runs" / set_name / runs).glob("factory-*.json")):
-            run = json.loads(path.read_text())
+            run = json.loads(path.read_text(encoding="utf-8"))
             folder = GENERATED / set_name / run["case_id"]
             trace = run["trace"]
             if run.get("error") or not trace.get("final"):
@@ -125,15 +125,15 @@ def collect(sources: list[str], runs: str = "C4", reasoning: bool = False) -> tu
 
 def extend(extra: list[str], out: str) -> None:
     rows, skipped = collect(extra)
-    base = (OUT / "train.jsonl").read_text().splitlines()
-    with (OUT / f"{out}.jsonl").open("w") as f:
+    base = (OUT / "train.jsonl").read_text(encoding="utf-8").splitlines()
+    with (OUT / f"{out}.jsonl").open("w", encoding="utf-8") as f:
         for line in base:
             f.write(line + "\n")
         for r in rows:
             f.write(json.dumps({"messages": r["messages"], "tools": r["tools"]}) + "\n")
-    old = json.loads((OUT / "manifest.json").read_text())
+    old = json.loads((OUT / "manifest.json").read_text(encoding="utf-8"))
     (OUT / f"manifest_{out}.json").write_text(json.dumps(
-        {"rows": old["rows"] + [r["meta"] for r in rows], "skipped": {"base": old["skipped"], "extra": skipped}}, indent=1))
+        {"rows": old["rows"] + [r["meta"] for r in rows], "skipped": {"base": old["skipped"], "extra": skipped}}, indent=1), encoding="utf-8")
     added = {}
     for r in rows:
         added[r["meta"]["status"]] = added.get(r["meta"]["status"], 0) + 1
@@ -143,10 +143,10 @@ def extend(extra: list[str], out: str) -> None:
 def build() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     rows, skipped = collect(SOURCES)
-    with (OUT / "train.jsonl").open("w") as f:
+    with (OUT / "train.jsonl").open("w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps({"messages": r["messages"], "tools": r["tools"]}) + "\n")
-    (OUT / "manifest.json").write_text(json.dumps({"rows": [r["meta"] for r in rows], "skipped": skipped}, indent=1))
+    (OUT / "manifest.json").write_text(json.dumps({"rows": [r["meta"] for r in rows], "skipped": skipped}, indent=1), encoding="utf-8")
     chars = sum(len(json.dumps(r["messages"])) for r in rows)
     images = sum(1 for r in rows for m in r["messages"] if m["role"] == "user" and isinstance(m["content"], list))
     print(f"{len(rows)} conversations, skipped {skipped}; {images} images; about {chars / 1e6:.1f}M characters")
@@ -159,11 +159,11 @@ def build_reasoning(out: str) -> None:
     parts = {"round1": collect(SOURCES + ["train_gaps"], reasoning=True),
              "train_reason": collect(["train_reason"], runs="C4c-reasoning", reasoning=True)}
     rows = [r for got, _ in parts.values() for r in got]
-    with (OUT / f"{out}.jsonl").open("w") as f:
+    with (OUT / f"{out}.jsonl").open("w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps({"messages": r["messages"], "tools": r["tools"]}) + "\n")
     (OUT / f"manifest_{out}.json").write_text(json.dumps(
-        {"rows": [r["meta"] for r in rows], "skipped": {k: s for k, (_, s) in parts.items()}}, indent=1))
+        {"rows": [r["meta"] for r in rows], "skipped": {k: s for k, (_, s) in parts.items()}}, indent=1), encoding="utf-8")
     for k, (got, s) in parts.items():
         statuses: dict[str, int] = {}
         for r in got:
@@ -183,7 +183,7 @@ def _usable(run: dict, folder: Path) -> bool:
 
 
 def _group(folder: Path) -> tuple[str, str, str, str]:
-    sc = json.loads((folder / "hidden" / "scenario.json").read_text())
+    sc = json.loads((folder / "hidden" / "scenario.json").read_text(encoding="utf-8"))
     gaps = "+".join(sorted({g["signal"] for g in sc["gaps"]})) or "-"
     return sc["kind"], gaps, "tank" if sc["tank_level_available"] else "no tank log", load_label(folder)["justified"]
 
@@ -206,7 +206,7 @@ def build_round3(out: str) -> None:
     for origin, set_name, runs in sources:
         assert not set_name.startswith("test"), "never train on the held-out test set"
         for path in sorted((ROOT / "eval" / "runs" / set_name / runs).glob("factory-*.json")):
-            run = json.loads(path.read_text())
+            run = json.loads(path.read_text(encoding="utf-8"))
             folder = GENERATED / set_name / path.stem
             if target(folder):
                 ok, why = grounded(run, folder)
@@ -220,20 +220,20 @@ def build_round3(out: str) -> None:
     rows, meta = [], []
     for g in sorted(picked):
         for origin, set_name, runs, case in picked[g]:
-            run = json.loads((ROOT / "eval" / "runs" / set_name / runs / f"{case}.json").read_text())
+            run = json.loads((ROOT / "eval" / "runs" / set_name / runs / f"{case}.json").read_text(encoding="utf-8"))
             folder = GENERATED / set_name / case
             removed = sum(spent(s) for s in run["trace"]["steps"])
             rows.append({"messages": conversation(run["trace"], folder, drop_spent=True), "tools": TOOL_SPECS})
             meta.append({"origin": origin, "set": set_name, "runs": runs, "case_id": case, "group": list(g),
                          "status": run["status"], "budget_calls_removed": removed})
     lines = [json.dumps(r) for r in rows]
-    (OUT / f"{out}.jsonl").write_text("".join(line + "\n" for line in lines))
+    (OUT / f"{out}.jsonl").write_text("".join(line + "\n" for line in lines), encoding="utf-8")
     fp = lambda f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest()  # noqa: E731
     manifest = {"rows": meta, "dropped_candidates": dropped,
                 "groups": {" | ".join(g): len(v) for g, v in sorted(picked.items())},
                 "fingerprints": {f: fp(f) for f in ("eval/guidance.py", "eval/distill_data.py", "agent/prompts.py", "agent/tools.py")},
                 "sha256": hashlib.sha256("".join(line + "\n" for line in lines).encode()).hexdigest()}
-    (OUT / f"manifest_{out}.json").write_text(json.dumps(manifest, indent=1))
+    (OUT / f"manifest_{out}.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
     count = lambda key: {k: sum(1 for m in meta if m[key] == k) for k in sorted({m[key] for m in meta})}  # noqa: E731
     print(f"{len(rows)} conversations -> {OUT / out}.jsonl; by answer {count('status')}; by source {count('origin')}; "
           f"budget calls removed {sum(m['budget_calls_removed'] for m in meta)}; sha256 {manifest['sha256'][:16]}")

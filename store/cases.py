@@ -58,11 +58,11 @@ def save_case(case: Case, label: Label, root: Path = CASES, factory_name: str | 
         "target_batch": label.batch_id,
         "start": str(case.signals.index[0]),
         "end": str(case.signals.index[-1]),
-    }, indent=2))
+    }, indent=2), encoding="utf-8")
     (folder / "batches.json").write_text(json.dumps([
         {"id": b.id, "start": str(b.start), "end": str(b.end), "shade": b.shade,
          "planned_wastewater_m3": b.planned_wastewater_m3} for b in case.batches
-    ], indent=2))
+    ], indent=2), encoding="utf-8")
 
     public, full = [], []
     for d in case.documents:
@@ -75,17 +75,17 @@ def save_case(case: Case, label: Label, root: Path = CASES, factory_name: str | 
         public.append(entry)
         full.append({**entry, "content": d.content, "truthful": d.truthful,
                      "meta": json.loads(json.dumps(d.meta, default=str))})
-    (folder / "documents.json").write_text(json.dumps(public, indent=2))
+    (folder / "documents.json").write_text(json.dumps(public, indent=2), encoding="utf-8")
 
     case.truth.to_csv(hidden / "truth.csv.gz", index_label="time", compression={"method": "gzip", "mtime": 0})
-    (hidden / "label.json").write_text(json.dumps(asdict(label), indent=2, default=str))
-    (hidden / "documents_full.json").write_text(json.dumps(full, indent=2, default=str))
+    (hidden / "label.json").write_text(json.dumps(asdict(label), indent=2, default=str), encoding="utf-8")
+    (hidden / "documents_full.json").write_text(json.dumps(full, indent=2, default=str), encoding="utf-8")
     sc = case.scenario
     (hidden / "scenario.json").write_text(json.dumps({
         "id": sc.id, "seed": sc.seed, "kind": sc.kind.value, "tank_level_available": sc.tank_level_available,
         "events": [{"type": e.type.value, "start": str(e.start), "end": str(e.end), "params": e.params} for e in sc.events],
         "gaps": [{"signal": g.signal, "start": str(g.start), "end": str(g.end)} for g in sc.gaps],
-    }, indent=2, default=str))
+    }, indent=2, default=str), encoding="utf-8")
     return folder
 
 
@@ -109,11 +109,11 @@ class Bundle:
 
 
 def load_bundle(folder: Path) -> Bundle:
-    meta = json.loads((folder / "case.json").read_text())
+    meta = json.loads((folder / "case.json").read_text(encoding="utf-8"))
     cfg = load_factory(meta["factory_config"])
     signals = pd.read_csv(folder / "signals.csv.gz", index_col="time")
     signals.index = pd.to_datetime(signals.index).tz_convert(cfg.timezone)
-    batches = json.loads((folder / "batches.json").read_text())
+    batches = json.loads((folder / "batches.json").read_text(encoding="utf-8"))
     return Bundle(
         case_id=meta["case_id"],
         folder=folder,
@@ -121,7 +121,7 @@ def load_bundle(folder: Path) -> Bundle:
         cfg=cfg,
         signals=signals,
         batches=batches,
-        documents=json.loads((folder / "documents.json").read_text()),
+        documents=json.loads((folder / "documents.json").read_text(encoding="utf-8")),
         target_batch=next(b for b in batches if b["id"] == meta["target_batch"]),
         start=pd.Timestamp(meta["start"]).tz_convert(cfg.timezone),
         end=pd.Timestamp(meta["end"]).tz_convert(cfg.timezone),
@@ -130,4 +130,4 @@ def load_bundle(folder: Path) -> Bundle:
 
 def load_label(folder: Path) -> dict:
     """Evaluation only. Never called from agent code."""
-    return json.loads((folder / "hidden" / "label.json").read_text())
+    return json.loads((folder / "hidden" / "label.json").read_text(encoding="utf-8"))

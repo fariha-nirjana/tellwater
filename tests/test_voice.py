@@ -98,13 +98,13 @@ def test_voice_off_switch_never_calls_transcription(client, calls, monkeypatch):
 
 def test_existing_daily_counts_survive_adding_voice(client):
     limits.take("questions", "a")
-    old = json.loads(limits.USAGE.read_text())
+    old = json.loads(limits.USAGE.read_text(encoding="utf-8"))
     del old["voice"]
-    limits.USAGE.write_text(json.dumps(old))
+    limits.USAGE.write_text(json.dumps(old), encoding="utf-8")
     assert client.get("/api/limits").json()["voice"]["left"] == 10
     assert limits.remaining("questions", "a")["left"] == 19
     assert limits.take("voice", "a") is None
-    saved = json.loads(limits.USAGE.read_text())
+    saved = json.loads(limits.USAGE.read_text(encoding="utf-8"))
     assert saved["salt"] == old["salt"] and saved["questions"] == old["questions"]
     assert saved["voice"]["total"] == 1
 

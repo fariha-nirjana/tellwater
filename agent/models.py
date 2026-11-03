@@ -19,7 +19,7 @@ def load_env(path: Path = ROOT / ".env") -> None:
     """Read KEY=value lines from .env into the environment, without overriding."""
     if not path.exists():
         return
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             key, value = line.split("=", 1)

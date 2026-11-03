@@ -51,7 +51,7 @@ def pages(set_name: str) -> list[tuple[Path, dict]]:
         full = folder / "hidden" / "documents_full.json"
         if not full.exists():
             continue
-        for d in json.loads(full.read_text()):
+        for d in json.loads(full.read_text(encoding="utf-8")):
             if d["type"] == "logbook" and d.get("meta", {}).get("lines"):
                 out.append((folder / d["image"], d))
     return out
@@ -134,7 +134,7 @@ def main() -> None:
         "prompt_tokens": sum(r["prompt_tokens"] or 0 for r in results), "completion_tokens": sum(r["completion_tokens"] or 0 for r in results),
     }
     summary["pad_square"] = a.pad_square
-    (out_dir / f"{a.set}{'-square' if a.pad_square else ''}.json").write_text(json.dumps({"summary": summary, "pages": results}, indent=1))
+    (out_dir / f"{a.set}{'-square' if a.pad_square else ''}.json").write_text(json.dumps({"summary": summary, "pages": results}, indent=1), encoding="utf-8")
     print(json.dumps(summary, indent=1))
 
 

@@ -38,8 +38,8 @@ TZ = "+06:00"
 
 def target(folder: Path) -> tuple[str, str, str] | None:
     """The case's target kind, or None."""
-    sc = json.loads((folder / "hidden" / "scenario.json").read_text())
-    lab = json.loads((folder / "hidden" / "label.json").read_text())
+    sc = json.loads((folder / "hidden" / "scenario.json").read_text(encoding="utf-8"))
+    lab = json.loads((folder / "hidden" / "label.json").read_text(encoding="utf-8"))
     gaps = sorted({g["signal"] for g in sc["gaps"]})
     if len(gaps) != 1 or not sc["tank_level_available"]:
         return None
@@ -55,7 +55,7 @@ def note(folder: Path) -> str:
     """The note for the teacher: which records settle this case."""
     key = target(folder)
     assert key, f"{folder.name} is not a round 3 target"
-    lab = json.loads((folder / "hidden" / "label.json").read_text())
+    lab = json.loads((folder / "hidden" / "label.json").read_text(encoding="utf-8"))
     _, gap, justified = key
     name = EVIDENCE_NAMES[gap]
     if justified == "insufficient":
@@ -135,8 +135,8 @@ def _names(item: str) -> list[str]:
 
 def grounded(run: dict, folder: Path, min_coverage: float = MIN_COVERAGE) -> tuple[bool, list[str]]:
     """Whether a run's answer is right and follows from what it read. Returns (ok, reasons it failed)."""
-    lab = json.loads((folder / "hidden" / "label.json").read_text())
-    sc = json.loads((folder / "hidden" / "scenario.json").read_text())
+    lab = json.loads((folder / "hidden" / "label.json").read_text(encoding="utf-8"))
+    sc = json.loads((folder / "hidden" / "scenario.json").read_text(encoding="utf-8"))
     trace, final = run["trace"], run.get("final") or {}
     why: list[str] = []
     if run.get("error"):
