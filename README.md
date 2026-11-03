@@ -100,12 +100,14 @@ I'm not saying Tellwater will save every river in Bangladesh. But I want our kid
 
 So Tellwater can only give four answers, and each one says what it rests on:
 
-| Answer | When | What happens next |
-|---|---|---|
-| **Supports the claim** | Separate physical records agree with what the factory says | A person signs it; the passport says what the records show, and for which window |
-| **Contradicts the claim** | The records show something the claim doesn't | A person reviews it; the factory sees the finding and can reply |
-| **Review required** | The records allow more than one honest explanation | A person weighs it; nothing is published until they decide |
-| **Insufficient evidence** | One missing record could change the answer | The factory is asked for exactly that record, and the case runs again when it arrives |
+The companion, a swatch of gamchha check with a loose thread, walks you through each case on the site and shows which answer it reached:
+
+|  | Answer | When | What happens next |
+|---|---|---|---|
+| <img src="docs/readme/companion-calm.svg" width="72" alt="The companion, calm"> | **Supports the claim** | Separate physical records agree with what the factory says | A person signs it; the passport says what the records show, and for which window |
+| <img src="docs/readme/companion-checking.svg" width="72" alt="The companion, checking with a magnifying glass"> | **Contradicts the claim** | The records show something the claim doesn't | A person reviews it; the factory sees the finding and can reply |
+| <img src="docs/readme/companion-cant-tell.svg" width="72" alt="The companion, shrugging: it can't tell"> | **Review required** | The records allow more than one honest explanation | A person weighs it; nothing is published until they decide |
+| <img src="docs/readme/companion-asking.svg" width="72" alt="The companion, asking a question"> | **Insufficient evidence** | One missing record could change the answer | The factory is asked for exactly that record, and the case runs again when it arrives |
 
 A missing record is never treated as proof of anything. It's asked for. Living inside a system, you stop smelling it. An investigator that reads the records fresh every time doesn't get used to anything.
 
