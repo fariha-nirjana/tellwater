@@ -169,20 +169,7 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 
 ## How it's built
 
-```mermaid
-flowchart TD
-    R["Factory records<br/>meter feeds · handwritten logbook photos · maintenance notes · meter photos · lab reports"]
-    T["Tools in plain code<br/>signal windows · water and tank balances · power against load · replay detection · document reading"]
-    S["Muse Spark, the investigator<br/>picks one check at a time, says why, keeps every explanation open"]
-    V["Citation validator<br/>every record the finding cites must be one it retrieved"]
-    G["Muse Glimmer, the second reader<br/>fine-tuned, on our own GPU"]
-    P["A person reviews"]
-    Q["Signed passport<br/>SHA-256 fingerprints + Ed25519 · GS1 Digital Link QR"]
-    R --> T --> S --> V --> P
-    V --> G
-    G -- "if the two disagree, a person decides" --> P
-    P --> Q
-```
+<p align="center"><img src="docs/readme/built.svg" alt="How Tellwater is built: factory records go to tools in code, then Muse Spark investigates one check at a time, a citation validator checks every cited record, Muse Glimmer reads each case a second time, a person reviews, and the result becomes a signed passport behind the garment's QR code. If the two models disagree, nothing is published until a person decides." width="100%"></p>
 
 | Path | What it holds |
 |---|---|

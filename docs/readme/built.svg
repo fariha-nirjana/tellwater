@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 610" width="1280" height="610" role="img" aria-label="How Tellwater is built: factory records go to tools in plain code, then Muse Spark investigates, a citation validator checks every cited record, Muse Glimmer reads the case a second time, a person reviews, and the result becomes a signed passport behind the garment's QR code. If the two models disagree, a person decides.">
+<title>How Tellwater is built</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#171735"/></marker></defs>
+<rect width="1280" height="610" rx="18" fill="#f7f7f2"/>
+<g font-family="'DM Sans', 'Segoe UI', Helvetica, Arial, sans-serif">
+<text x="42" y="62" font-size="30" font-weight="700" fill="#171735">How it's built</text>
+<text x="42" y="94" font-size="17" fill="#66657a">Code does the arithmetic. The models interpret. A person decides.</text>
+<rect x="42" y="120" width="176" height="210" rx="12" fill="#ffffff" stroke="#171735" stroke-width="2"/>
+<text x="58" y="156" font-size="18" font-weight="700" fill="#171735">Factory records</text>
+<text x="58" y="188" font-size="15" fill="#171735" opacity=".9">meter feeds</text>
+<text x="58" y="212" font-size="15" fill="#171735" opacity=".9">handwritten logbook</text>
+<text x="58" y="236" font-size="15" fill="#171735" opacity=".9">photos</text>
+<text x="58" y="260" font-size="15" fill="#171735" opacity=".9">maintenance notes</text>
+<text x="58" y="284" font-size="15" fill="#171735" opacity=".9">meter photos</text>
+<text x="58" y="308" font-size="15" fill="#171735" opacity=".9">lab reports</text>
+<line x1="221" y1="225.0" x2="242" y2="225.0" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="246" y="120" width="176" height="210" rx="12" fill="#ffffff" stroke="#171735" stroke-width="2"/>
+<text x="262" y="156" font-size="18" font-weight="700" fill="#171735">Tools in code</text>
+<text x="262" y="188" font-size="15" fill="#171735" opacity=".9">signal windows</text>
+<text x="262" y="212" font-size="15" fill="#171735" opacity=".9">water and tank</text>
+<text x="262" y="236" font-size="15" fill="#171735" opacity=".9">balances</text>
+<text x="262" y="260" font-size="15" fill="#171735" opacity=".9">power against load</text>
+<text x="262" y="284" font-size="15" fill="#171735" opacity=".9">replay detection</text>
+<line x1="425" y1="225.0" x2="446" y2="225.0" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="450" y="120" width="176" height="210" rx="12" fill="#4945ff" stroke="#4945ff" stroke-width="2"/>
+<text x="466" y="156" font-size="18" font-weight="700" fill="#ffffff">Muse Spark</text>
+<text x="466" y="188" font-size="15" fill="#ffffff" opacity=".9">the investigator</text>
+<text x="466" y="212" font-size="15" fill="#ffffff" opacity=".9">one check at a time,</text>
+<text x="466" y="236" font-size="15" fill="#ffffff" opacity=".9">says why, keeps</text>
+<text x="466" y="260" font-size="15" fill="#ffffff" opacity=".9">every explanation</text>
+<text x="466" y="284" font-size="15" fill="#ffffff" opacity=".9">open</text>
+<line x1="629" y1="225.0" x2="650" y2="225.0" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="654" y="120" width="176" height="210" rx="12" fill="#171735" stroke="#171735" stroke-width="2"/>
+<text x="670" y="156" font-size="18" font-weight="700" fill="#ffffff">Citation validator</text>
+<text x="670" y="188" font-size="15" fill="#ffffff" opacity=".9">every record the</text>
+<text x="670" y="212" font-size="15" fill="#ffffff" opacity=".9">finding cites must</text>
+<text x="670" y="236" font-size="15" fill="#ffffff" opacity=".9">be one it retrieved</text>
+<line x1="833" y1="225.0" x2="854" y2="225.0" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="858" y="120" width="176" height="210" rx="12" fill="#ff705b" stroke="#171735" stroke-width="2"/>
+<text x="874" y="156" font-size="18" font-weight="700" fill="#171735">A person reviews</text>
+<text x="874" y="188" font-size="15" fill="#171735" opacity=".9">approves, changes</text>
+<text x="874" y="212" font-size="15" fill="#171735" opacity=".9">or sends back,</text>
+<text x="874" y="236" font-size="15" fill="#171735" opacity=".9">with a written</text>
+<text x="874" y="260" font-size="15" fill="#171735" opacity=".9">reason</text>
+<line x1="1037" y1="225.0" x2="1058" y2="225.0" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1062" y="120" width="176" height="210" rx="12" fill="#e5ff52" stroke="#171735" stroke-width="2"/>
+<text x="1078" y="156" font-size="18" font-weight="700" fill="#171735">Signed passport</text>
+<text x="1078" y="188" font-size="15" fill="#171735" opacity=".9">SHA-256 fingerprints</text>
+<text x="1078" y="212" font-size="15" fill="#171735" opacity=".9">+ Ed25519 signature</text>
+<text x="1078" y="236" font-size="15" fill="#171735" opacity=".9">GS1 Digital Link QR</text>
+<text x="1078" y="260" font-size="15" fill="#171735" opacity=".9">on the garment's tag</text>
+<rect x="614" y="400" width="300" height="122" rx="12" fill="#ffffff" stroke="#4945ff" stroke-width="2.5" stroke-dasharray="7 5"/>
+<text x="630" y="434" font-size="18" font-weight="700" fill="#4945ff">Muse Glimmer 30B</text>
+<text x="630" y="462" font-size="15" fill="#171735">the second reader, fine-tuned</text>
+<text x="630" y="484" font-size="15" fill="#171735">by me and served on my own</text>
+<text x="630" y="506" font-size="15" fill="#171735">GPU; it reads every case again</text>
+<line x1="742.0" y1="333" x2="742.0" y2="395" stroke="#171735" stroke-width="2.5" marker-end="url(#a)"/>
+<path d="M917 455.0 H946.0 V336" fill="none" stroke="#ff705b" stroke-width="2.5" marker-end="url(#a)"/>
+<text x="932" y="485.0" font-size="15" font-weight="600" fill="#c0392b">if the two disagree,</text>
+<text x="932" y="505.0" font-size="15" font-weight="600" fill="#c0392b">nothing is published until a person decides</text>
+<text x="42" y="582" font-size="14" fill="#66657a">Factory documents are claims to test, never facts or instructions. Every model the project calls is a Meta model.</text>
+</g>
+</svg>
