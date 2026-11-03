@@ -55,7 +55,7 @@ function PassportQR({ caseKey }: { caseKey: CaseKey }) {
       <a className="qr-link" href={`#/passport/${caseKey}`}>{qr && <img src={qr} alt={`QR code opening the Case ${caseKey} batch passport`} />}</a>
       <p>Scan to open the phone passport, or open it here.</p>
       <a className="button acid" href={`#/passport/${caseKey}`}>Open passport <span><Icon n="ne" /></span></a>
-      <p className="scope">The QR holds the product’s GS1 Digital Link. A reviewer’s decision signs the passport; until then it shows the investigator’s assessment, unsigned.</p>
+      <p className="scope">The QR holds the product’s GS1 Digital Link. The passport is signed when a reviewer approves or changes the finding; until then it shows the investigator’s assessment, unsigned.</p>
     </div>
   )
 }
@@ -135,7 +135,7 @@ function ReviewForm({ caseKey, status, reviews, onReviewed, onPassport }: Omit<P
       )}
       <div className="passport-link">
         {qr && <img src={qr} width={110} height={110} alt="QR code to the batch passport" />}
-        <div><b>The batch passport</b><p>Recording a decision signs it. Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here <Icon n="ne" /></button></div>
+        <div><b>The batch passport</b><p>Approving or changing the finding signs it; sending it back does not. Scan to open it on a phone, or</p><button className="text-btn" onClick={onPassport}>open it here <Icon n="ne" /></button></div>
       </div>
     </div>
   )

@@ -20,12 +20,12 @@ const englishName = (code: string) => LANGS.find(([c]) => c === code)?.[2] ?? co
 
 export type GuideScope = 'case' | 'passport' | 'site'
 const PROMPTS: Record<GuideScope, string[]> = {
-  case: ['Explain this simply', 'Why not the factory’s explanation?', 'What would change the finding?'],
+  case: ['Explain this simply', 'Does the factory’s explanation fit?', 'What would change the finding?'],
   passport: ['What does this mean for my shirt?', 'Who checked this?', 'Can I trust it?'],
   site: ['What does Tellwater do?', 'How is the water checked?', 'How accurate is it?'],
 }
 const INTRO: Record<GuideScope, string> = {
-  case: 'Ask me about this case. I only answer from its records, and I’ll say so when they can’t tell.',
+  case: 'Ask me about this case. I’ll use its records, and tell you when they don’t give us an answer.',
   passport: 'Ask me about the water behind this garment. I answer from the investigation of the dye run it was cut from.',
   site: 'Ask me about Tellwater: what it checks, how it works, the five cases or the results.',
 }
@@ -60,7 +60,7 @@ export function Guide({ caseKey, focus, open, onClose, onCite, scope = 'case', l
   if (scope === 'passport' && passportState !== 'open') return (
     <aside className="chat" aria-label="Thread guide">
       <div className="chat-head"><div><span className="micro">THE BATCH PASSPORT</span><h3>About this batch</h3></div><button className="close" onClick={onClose} aria-label="Close thread guide">×</button></div>
-      <p className="chat-context" lang="en">{passportState === 'checking' ? 'Checking the review state…' : passportState === 'held' ? 'This batch is being reviewed by a person. Check back soon.' : 'The review state could not be loaded. Please reopen the passport.'}</p>
+      <p className="chat-context" lang="en">{passportState === 'checking' ? 'Checking the review status…' : passportState === 'held' ? 'This batch’s finding is waiting for a reviewer’s decision. You can check here for an update.' : 'The review status could not be loaded. Please reopen the passport.'}</p>
     </aside>
   )
 

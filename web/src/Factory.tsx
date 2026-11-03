@@ -30,8 +30,10 @@ const EN = {
   records: 'Our records', recordsSub: 'Each meter’s record over each run’s treatment window',
   live: 'sending', partly: 'partly', missing: 'missing', onFile: 'on file', none: 'none',
   lab: 'Lab report', logbook: 'Logbook',
-  cant: 'The factory can’t see the buyer’s review notes, can’t change an answer, and can’t sign a passport. A record it sends still counts as the factory’s word until it agrees with the plant’s other records.',
+  cant: 'Review decisions and passport signing belong to the buyer’s reviewer. Submitted records are checked alongside the plant’s other evidence.',
   loading: 'Opening the factory’s page…', shade: 'shade', signedIn: 'Showing:',
+  held: 'Held for review', withBuyer: 'Awaiting the buyer’s reviewer',
+  withBuyerNote: 'The automatic checks gave different assessments for this run. A reviewer at the buyer needs to decide before a finding is published. Your maintenance records or meter photos may help.',
 }
 // The factory page in Bangla, drafted alongside the English
 const BN: typeof EN = {
@@ -53,13 +55,15 @@ const BN: typeof EN = {
   records: 'আমাদের রেকর্ড', recordsSub: 'প্রতিটি রানের শোধনের সময়ে প্রতিটি মিটারের রেকর্ড',
   live: 'আসছে', partly: 'আংশিক', missing: 'নেই', onFile: 'আছে', none: 'নেই',
   lab: 'ল্যাব রিপোর্ট', logbook: 'লগবুক',
-  cant: 'কারখানা ক্রেতার রিভিউ নোট দেখতে পারে না, উত্তর বদলাতে পারে না, পাসপোর্টে সই করতে পারে না। কারখানার পাঠানো রেকর্ড প্ল্যান্টের অন্য রেকর্ডের সাথে না মেলা পর্যন্ত কারখানার কথা হিসেবেই গণ্য হয়।',
+  cant: 'রিভিউয়ের সিদ্ধান্ত ও পাসপোর্টে স্বাক্ষরের দায়িত্ব বায়ারের রিভিউয়ারের। জমা দেওয়া রেকর্ড প্ল্যান্টের অন্য প্রমাণের সঙ্গে মিলিয়ে দেখা হয়।',
   loading: 'কারখানার পাতা খোলা হচ্ছে…', shade: 'শেড', signedIn: 'যে কারখানা হিসেবে',
+  held: 'রিভিউ না হওয়া পর্যন্ত প্রকাশ বন্ধ', withBuyer: 'বায়ারের রিভিউয়ারের সিদ্ধান্তের অপেক্ষায়',
+  withBuyerNote: 'এই ডাই রান নিয়ে স্বয়ংক্রিয় যাচাইগুলো থেকে আলাদা মূল্যায়ন এসেছে। ফলাফল প্রকাশের আগে বায়ারের রিভিউয়ারকে সিদ্ধান্ত নিতে হবে। আপনার রক্ষণাবেক্ষণের রেকর্ড বা মিটারের ছবি এতে কাজে আসতে পারে।',
 }
 const STATUS_BN: Record<Status, string> = {
-  supports: 'প্রমাণ শোধনের দাবি সমর্থন করে', contradicts: 'প্রমাণ দাবির বিরোধিতা করে', review_required: 'রিভিউ দরকার', insufficient: 'প্রমাণ যথেষ্ট নয়',
+  supports: 'প্রমাণ বর্জ্যপানি শোধনের দাবিকে সমর্থন করে', contradicts: 'প্রমাণ দাবির সঙ্গে মেলে না', review_required: 'রিভিউ দরকার', insufficient: 'যথেষ্ট প্রমাণ নেই',
 }
-const SHADE_BN: Record<string, string> = { light: 'হালকা', medium: 'মাঝারি', dark: 'গাঢ়' }
+const SHADE_BN: Record<string, string> = { light: 'হালকা নীল', medium: 'কফি', dark: 'নেভি' }  // the run's colour, as in the passport
 const SIGNAL_BN: Record<string, string> = {
   S1: 'ইনটেক ফ্লো', T1: 'ট্যাংক লেভেল', S2: 'ETP ইনফ্লো', S3: 'ETP বিদ্যুৎ', S4a: 'আউটফল ফ্লো', S4b: 'আউটফল pH', S4c: 'কন্ডাক্টিভিটি',
 }
@@ -86,8 +90,8 @@ export function Factory({ which }: { which: 'A' | 'B' }) {
   useEffect(() => { load() }, [load])
   if (!runs) return <section className="fv"><p className="loading">{t.loading}</p></section>
 
-  const status = (s: Passport['status']) => (s === 'pending_review' ? 'Held for review' : s ? (lang === 'bn' ? STATUS_BN[s] : STATUS_LABEL[s]) : '–')
-  const shade = (s: string) => lang === 'bn' ? `${SHADE_BN[s] ?? s} ${t.shade}` : SHADE[s]?.name ?? s
+  const status = (s: Passport['status']) => (s === 'pending_review' ? t.held : s ? (lang === 'bn' ? STATUS_BN[s] : STATUS_LABEL[s]) : '–')
+  const shade = (s: string) => lang === 'bn' ? SHADE_BN[s] ?? s : SHADE[s]?.name ?? s
   const sigName = (c: CF, sig: string) => (lang === 'bn' ? SIGNAL_BN[sig] : c.signals[sig]?.[0]?.replace('Equalization tank level', 'Tank level').replace('Outfall conductivity', 'Conductivity')) ?? sig
   // a request is open from the buyer's evidence request until the factory sends a record for it
   const asked = runs.filter((r) => r.ask && !r.c.awaiting_person)
@@ -153,8 +157,8 @@ export function Factory({ which }: { which: 'A' | 'B' }) {
 
 type RowProps = { run: Run; t: typeof EN; status: (s: Passport['status']) => string; shade: (s: string) => string; onChange: () => void }
 
-function WithBuyer() {
-  return <span className="fv-with-buyer" lang="en"><span className="fv-review-pill">With a person at the buyer</span><small>The automatic checks didn't agree on this run, so a person at the buyer is looking before anything is published. Sending your maintenance record or meter photos can help them decide.</small></span>
+function WithBuyer({ t }: { t: typeof EN }) {
+  return <span className="fv-with-buyer"><span className="fv-review-pill">{t.withBuyer}</span><small>{t.withBuyerNote}</small></span>
 }
 
 function Request({ run: { b, p, c, ask }, t, status, shade, onChange }: RowProps) {
@@ -242,7 +246,7 @@ function RunRow({ run: { b, p, c, ask }, t, status, shade, onRequest, onChange }
     <>
     <tr>
       <td><i className="fv-swatch" style={{ background: SHADE[b.batch.shade]?.fill }} />{b.products[0].lot}<small>{shade(b.batch.shade)}</small></td>
-      <td>{needsPerson ? <WithBuyer /> : <>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></>}</td>
+      <td>{needsPerson ? <WithBuyer t={t} /> : <>{status(s)}<small>{c.submission ? t.sentNote : s === 'insufficient' ? t.oneMissing : finding ? t.shared : ''}</small></>}</td>
       <td>
         {s === 'insufficient' && !c.submission ? <button className="text-btn" onClick={onRequest}>{t.sendIt((ask?.items ?? [''])[0].replace(/ T1$/, ''))} <Icon n="up" /></button>
           : finding ? (

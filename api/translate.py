@@ -35,7 +35,7 @@ STATUS = {
 UI = {
     "open_case": "Open case file", "title_1": "A label with", "title_2": "a little more.",
     "you_scanned": "You scanned", "made_from_run": "Made from this run", "shade": "shade",
-    "run": "This garment was cut from fabric dyed in one run. Wastewater is made by dye runs, not by single garments, so this passport answers for the whole run and every garment made from it.",
+    "run": "This garment was made from fabric dyed in one batch. This passport shows the assessment of that batch’s wastewater records. Water use was not measured separately for this garment.",
     "key_records": "Key records", "factory_claim": "Factory claim", "physical_record": "Physical record",
     "reviewer_decision": "Reviewer decision", "approved": "Approved", "changed_to": "Changed to", "sent_back": "Sent back",
     "awaiting": "Awaiting a written reviewer decision. Until then this is the investigator’s assessment, unsigned.",
@@ -43,42 +43,45 @@ UI = {
     "doc_logbook": "Logbook", "doc_maintenance_record": "Maintenance record", "doc_operator_statement": "Operator statement",
     "doc_meter_photo": "Meter photo", "doc_lab_report": "Lab report",
     "tab_you": "For shoppers", "tab_buyer": "For buyers", "tab_auditor": "For auditors",
-    "journey_title": "Where the water went", "stage_intake_dyeing": "Your fabric dyed", "of_water": "of water used by this run",
-    "stage_intake": "Water drawn in", "stage_tank": "Held in the tank", "stage_treatment": "Cleaned at the treatment plant", "stage_river": "Back to the river",
-    "state_intake_ok": "Metered as it came in", "state_intake_missing": "The intake record is missing", "state_intake_neutral": "Not needed for this answer",
-    "state_tank_ok": "The tank held the water", "state_tank_problem": "The tank overflowed", "state_tank_missing": "The tank record is missing", "state_tank_neutral": "Not needed for this answer",
-    "state_treatment_ok": "Treatment ran as needed", "state_treatment_problem": "Cleaning fell short", "state_treatment_affected": "Not checked after the problem",
-    "state_treatment_missing": "A treatment record is missing", "state_treatment_neutral": "Not needed for this answer",
-    "state_river_ok": "Left the factory treated", "state_river_seen": "Nothing untreated seen at the outfall", "state_river_problem": "Some water went around treatment",
-    "state_river_affected": "Reached the river without full treatment", "state_river_missing": "An outfall record is missing", "state_river_neutral": "Not needed for this answer",
+    "journey_title": "What the water records show", "stage_intake_dyeing": "Fabric dyeing", "water_used": "{volume} m³ of water used by this run",
+    "stage_intake": "Water intake", "stage_tank": "Holding tank", "stage_treatment": "Treatment plant", "stage_river": "Factory outfall",
+    "state_intake_ok": "Intake measured", "state_intake_missing": "The intake record is missing", "state_intake_neutral": "Not needed for this assessment",
+    "state_tank_ok": "Records indicate the tank held the water", "state_tank_problem": "Records indicate an overflow", "state_tank_missing": "The tank record is missing", "state_tank_neutral": "Not needed for this assessment",
+    "state_treatment_ok": "Records support treatment during this interval", "state_treatment_problem": "Records indicate a treatment shortfall", "state_treatment_affected": "Not assessed after the flagged problem",
+    "state_treatment_missing": "Treatment record missing", "state_treatment_neutral": "Not needed for this assessment",
+    "state_river_ok": "Records support treatment before discharge", "state_river_seen": "No sign of untreated discharge in the records checked", "state_river_problem": "Records indicate water bypassed treatment",
+    "state_river_affected": "Records indicate discharge without full treatment", "state_river_missing": "Outfall record missing", "state_river_neutral": "Not needed for this assessment",
     "reused_prefix": "about", "reused_suffix": "reused in the factory",
-    "journey_note": "Marked from the investigation of this garment’s dye run. Garments don’t make wastewater; dye runs do, so this answer covers every garment cut from the run.",
+    "journey_note": "This assessment covers the dye run that produced the garment’s fabric, over the stated treatment interval. It does not track a separate stream of water for this individual garment.",
     "about_title": "About this garment", "made_of": "Made of", "made_in": "Made in", "colour": "Colour",
-    "see_buyer": "The details a buyer checks", "see_auditor": "Everything, for auditors",
+    "see_buyer": "Details for buyers", "see_auditor": "Full record for auditors",
     "sec_general": "General information", "row_product": "Product", "row_lot": "Lot (dye run)", "sec_water": "Wastewater treatment", "row_answer": "Answer",
     "row_window_start": "Treatment window start", "row_window_end": "Treatment window end", "row_scope": "Scope", "not_reviewed": "Not yet reviewed",
-    "row_signed": "Signed record", "yes_signed": "Yes", "not_signed": "Not yet: signed when a reviewer decides", "row_requested": "Requested from the factory",
-    "sec_lab": "Lab validation", "limit": "limit", "lab_over": "Above the limit", "lab_within": "Within the limit", "all_limits": "All limitations",
+    "row_signed": "Signed record", "yes_signed": "Yes", "not_signed": "Unsigned: awaiting approval or a changed finding", "row_requested": "Requested from the factory",
+    "sec_lab": "Lab results", "limit": "stated limit", "lab_over": "BOD above the stated limit", "lab_within": "BOD within the stated limit", "all_limits": "All limitations",
     "download_record": "The signed record (JSON)", "sec_finding": "The finding", "sec_investigation": "The investigation", "row_model": "Model",
-    "row_checks": "Checks run", "row_time": "Time taken", "row_citations": "Every citation checked against the evidence", "yes": "Yes", "no": "No",
+    "row_checks": "Checks run", "row_time": "Time taken", "row_citations": "Citation check", "yes": "Yes", "no": "No",
     "row_window": "Treatment window", "sec_reviews": "Reviewer history", "public_key": "The public key that checks it",
     "log_why": "What the factory wrote, tested against the records.",
-    "signed_record": "Signed record", "sig_ok": "Signature checks out: issued here, not altered since.",
-    "evidence_ok": "Evidence unchanged since the review.", "investigation_ok": "Investigation unchanged",
+    "signed_record": "Signed record", "sig_ok": "Signature verified against this service’s public key.",
+    "evidence_ok": "The checked records match the fingerprints saved at review.", "investigation_ok": "Investigation matches the saved fingerprint",
 }
+
+# each run's dye colour by its shade, as the passport names it (web/src/Garments.tsx)
+COLOURS = {"light": "Pale blue", "medium": "Coffee", "dark": "Navy"}
 
 # what a shopper reads, by answer (web/src/Passport.tsx shows the same English)
 HEADLINE = {
-    "supports": "The water from making this was treated before it left the factory.",
-    "contradicts": "The records don’t show this batch’s water was properly treated.",
-    "review_required": "A person is checking something in this batch’s records.",
-    "insufficient": "One record is missing, so we can’t tell yet.",
+    "supports": "The records support the factory’s claim that this batch’s wastewater was treated.",
+    "contradicts": "The records conflict with the factory’s claim that this batch’s wastewater was treated.",
+    "review_required": "This batch’s records need a reviewer’s judgment.",
+    "insufficient": "There isn’t enough evidence to tell whether this batch’s wastewater was treated.",
 }
 WARM = {
-    "supports": "Every drop has a story. This one has a good ending.",
-    "contradicts": "Not every story ends well, and you deserve to know which ones don’t.",
-    "review_required": "Better a careful answer than a fast one.",
-    "insufficient": "A gap, not a verdict. The factory has been asked for the missing record.",
+    "supports": "You can see which records were checked below.",
+    "contradicts": "You can see where the records disagree below.",
+    "review_required": "The investigation has flagged what needs a closer look.",
+    "insufficient": "I’ll show you what’s missing and why it matters.",
 }
 
 PROMPT = """You translate a garment's batch passport for a buyer into {language}.
@@ -103,7 +106,7 @@ def fixed_strings() -> list[str]:
     names = [n for _, items in CATALOG.values() for _, n in items]
     fabrics = [f for f, _ in CATALOG.values()]
     out = [*STATUS.values(), *HEADLINE.values(), *WARM.values(), *UI.values(), *CARE, *COMPOSITION.values(),
-           "Bangladesh", "Factory A (demo), a knit dyehouse", *names, *fabrics, "light", "medium", "dark"]
+           "Bangladesh", "Factory A (demo), a knit dyehouse", "Factory B (demo), a knit dyehouse", *names, *fabrics, *COLOURS.values()]
     return list(dict.fromkeys(out))
 
 
@@ -140,7 +143,7 @@ def source(p: dict) -> dict[str, str]:
     for fabric in {x["fabric"] for x in p.get("products", [])}:
         out[f"fabric.{fabric}"] = fabric
     if (p.get("batch") or {}).get("shade"):
-        out[f"shade.{p['batch']['shade']}"] = p["batch"]["shade"]
+        out[f"shade.{p['batch']['shade']}"] = COLOURS.get(p["batch"]["shade"], p["batch"]["shade"])
     status = p.get("status") or ""
     if status in HEADLINE:
         out[f"headline.{status}"], out[f"warm.{status}"] = HEADLINE[status], WARM[status]

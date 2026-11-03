@@ -130,5 +130,6 @@ def test_translation_keeps_every_number_and_is_cached(client, monkeypatch, tmp_p
     r = client.get("/api/passport/B/translate", params={"lang": "de"}).json()
     assert len(calls) == 2 and re.search(r"\d", r["fields"][dropped[0]]) and "Muse Spark" in r["note"]
     assert client.get("/api/passport/B/translate", params={"lang": "de"}).json() == r and len(calls) == 2  # cached
-    assert client.get("/api/passport/B/translate", params={"lang": "bn"}).status_code == 400  # Bangla is reviewed by a person
+    bn = client.get("/api/passport/B/translate", params={"lang": "bn"}).json()  # Bangla comes from the reviewed list, never the model
+    assert bn["model"] is None and len(calls) == 2 and "reviewed by a person" in bn["note"] and bn["fields"]["ui.tab_buyer"] == "বায়ারদের জন্য"
     assert translate.problems({"a": "BOD 60.9 vs 30"}, {"a": "BSB 60,9 gegen 30"}) == ["a: numbers changed or lost (60.9)"]

@@ -9,7 +9,7 @@ const SITUATION: Record<ChatPage, [string, Mood]> = {
   home: ['That’s my story. Questions?', 'found'],
   case: ['Anything in this case', 'calm'],
   factory: ['What a request means', 'asking'],
-  passport: ['About this shirt, or me', 'calm'],
+  passport: ['Questions about this garment?', 'calm'],
   trace: ['I’ll follow any run you pick', 'checking'],
   how: ['How I work, in plain words', 'reading'],
   results: ['What these numbers mean', 'reading'],

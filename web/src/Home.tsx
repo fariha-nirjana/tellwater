@@ -75,9 +75,9 @@ export function ScanLabel() {
 const WIDE = (19.5 / 9) * 0.8 * 100
 
 const STORY = [
-  { title: 'Find the hang tag', text: 'Every garment cut from a dye run carries the same code on its tag.' },
-  { title: 'Scan it with your phone', text: 'Any camera opens it. There is nothing to install.' },
-  { title: 'Read the run’s answer', text: 'The batch passport: what was checked, what was found, and who reviewed it.' },
+  { title: 'Find the QR code', text: 'It’s on the garment’s hang tag.' },
+  { title: 'Scan it with your phone', text: 'Open the link in your browser. No app to install.' },
+  { title: 'Open the passport', text: 'See the finding, the records behind it and whether a person has reviewed it.' },
 ]
 
 /** The home page's look at scanning: a phone that steps through tag, camera and the real passport page. */
@@ -151,7 +151,7 @@ export function HowTeaser() {
       <ol>
         <li><b>01 · The claim</b><p>A factory writes “ETP running normal”. I treat it as a claim to test, never a fact.</p></li>
         <li><b>02 · The investigation</b><p>Muse Spark picks one record at a time, says why, and reads the meters, photos and lab reports. The arithmetic is done in code.</p></li>
-        <li><b>03 · The passport</b><p>A person reviews the finding. The signed result travels on the label, and anyone can check it hasn’t been changed.</p></li>
+        <li><b>03 · The passport</b><p>A reviewer checks the finding. Once it is approved or changed, the result is signed and linked from the tag, and anyone can check it hasn’t been changed.</p></li>
       </ol>
       <a className="text-btn" href="#/how">How it works, in full <Icon n="ne" /></a>
     </section>

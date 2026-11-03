@@ -351,7 +351,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                   <section className="request-slip received">
                     <span className="request-icon"><Icon n="ne" /></span>
                     <div><span className="micro">RECORD RECEIVED</span>
-                      <p>{data.submission.file} · {spanText([wall(data.submission.covers[0]), wall(data.submission.covers[1])])}. Investigated again with the factory’s record; it still counts as the factory’s word until it agrees with the other signals.</p>
+                      <p>{data.submission.file} · {spanText([wall(data.submission.covers[0]), wall(data.submission.covers[1])])}. The investigation ran again with this record, checking it against the plant’s other records.</p>
                       {data.submission.note && <small>Factory note: {data.submission.note}</small>}</div>
                     <button className="button ink small" onClick={async () => { await api.clearSubmission(caseKey); load('saved') }}><span className="btn-words">Reset the demo <Icon n="undo" /></span></button>
                   </section>
@@ -360,7 +360,7 @@ export function CaseFile({ caseKey, bangla = false }: { caseKey: CaseKey; bangla
                   <section className="factory-reply">
                     <span className="micro">THE FACTORY’S REPLY · {dayHm(wall(data.replies.at(-1)!.at)).toUpperCase()}</span>
                     <p>“{data.replies.at(-1)!.note}”</p>
-                    <small>The factory’s word. It doesn’t change the finding.</small>
+                    <small>Shown beside the finding. A reply does not rerun the investigation; sending the requested record does.</small>
                   </section>
                 )}
                 <p className="stage-summary">{final?.summary ?? final?.reason}</p>
@@ -620,7 +620,7 @@ function headlineFor(active: string | null, steps: Step[]): { title: string; sub
   }
   if (r && 'comparisons' in r) {
     const longest = Math.max(0, ...(r.comparisons as { longest_identical_stretch_minutes: number }[]).map((c) => c.longest_identical_stretch_minutes))
-    return { title: 'Replay check', sub, value: longest >= 60 ? `${longest} min copied` : 'No copied stretch' }
+    return { title: 'Replay check', sub, value: longest >= 60 ? `${longest} min repeated` : 'No repeated stretch' }
   }
   return { title: t.label, sub, value: '' }
 }
@@ -645,7 +645,7 @@ function Physical({ steps, documents, only, onPick }: { steps: Step[]; documents
               <div><b>{String(r.reading_given)} <small>{sig === 'S3' ? 'kW' : ''}</small></b><span>Meter photo · {time}</span>
                 <p>Feed <strong>{String(r.feed_nearest)}</strong>{r.expected_kw_from_inflow !== undefined && <><br />Needed about <strong>{String(r.expected_kw_from_inflow)}</strong></>}</p></div>
             </div>
-            <p>{r.consistent ? 'The photo matches the feed, so the reading is real, not a meter fault.' : 'The photo disagrees with the feed: the feed is what is wrong.'}{below ? ' And it sits below what the plant needs for the water coming in.' : ''}</p>
+            <p>{r.consistent ? 'The photo and the feed agree at this time, so the feed reports what the meter showed. That does not rule out a fault in the meter itself.' : 'The photo and the feed disagree at this time. This comparison alone cannot show which one is wrong.'}{below ? ' The reading is also below what the plant needs for the water coming in.' : ''}</p>
           </div>
         )
       })}
@@ -655,7 +655,7 @@ function Physical({ steps, documents, only, onPick }: { steps: Step[]; documents
           <button key={String(l.evidence_id)} className="lab-moment" onClick={() => onPick(String(l.evidence_id))}>
             <span>{String(l.sample_point).toUpperCase()} · {String(l.sample_time).slice(-5)}</span>
             <strong>BOD {String(l.bod_mg_l)} <small>mg/L</small></strong>
-            <span>Limit {String(l.bod_limit_mg_l)} mg/L · pH {String(l.ph)} <b>{over ? 'Above the limit' : 'Within the limit'} <Icon n="ne" /></b></span>
+            <span>Limit {String(l.bod_limit_mg_l)} mg/L · pH {String(l.ph)} <b>{over ? 'BOD above the stated limit' : 'BOD within the stated limit'} <Icon n="ne" /></b></span>
           </button>
         )
       })}

@@ -15,25 +15,25 @@ type State = 'ok' | 'problem' | 'affected' | 'missing' | 'neutral'
 
 // what a shopper reads, by answer: what the records show, then one honest, warm line
 const HEADLINE: Record<Status, string> = {
-  supports: 'The water from making this was treated before it left the factory.',
-  contradicts: 'The records don’t show this batch’s water was properly treated.',
-  review_required: 'A person is checking something in this batch’s records.',
-  insufficient: 'One record is missing, so we can’t tell yet.',
+  supports: 'The records support the factory’s claim that this batch’s wastewater was treated.',
+  contradicts: 'The records conflict with the factory’s claim that this batch’s wastewater was treated.',
+  review_required: 'This batch’s records need a reviewer’s judgment.',
+  insufficient: 'There isn’t enough evidence to tell whether this batch’s wastewater was treated.',
 }
 const WARM: Record<Status, string> = {
-  supports: 'Every drop has a story. This one has a good ending.',
-  contradicts: 'Not every story ends well, and you deserve to know which ones don’t.',
-  review_required: 'Better a careful answer than a fast one.',
-  insufficient: 'A gap, not a verdict. The factory has been asked for the missing record.',
+  supports: 'You can see which records were checked below.',
+  contradicts: 'You can see where the records disagree below.',
+  review_required: 'The investigation has flagged what needs a closer look.',
+  insufficient: 'I’ll show you what’s missing and why it matters.',
 }
 const STAGE_NAME: Record<Stage | 'dyeing', string> = {
-  intake: 'Water drawn in', dyeing: 'Your fabric dyed', tank: 'Held in the tank', treatment: 'Cleaned at the treatment plant', river: 'Back to the river',
+  intake: 'Water intake', dyeing: 'Fabric dyeing', tank: 'Holding tank', treatment: 'Treatment plant', river: 'Factory outfall',
 }
 const STATE_TEXT: Record<Stage, Partial<Record<State, string>>> = {
-  intake: { ok: 'Metered as it came in', missing: 'The intake record is missing', neutral: 'Not needed for this answer' },
-  tank: { ok: 'The tank held the water', problem: 'The tank overflowed', missing: 'The tank record is missing', neutral: 'Not needed for this answer' },
-  treatment: { ok: 'Treatment ran as needed', problem: 'Cleaning fell short', affected: 'Not checked after the problem', missing: 'A treatment record is missing', neutral: 'Not needed for this answer' },
-  river: { ok: 'Left the factory treated', problem: 'Some water went around treatment', affected: 'Reached the river without full treatment', missing: 'An outfall record is missing', neutral: 'Not needed for this answer' },
+  intake: { ok: 'Intake measured', missing: 'The intake record is missing', neutral: 'Not needed for this assessment' },
+  tank: { ok: 'Records indicate the tank held the water', problem: 'Records indicate an overflow', missing: 'The tank record is missing', neutral: 'Not needed for this assessment' },
+  treatment: { ok: 'Records support treatment during this interval', problem: 'Records indicate a treatment shortfall', affected: 'Not assessed after the flagged problem', missing: 'Treatment record missing', neutral: 'Not needed for this assessment' },
+  river: { ok: 'Records support treatment before discharge', problem: 'Records indicate water bypassed treatment', affected: 'Records indicate discharge without full treatment', missing: 'Outfall record missing', neutral: 'Not needed for this assessment' },
 }
 const ORDER: Stage[] = ['intake', 'tank', 'treatment', 'river']
 
@@ -162,8 +162,8 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
           {held ? (
             <section className="pp-held" aria-label="Held for review" lang="en">
               <span className="micro">HELD FOR REVIEW</span>
-              <h2>{view === 'you' ? 'This batch is being reviewed by a person.' : 'Held for review'}</h2>
-              <p>{view === 'you' ? 'Check back soon.' : 'Held for review: the automatic checks did not agree, so no finding is published until a person at the buyer decides.'}</p>
+              <h2>{view === 'you' ? 'This batch’s finding is waiting for a reviewer’s decision.' : 'Held for review'}</h2>
+              <p>{view === 'you' ? 'You can check here for an update.' : 'Publication is on hold: the automatic checks gave different assessments. No finding will be published until the buyer’s reviewer decides.'}</p>
               <dl className="pp-facts">
                 <div><dt>Made of</dt><dd>{p.garment.composition}</dd></div>
                 <div><dt>Made in</dt><dd>{p.garment.origin} · {p.garment.factory}</dd></div>
@@ -183,23 +183,23 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
                 <p className="pp-warm">{t(`warm.${status}`, WARM[status])}</p>
               </div>
 
-              <h3>{ui('journey_title', 'Where the water went')}</h3>
+              <h3>{ui('journey_title', 'What the water records show')}</h3>
               <ol className="pp-journey">
                 {ORDER.map((s) => [
                   <li key={s} className={`j-${marks[s]}`}>
                     <i aria-hidden="true">{marks[s] === 'ok' ? <Icon n="check" /> : marks[s] === 'problem' ? '!' : marks[s] === 'missing' ? '?' : marks[s] === 'affected' ? <Icon n="down" /> : '·'}</i>
                     <b>{ui(`stage_${s}`, STAGE_NAME[s])}</b>
                     <span>{ui(`state_${s}_${marks[s] === 'ok' && s === 'river' && status !== 'supports' ? 'seen' : marks[s]}`,
-                      marks[s] === 'ok' && s === 'river' && status !== 'supports' ? 'Nothing untreated seen at the outfall' : STATE_TEXT[s][marks[s]] ?? '')}
+                      marks[s] === 'ok' && s === 'river' && status !== 'supports' ? 'No sign of untreated discharge in the records checked' : STATE_TEXT[s][marks[s]] ?? '')}
                       {s === 'river' && p.garment.reuse_share ? ` · ${ui('reused_prefix', 'about')} ${Math.round(p.garment.reuse_share * 100)}% ${ui('reused_suffix', 'reused in the factory')}` : ''}</span>
                   </li>,
                   s === 'intake' && (
                 <li key="dyeing" className="j-info"><i aria-hidden="true"><Icon n="wave" /></i><b>{ui('stage_intake_dyeing', STAGE_NAME.dyeing)}</b>
-                  <span>{dayHm(wall(p.batch.production_start))} · {Math.round(p.batch.planned_wastewater_m3)} m³ {ui('of_water', 'of water used by this run')}</span></li>
+                  <span>{dayHm(wall(p.batch.production_start))} · {ui('water_used', '{volume} m³ of water used by this run').replace('{volume}', String(Math.round(p.batch.planned_wastewater_m3)))}</span></li>
                   ),
                 ])}
               </ol>
-              <p className="pp-fine">{ui('journey_note', 'Marked from the investigation of this garment’s dye run. Garments don’t make wastewater; dye runs do, so this answer covers every garment cut from the run.')}</p>
+              <p className="pp-fine">{ui('journey_note', 'This assessment covers the dye run that produced the garment’s fabric, over the stated treatment interval. It does not track a separate stream of water for this individual garment.')}</p>
 
               <h3>{ui('about_title', 'About this garment')}</h3>
               <dl className="pp-facts">
@@ -212,8 +212,8 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               </div>
               {tabs.length > 1 && (
                 <div className="pp-more">
-                  {tabs.includes('buyer') && <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'The details a buyer checks')} <Icon n="ne" /></button>}
-                  {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Everything, for auditors')} <Icon n="ne" /></button>}
+                  {tabs.includes('buyer') && <button className="text-btn" onClick={() => setView('buyer')}>{ui('see_buyer', 'Details for buyers')} <Icon n="ne" /></button>}
+                  {tabs.includes('auditor') && <button className="text-btn" onClick={() => setView('auditor')}>{ui('see_auditor', 'Full record for auditors')} <Icon n="ne" /></button>}
                 </div>
               )}
             </div>
@@ -234,13 +234,13 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
                 <Row k={ui('row_window_end', 'Treatment window end')} v={dayHm(wall(p.treatment_interval[1]))} />
                 <Row k={ui('row_scope', 'Scope')} v={t('scope', p.scope_line ?? '')} />
                 <Row k={ui('reviewer_decision', 'Reviewer decision')} v={decision ? `${decision} · ${dayHm(wall(p.review!.at))}` : ui('not_reviewed', 'Not yet reviewed')} />
-                <Row k={ui('row_signed', 'Signed record')} v={p.record ? `${ui('yes_signed', 'Yes')} · ${dayHm(new Date(p.record.issued_at))}` : ui('not_signed', 'Not yet: signed when a reviewer decides')} />
+                <Row k={ui('row_signed', 'Signed record')} v={p.record ? `${ui('yes_signed', 'Yes')} · ${dayHm(new Date(p.record.issued_at))}` : ui('not_signed', 'Unsigned: awaiting approval or a changed finding')} />
                 {p.evidence_request && <Row k={ui('row_requested', 'Requested from the factory')} v={(p.evidence_request.items ?? []).join(', ')} />}
               </Section>
               {p.lab.length > 0 && (
-                <Section title={ui('sec_lab', 'Lab validation')}>
+                <Section title={ui('sec_lab', 'Lab results')}>
                   {p.lab.map((l) => <Row key={String(l.evidence_id)} k={`${l.sample_point} · ${l.sample_time}`}
-                    v={`BOD ${l.bod_mg_l} mg/L (${ui('limit', 'limit')} ${l.bod_limit_mg_l}) · pH ${l.ph} · ${Number(l.bod_mg_l) > Number(l.bod_limit_mg_l) ? ui('lab_over', 'Above the limit') : ui('lab_within', 'Within the limit')}`} />)}
+                    v={`BOD ${l.bod_mg_l} mg/L (${ui('limit', 'stated limit')} ${l.bod_limit_mg_l}) · pH ${l.ph} · ${Number(l.bod_mg_l) > Number(l.bod_limit_mg_l) ? ui('lab_over', 'BOD above the stated limit') : ui('lab_within', 'BOD within the stated limit')}`} />)}
                 </Section>
               )}
               <Section title={ui('key_records', 'Key records')}>
@@ -266,13 +266,13 @@ export function Passport({ caseKey, gtin, role = 'all' }: { caseKey: CaseKey; gt
               </Section>
               <Section title={ui('signed_record', 'Signed record')}>
                 {p.record && p.verification ? <RecordCheck caseKey={caseKey} rec={p.record} v={p.verification} ui={ui} />
-                  : <p className="pp-fine">{ui('not_signed', 'Not yet: signed when a reviewer decides')}</p>}
+                  : <p className="pp-fine">{ui('not_signed', 'Unsigned: awaiting approval or a changed finding')}</p>}
               </Section>
               <Section title={ui('sec_investigation', 'The investigation')}>
                 <Row k={ui('row_model', 'Model')} v={p.investigation.model ?? '–'} mono />
                 <Row k={ui('row_checks', 'Checks run')} v={String(p.investigation.checks ?? '–')} />
                 <Row k={ui('row_time', 'Time taken')} v={`${Math.round(p.investigation.seconds ?? 0)} s`} />
-                <Row k={ui('row_citations', 'Every citation checked against the evidence')} v={p.investigation.citations_validated ? ui('yes', 'Yes') : ui('no', 'No')} />
+                <Row k={ui('row_citations', 'Citation check')} v={p.investigation.citations_validated ? ui('yes', 'Yes') : ui('no', 'No')} />
                 <Row k={ui('row_window', 'Treatment window')} v={`${dayHm(wall(p.treatment_interval[0]))} – ${dayHm(wall(p.treatment_interval[1]))}`} />
                 {p.evidence_request && <Row k={ui('row_requested', 'Requested from the factory')} v={`${(p.evidence_request.items ?? []).join(', ')}${p.evidence_request.reason ? ` · ${p.evidence_request.reason}` : ''}`} />}
               </Section>
@@ -344,9 +344,9 @@ function RecordCheck({ caseKey, rec, v, ui }: { caseKey: CaseKey; rec: SignedRec
   return (
     <div className="passport-record" aria-label="Signed record">
       <span className="micro">{ui('signed_record', 'Signed record').toUpperCase()} · {dayHm(new Date(rec.issued_at)).toUpperCase()}</span>
-      <p data-ok={v.signature_valid}>{v.signature_valid ? ui('sig_ok', 'Signature checks out: issued here, not altered since.') : 'Signature does not match: this record was altered or not issued here.'}</p>
-      <p data-ok={v.evidence_matches}>{v.evidence_matches ? `${ui('evidence_ok', 'Evidence unchanged since the review.')} (${v.items})` : `Evidence has changed since the review: ${drift.join(', ')}.`}</p>
-      <p data-ok={v.investigation_matches}>{v.investigation_matches ? ui('investigation_ok', 'Investigation unchanged') : 'A newer investigation exists'} · {rec.investigation.model}{ran}</p>
+      <p data-ok={v.signature_valid}>{v.signature_valid ? ui('sig_ok', 'Signature verified against this service’s public key.') : 'Signature could not be verified.'}</p>
+      <p data-ok={v.evidence_matches}>{v.evidence_matches ? `${ui('evidence_ok', 'The checked records match the fingerprints saved at review.')} (${v.items})` : `These records no longer match their saved fingerprints: ${drift.join(', ')}.`}</p>
+      <p data-ok={v.investigation_matches}>{v.investigation_matches ? ui('investigation_ok', 'Investigation matches the saved fingerprint') : 'A newer investigation exists'} · {rec.investigation.model}{ran}</p>
       <p className="fingerprint">Evidence fingerprint {rec.evidence.root} · key {rec.proof.key_id}</p>
       <details><summary>{v.items} fingerprinted records</summary>
         {rec.evidence.items.map((it) => <p key={it.id} className="fingerprint">{itemName(it.id)} · {it.sha256.slice(0, 24)}…</p>)}

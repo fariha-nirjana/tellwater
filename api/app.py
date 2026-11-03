@@ -96,8 +96,8 @@ def _basis(key: str) -> tuple[dict | None, dict | None]:
 
 
 HELD = {"reason": "two_readers_disagree"}
-HELD_SHOPPER = "This batch is being reviewed by a person. Check back soon."
-HELD_BUYER = "Held for review: the automatic checks did not agree, so no finding is published until a person at the buyer decides."
+HELD_SHOPPER = "This batch’s finding is waiting for a reviewer’s decision. You can check here for an update."
+HELD_BUYER = "Held for review. The automatic checks gave different assessments, so no finding will be published until the buyer’s reviewer decides."
 
 
 def _second_reader(key: str, which: str = "saved") -> dict | None:
