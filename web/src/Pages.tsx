@@ -81,7 +81,7 @@ export function Results() {
         <div>
           <span className="micro">MORE DAYS OF RECORDS</span>
           <h3>Everything at once gets<br /><em>expensive fast.</em></h3>
-          <p>The same 20 scenarios with 3, 14 and 45 days of data. Giving the model everything costs more with every day of records, and stops fitting in its context at about 70 days. The investigator reads what it needs.</p>
+          <p>The same 20 scenarios with 3, 14 and 45 days of data. Giving the model everything costs more with every day of records, and by our estimate stops fitting in its context at about 70 days. The investigator reads what it needs.</p>
           <ul>{scale.map((s) => <li key={s.days}>{s.days} days · agreement C3 {s.a3}/20 · C4 {s.a4}/20</li>)}</ul>
         </div>
         <svg viewBox="0 0 420 230" role="img" aria-label="Estimated cost per case by days of records, C3 against C4">
@@ -103,7 +103,7 @@ export function Results() {
       </div>
 
       <div className="fresh">
-        <span className="micro">FRESH CASES · NEVER TRAINED OR TUNED ON, AND NOT THE TEST SET</span>
+        <span className="micro">MORE CHECKS · SEPARATE FROM THE HELD-OUT TEST</span>
         <div className="fresh-cards">
           <div className="fresh-card">
             <span className="micro">C6 · MUSE GLIMMER, DISTILLED</span>

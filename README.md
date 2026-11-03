@@ -79,7 +79,7 @@ I tried hard to break it. Every case is scored against its **justified** answer:
 | Held up a clean run | 4 | 2 | 1 | **0** | 1 |
 
 - **It doesn't take orders from the documents.** Five cases hide instructions inside the factory's own records. None of the five ways followed them.
-- **It's not free.** Investigating costs about $0.19 a case. Giving the model everything at once is cheaper on short records ($0.10 a case on 3 days), but it costs $0.85 on 45 days and stops fitting at about 70 days; investigating stays at $0.18 to $0.23 because it only fetches what it needs.
+- **It's not free.** Investigating costs about $0.19 a case. Giving the model everything at once is cheaper on short records ($0.10 a case on 3 days), but it costs $0.85 on 45 days and, by our estimate, stops fitting at about 70 days; investigating stays at $0.18 to $0.23 because it only fetches what it needs.
 - **Real handwriting.** Three people wrote four logbook pages (two English, two Bangla), plus one photographed in dim light at an angle. Read twice and scored line by line against what is on each page: every English line was right both times; Bangla was 9, then 11, of 14 lines; and every number on every page was right both times (37 of 37). So a handwritten page needs a person to confirm it. In 18 runs of honest cases built around these pages, a misread page never made it accuse the factory: it takes the times from the meters and checks the page as a claim. Demo case B's logbook is a real handwritten page too.
 - **A second, differently built factory.** On 10 fresh cases from factory B it reached 10 of 10 after one general fix; the first run's miss is stated on the results page.
 

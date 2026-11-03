@@ -63,21 +63,21 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
 
       {p.lab.length > 0 && (
         <Part title="Lab results">
-          <table><thead><tr><th>Sample</th><th>BOD</th><th>Limit</th><th>pH</th><th></th></tr></thead>
+          <table><thead><tr><th>Sample</th><th>BOD</th><th>Stated BOD limit</th><th>pH</th><th></th></tr></thead>
             <tbody>{p.lab.map((l) => (
               <tr key={l.evidence_id}><td>{l.sample_point} · {l.sample_time}</td><td>{l.bod_mg_l} mg/L</td><td>{l.bod_limit_mg_l} mg/L</td><td>{l.ph}</td>
-                <td>{l.bod_mg_l > l.bod_limit_mg_l ? 'Above the limit' : 'Within the limit'}</td></tr>
+                <td>{l.bod_mg_l > l.bod_limit_mg_l ? 'BOD above the stated limit' : 'BOD within the stated limit'}</td></tr>
             ))}</tbody></table>
         </Part>
       )}
 
       <Part title="The investigation">
-        <p>{trace.model ?? p.investigation.model} ran {trace.checks_used} checks in about {Math.round(trace.seconds)} s. {trace.valid ? 'Every citation in the finding was checked against the evidence it retrieved.' : 'The finding did not pass the citation check.'} All arithmetic was done in code; the model chose the checks and interpreted the results.</p>
+        <p>{trace.model ?? p.investigation.model} ran {trace.checks_used} checks in about {Math.round(trace.seconds)} s. {trace.valid ? 'Citation check passed: every record the finding cites is one the investigation retrieved.' : 'The finding did not pass the citation check.'} All arithmetic was done in code; the model chose the checks and interpreted the results.</p>
         <table><thead><tr><th>#</th><th>Check</th><th>Why it was run</th></tr></thead>
           <tbody>{steps.map((s) => <tr key={s.n}><td>{s.n}</td><td>{TOOL[s.tool] ?? s.tool}</td><td>{s.why ?? '–'}</td></tr>)}</tbody></table>
       </Part>
 
-      <Part title="The human decision">
+      <Part title="Reviewer decision">
         {p.reviews.length ? (
           <table><thead><tr><th>When</th><th>Reviewer</th><th>Decision</th><th>Reason</th></tr></thead>
             <tbody>{p.reviews.map((r, i) => (
@@ -90,9 +90,9 @@ export function Report({ caseKey }: { caseKey: CaseKey }) {
       <Part title="The signed record">
         {p.record && p.verification ? (
           <>
-            <p>{p.verification.signature_valid ? 'The signature checks out: the record was issued by this service and has not been altered.' : 'The signature does not match: the record was altered or not issued here.'}{' '}
-              {p.verification.evidence_matches ? 'The evidence is unchanged since the review.' : 'The evidence has changed since the review.'}{' '}
-              {p.verification.investigation_matches ? 'The investigation is unchanged.' : 'A newer investigation exists.'}</p>
+            <p>{p.verification.signature_valid ? 'Signature verified against this service’s public key.' : 'Signature could not be verified.'}{' '}
+              {p.verification.evidence_matches ? 'The checked records match the fingerprints saved at review.' : 'Some records no longer match the fingerprints saved at review.'}{' '}
+              {p.verification.investigation_matches ? 'The investigation matches its saved fingerprint.' : 'A newer investigation exists.'}</p>
             <p className="mono">Issued {dayHm(new Date(p.record.issued_at))} · {p.record.proof.alg} · key {p.record.proof.key_id}</p>
             <p className="mono">Evidence fingerprint {p.record.evidence.root}</p>
             <p className="mono">Investigation fingerprint {p.record.investigation.sha256}</p>

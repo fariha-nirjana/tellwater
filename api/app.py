@@ -251,7 +251,7 @@ def investigate_live(key: str, request: Request) -> StreamingResponse:
     _folder(key)  # not on the Bangla view: its saved run is the one shown
     bundle = _bundle(key)
     if not limits.start_run():
-        raise HTTPException(429, "Two live investigations are already running. Try again in a minute; "
+        raise HTTPException(429, "Two live investigations are already running. Try again shortly; "
                                  "the saved investigation of the same evidence is shown instead.")
     if reason := limits.take("runs", limits.visitor(request)):
         limits.end_run()
@@ -467,7 +467,7 @@ def _guide_reply(messages: list[dict]):
             return ModelClient(ModelEndpoint.muse_spark()).chat(messages)
         except Exception as e:  # noqa: BLE001 - a refused or failed call becomes a message to the reader, never a crash
             if attempt == 2:
-                raise HTTPException(502, "the model didn't answer this time. Try asking again, or in other words") from e
+                raise HTTPException(502, "the model didn't answer this time. Please try again") from e
 
 
 def reply_model() -> str:
@@ -636,7 +636,7 @@ class Review(BaseModel):
 def review(key: str, r: Review) -> dict:
     _folder(key)
     if r.action not in ("approve", "change", "return") or not r.reason.strip():
-        raise HTTPException(400, "choose approve, change or return, and give a reason")
+        raise HTTPException(400, "Choose Approve, Change the status or Send back, and add a reason.")
     s = _state()
     entry = {**r.model_dump(), "at": datetime.now().isoformat(timespec="minutes")}
     s["reviews"].setdefault(key, []).append(entry)
