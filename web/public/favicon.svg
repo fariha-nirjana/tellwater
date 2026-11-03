@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 0 104 128">
+<defs><mask id="m"><path d="M32 6H68L94 32V94L66 122H6V32Z" fill="#fff" stroke="#fff" stroke-width="8" stroke-linejoin="round"/>
+<circle cx="50" cy="30" r="8"/><path d="M-4 86C16 66 34 66 50 80S84 94 104 70" stroke="#000" stroke-width="11" fill="none" stroke-linecap="round"/></mask></defs>
+<rect x="-10" y="-10" width="130" height="150" fill="#4945ff" mask="url(#m)"/>
+<path d="M94 94L66 122L66 94Z" fill="#e5ff52" stroke="#e5ff52" stroke-width="3" stroke-linejoin="round"/>
+</svg>

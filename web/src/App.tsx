@@ -94,7 +94,7 @@ export function App() {
       {home && (arrived || replay > 0) && <Arrival motion={motion} replay={replay} onDone={() => {}} />}
       {curtain}
       <header className="header">
-        <a className="wordmark" href="#/" aria-label="Tellwater home"><svg viewBox="0 0 40 20"><path d="M2 16C8 0 10 25 19 7S29 20 38 3" /></svg>tellwater</a>
+        <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg" alt="" />tellwater</a>
         {factory ? (
           <nav aria-label="Factory navigation">
             {([['fv-requests', 'Requests'], ['fv-runs', 'Our dye runs'], ['fv-records', 'Our records']] as const).map(([id, label]) => (
