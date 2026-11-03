@@ -60,7 +60,13 @@ export function App() {
   const [, caseKey, bangla] = (hash.match(/^#\/case\/([A-E])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
   const [, passport, scannedGtin, scanFlag] = (hash.match(/^#\/passport\/([A-E])(?:\/(\d{14}))?(\/scan)?$/) ?? []) as [string, CaseKey | undefined, string | undefined, string | undefined]
   // a garment's QR opens #/passport/X/<gtin>/scan: the person holding the garment sees the shopper's passport only, with no demo switcher
+  // once someone arrives by scanning, the rest of their visit (this tab) stays in the shopper's view, with no demo switcher
+  // (not from inside the home page's phone preview, an iframe, which shares the tab's storage)
   const scan = !!(passport && scanFlag)
+  const inFrame = window.top !== window.self
+  const [scanned, setScanned] = useState(() => { try { return sessionStorage.getItem('tw:scan') === '1' } catch { return false } })
+  useEffect(() => { if (scan && !inFrame) { setScanned(true); try { sessionStorage.setItem('tw:scan', '1') } catch { /* private window */ } } }, [scan, inFrame])
+  const scanVisit = scan || (scanned && !inFrame)
   const report = hash.match(/^#\/report\/([A-E])$/)?.[1] as CaseKey | undefined
   const results = hash === '#/results'
   const how = hash === '#/how'
@@ -69,7 +75,8 @@ export function App() {
   const factory = !!factoryId
   const home = !caseKey && !passport && !report && !results && !how && !trace && !factory
   // who is looking: everything (the default, and the demo), or one audience with only its own pages
-  const [role, setRoleState] = useState<Role>(() => { try { return (localStorage.getItem('tw:role') as Role) || 'all' } catch { return 'all' } })
+  const [chosenRole, setRoleState] = useState<Role>(() => { try { return (localStorage.getItem('tw:role') as Role) || 'all' } catch { return 'all' } })
+  const role: Role = scanVisit ? 'shopper' : chosenRole
   const setRole = (r: Role) => {
     setRoleState(r); try { localStorage.setItem('tw:role', r) } catch { /* private window */ }
     if (r !== 'all') location.hash = START[r]
@@ -96,7 +103,7 @@ export function App() {
       {home && (arrived || replay > 0) && <Arrival motion={motion} replay={replay} onDone={() => {}} />}
       {curtain}
       <header className="header">
-        <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg" alt="" />tellwater</a>
+        <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg?v=2" alt="" />tellwater</a>
         {scan ? null : factory ? (
           <nav aria-label="Factory navigation">
             {([['fv-requests', 'Requests'], ['fv-runs', 'Our dye runs'], ['fv-records', 'Our records']] as const).map(([id, label]) => (
@@ -108,7 +115,7 @@ export function App() {
             {NAV[role].map(([href, label, p]) => <a key={href} href={href} aria-current={p === page ? 'page' : undefined}>{label}</a>)}
           </nav>
         )}
-        {!scan && <div className="role-switch" role="group" aria-label="Viewing as">
+        {!scanVisit && <div className="role-switch" role="group" aria-label="Viewing as">
           <span>Viewing as</span>
           {ROLES.map(([r, long, short]) => (
             <button key={r} aria-pressed={role === r} onClick={() => setRole(r)}><span className="role-long">{long}</span><span className="role-short">{short}</span></button>

@@ -193,7 +193,7 @@ export function Story({ next }: { next: [string, string, string] }) {
 export function Footer({ motion, setMotion, replay, companion, setCompanion }: { motion: boolean; setMotion: (m: boolean) => void; replay: () => void; companion: boolean; setCompanion: (c: boolean) => void }) {
   return (
     <footer>
-      <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg" alt="" />tellwater</a>
+      <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg?v=2" alt="" />tellwater</a>
       <p>Made to make the invisible understandable.</p>
       <div>
         <span>PROTOTYPE · SIMULATED RECORDS · REAL MUSE SPARK INVESTIGATIONS</span>
