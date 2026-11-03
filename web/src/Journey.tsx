@@ -157,7 +157,7 @@ export function Story({ next }: { next: [string, string, string] }) {
         </article>
         <article className="story-stop stop-two">
           <div className="story-text"><span className="micro">02 / THE WATER</span><h3>The part<br /><em>you don’t see.</em></h3>
-            <p>“When Hatirjheel was new, it was beautiful. I went back last year. The water had turned black, and the stench caught my nose. And it isn’t only Hatirjheel: the rivers around Dhaka carry the same water.”</p>
+            <p>“When Hatirjheel was new, it was beautiful. I went back last year. The water had turned black, and the stench caught my nose. And it isn’t only Hatirjheel, the rivers around Dhaka carry the same water.”</p>
             <span className="said-by">Fariha, who built Tellwater</span>
             <small>Photograph: a Dhaka riverfront, not Hatirjheel · Tanjir Hasan, Pexels<br />Not evidence of pollution by any factory.</small></div>
           <div className="photo-frame"><img src="/assets/river.jpg" alt="Wooden boats moored in dark water on a Dhaka riverfront, with buildings along the far bank" loading="lazy" /><span className="photo-sticker coral">THE STORY<br />KEEPS FLOWING.</span></div>
