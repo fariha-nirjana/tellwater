@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 596" width="1280" height="596" role="img" aria-label="On 120 unseen simulated cases: how often each approach was right, cautious or harmful">
+<title>Can you trust it? 120 unseen simulated cases</title>
+<rect width="1280" height="596" rx="18" fill="#f7f7f2"/>
+<g font-family="'DM Sans', 'Segoe UI', Helvetica, Arial, sans-serif" fill="#171735">
+<text x="40" y="58" font-size="30" font-weight="700">Can you trust it?</text>
+<text x="40" y="90" font-size="17" fill="#66657a">120 unseen simulated cases, system frozen before the test</text>
+<rect x="700" y="74" width="16" height="16" rx="3" fill="#4945ff"/><text x="724" y="88" font-size="15">right</text>
+<rect x="810" y="74" width="16" height="16" rx="3" fill="#c9c7ff"/><text x="834" y="88" font-size="15">asked for a record or a person</text>
+<rect x="1100" y="74" width="16" height="16" rx="3" fill="#ff705b"/><text x="1124" y="88" font-size="15">harmful mistake</text>
+<text x="40" y="147" font-size="17" font-weight="700">Muse Spark, investigating</text>
+<rect x="430.0" y="128" width="450.0" height="28" fill="#4945ff"/>
+<rect x="880.0" y="128" width="54.0" height="28" fill="#c9c7ff"/>
+<rect x="934.0" y="128" width="36.0" height="28" fill="#ff705b"/>
+<text x="988" y="148" font-size="16"><tspan font-weight="700">112</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">8</tspan> harmful</text>
+<text x="40" y="205" font-size="17">Muse Glimmer, fine-tuned</text>
+<rect x="430.0" y="186" width="409.5" height="28" fill="#4945ff"/>
+<rect x="839.5" y="186" width="99.0" height="28" fill="#c9c7ff"/>
+<rect x="938.5" y="186" width="31.5" height="28" fill="#ff705b"/>
+<text x="988" y="206" font-size="16"><tspan font-weight="700">113</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">7</tspan> harmful</text>
+<text x="40" y="263" font-size="17">Both reading, a person settling disagreements</text>
+<rect x="430.0" y="244" width="405.0" height="28" fill="#4945ff"/>
+<rect x="835.0" y="244" width="117.0" height="28" fill="#c9c7ff"/>
+<rect x="952.0" y="244" width="18.0" height="28" fill="#ff705b"/>
+<text x="988" y="264" font-size="16"><tspan font-weight="700">116</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">4</tspan> harmful</text>
+<text x="40" y="321" font-size="17">Muse Spark, everything at once</text>
+<rect x="430.0" y="302" width="463.5" height="28" fill="#4945ff"/>
+<rect x="893.5" y="302" width="54.0" height="28" fill="#c9c7ff"/>
+<rect x="947.5" y="302" width="22.5" height="28" fill="#ff705b"/>
+<text x="988" y="322" font-size="16"><tspan font-weight="700">115</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">5</tspan> harmful</text>
+<text x="40" y="379" font-size="17">Muse Spark Open</text>
+<rect x="430.0" y="360" width="445.5" height="28" fill="#4945ff"/>
+<rect x="875.5" y="360" width="49.5" height="28" fill="#c9c7ff"/>
+<rect x="925.0" y="360" width="45.0" height="28" fill="#ff705b"/>
+<text x="988" y="380" font-size="16"><tspan font-weight="700">110</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">10</tspan> harmful</text>
+<text x="40" y="437" font-size="17">Rules + document reading</text>
+<rect x="430.0" y="418" width="346.5" height="28" fill="#4945ff"/>
+<rect x="776.5" y="418" width="85.5" height="28" fill="#c9c7ff"/>
+<rect x="862.0" y="418" width="108.0" height="28" fill="#ff705b"/>
+<text x="988" y="438" font-size="16"><tspan font-weight="700">96</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">24</tspan> harmful</text>
+<text x="40" y="495" font-size="17">Rules alone</text>
+<rect x="430.0" y="476" width="274.5" height="28" fill="#4945ff"/>
+<rect x="704.5" y="476" width="144.0" height="28" fill="#c9c7ff"/>
+<rect x="848.5" y="476" width="121.5" height="28" fill="#ff705b"/>
+<text x="988" y="496" font-size="16"><tspan font-weight="700">93</tspan> right or asked · <tspan font-weight="700" fill="#c0392b">27</tspan> harmful</text>
+<text x="40" y="568" font-size="14" fill="#66657a">Harmful: cleared a case it shouldn't have, or accused without the evidence. A person signs every result. Simulated records; prototype results, not field reliability.</text>
+</g>
+</svg>

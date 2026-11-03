@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/readme/header.svg" alt="Tellwater: a hang tag drawn as one thread, and the wordmark" width="100%"></p>
+
 # Tellwater
 
 **A garment's label can lead back to its water. Tellwater checks whether that water was really cleaned, from the factory's own meters, not just its paperwork.**
@@ -14,6 +16,8 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 
 **What it does.** A garment factory says a dye run's wastewater went through its treatment plant. Tellwater checks that claim against the plant's own records: meter feeds, handwritten logbook photos, maintenance notes, meter photos and lab reports. It gives one of four answers, a person signs it, and the garment's QR code opens the result.
 
+<p align="center"><img src="docs/readme/investigation.gif" alt="The case file replaying a real Muse Spark investigation of demo case B: the handwritten logbook, the maintenance record, the operator's statement, the meter photo against its feed and the lab report, one record at a time" width="100%"><br><sub>A real Muse Spark investigation of demo case B, replayed in the case file (1.5× speed)</sub></p>
+
 **Who it's for.**
 - A brand's environmental reviewer, checking suppliers between audits.
 - The factory, which can answer back and send the missing record.
@@ -26,6 +30,8 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 - **Muse Voice Transcribe** lets a factory reply in Bangla.
 
 **Can you trust it?** I tested it on 120 unseen simulated cases, with the system frozen before the test. When Muse Spark isn't sure, it asks for a record or a person instead of guessing. It was right, or asked, 112 times. It made 8 harmful mistakes: it cleared 6 cases too readily and made 2 accusations the evidence didn't support. Rules alone made 27, and 20 of those were accusations. A person still signs every result, but they start from a finished investigation, not from zero.
+
+<p align="center"><img src="docs/readme/trust.svg" alt="Bar chart of the 120 held-out cases. Muse Spark investigating: 112 right or asked, 8 harmful. Muse Glimmer: 113 and 7. Both reading: 116 and 4. Muse Spark everything at once: 115 and 5. Muse Spark Open: 110 and 10. Rules plus document reading: 96 and 24. Rules alone: 93 and 27." width="100%"></p>
 
 | On 120 unseen cases | Right, or asked for help | Harmful mistakes | Verdicts you can trust |
 |---|---|---|---|
