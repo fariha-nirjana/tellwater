@@ -182,7 +182,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 |---|---|
 | A Mac or Linux computer | Tested on macOS. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
-| Python 3.14 | From [python.org](https://www.python.org/downloads/). To check, type `python3.14 --version`. |
+| Python 3.12 or newer | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
 | Node.js 20 or newer | From [nodejs.org](https://nodejs.org). To check, type `node -v`. |
 | About 5 minutes | Most of it is installing. |
 
@@ -193,7 +193,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
    ```bash
    git clone https://github.com/fariha-nirjana/tellwater
    cd tellwater
-   python3.14 -m venv .venv
+   python3 -m venv .venv
    .venv/bin/pip install -e ".[dev]"
    ```
 
@@ -221,7 +221,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 
 | What you see | Why, and what to do |
 |---|---|
-| `python3.14: command not found` | Python 3.14 isn't installed, or has another name. Install it from python.org and open a new terminal. |
+| `requires a different Python` | `python3` is older than 3.12 (some Macs ship 3.9). Install a newer one from python.org, open a new terminal, and start again from `python3 -m venv .venv` (on a Mac you can type the version, for example `python3.13 -m venv .venv`). |
 | The page loads but shows no cases | The API from step 2 isn't running. Start it, then reload the page. |
 | `address already in use` | An earlier run is still open. Close that terminal, or stop it with Ctrl+C. |
 | A live run, the guide or a translation doesn't answer | That part calls Muse Spark. Add `MODEL_API_KEY` to `.env` and restart the API. |

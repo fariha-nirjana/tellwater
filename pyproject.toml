@@ -2,7 +2,7 @@
 name = "tellwater"
 version = "0.1.0"
 description = "Investigates whether a factory's wastewater treatment claim is supported by physical evidence."
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "numpy>=2.5",
     "pandas>=3.1",
