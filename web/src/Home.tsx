@@ -134,7 +134,7 @@ export function PhoneStory() {
               <svg className="ps-finder" viewBox="0 0 100 100"><path d="M4 26V8Q4 4 8 4H26M74 4H92Q96 4 96 8V26M96 74V92Q96 96 92 96H74M26 96H8Q4 96 4 92V74" /></svg><span className="ps-pill">Tellwater batch passport ↗</span>
             </div>
             <div className="ps-screen ps-passport">
-              {seen && <iframe title="The batch passport, as it opens on a phone" src={`#/passport/${batch.key}/${product.gtin}/scan`} loading="lazy" />}
+              {seen && <iframe title="The batch passport, as it opens on a phone" src={`/?v=3#/passport/${batch.key}/${product.gtin}/scan`} loading="lazy" />}
             </div>
           </div>
         </div>

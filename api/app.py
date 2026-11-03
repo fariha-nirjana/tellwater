@@ -824,3 +824,16 @@ def results() -> dict:
 WEB_DIST = ROOT / "web" / "dist"
 if WEB_DIST.exists():
     app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")
+
+
+@app.middleware("http")
+async def fresh_pages(request: Request, call_next):
+    """The page is checked for a new version on every visit; the scripts and styles it names carry a hash in their
+    file names, so they can be kept for good. Without this, browsers guessed and kept an old page, and the old page
+    asked for scripts that a new deploy no longer has, or ran old code inside the home page's phone."""
+    response = await call_next(request)
+    if request.url.path.startswith("/assets/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    elif response.headers.get("content-type", "").startswith("text/html"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
