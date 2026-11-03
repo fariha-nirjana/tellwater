@@ -30,7 +30,7 @@ const EN = {
   live: 'sending', partly: 'partly', missing: 'missing', onFile: 'on file', none: 'none',
   lab: 'Lab report', logbook: 'Logbook',
   cant: 'The factory can’t see the buyer’s review notes, can’t change an answer, and can’t sign a passport. A record it sends still counts as the factory’s word until it agrees with the plant’s other records.',
-  loading: 'Opening the factory’s page…', shade: 'shade', signedIn: 'Signed in as',
+  loading: 'Opening the factory’s page…', shade: 'shade', signedIn: 'Showing:',
 }
 // The factory page in Bangla, drafted alongside the English
 const BN: typeof EN = {

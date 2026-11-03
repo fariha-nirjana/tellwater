@@ -116,6 +116,7 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 
 - No compliance certification. An answer covers one dye run, its treatment window and the records it rests on, and says what it does not measure.
 - No judgement of intent. Missing evidence is a gap, not proof of wrongdoing.
+- No sign-in. The views (buyer's reviewer, factory, shopper) are a demo switch, not access control: anyone can pick any of them. Per-role sign-in is the next step for a pilot.
 - Simulated data only. Parameters are illustrative, with published sources marked in [`config/`](config/); a real deployment needs a pilot with a factory's own meters, logbooks and lab tests.
 - The plant model assumes the treatment tanks hold a constant volume.
 - On one tuning case, my labelling rules and the investigator disagree; I kept my rules.

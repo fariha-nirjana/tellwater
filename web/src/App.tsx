@@ -115,11 +115,14 @@ export function App() {
             {NAV[role].map(([href, label, p]) => <a key={href} href={href} aria-current={p === page ? 'page' : undefined}>{label}</a>)}
           </nav>
         )}
-        {!scanVisit && <div className="role-switch" role="group" aria-label="Viewing as">
-          <span>Viewing as</span>
-          {ROLES.map(([r, long, short]) => (
-            <button key={r} aria-pressed={role === r} onClick={() => setRole(r)}><span className="role-long">{long}</span><span className="role-short">{short}</span></button>
-          ))}
+        {!scanVisit && <div className="role-switch" role="group" aria-label="Demo: see it as" title="A demo control. In a real deployment, each person signs in and sees only their own view.">
+          <div className="role-row">
+            <span className="role-label"><span className="role-long">Demo: see it as…</span><span className="role-short">Demo</span></span>
+            {ROLES.map(([r, long, short]) => (
+              <button key={r} aria-pressed={role === r} onClick={() => setRole(r)}><span className="role-long">{long}</span><span className="role-short">{short}</span></button>
+            ))}
+          </div>
+          <small className="role-note">In a real deployment, each person signs in and sees only their own view.</small>
         </div>}
       </header>
       <main>
