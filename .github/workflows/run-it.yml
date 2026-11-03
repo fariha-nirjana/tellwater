@@ -52,8 +52,9 @@ jobs:
           $v = Invoke-RestMethod "$base/api/passport/A/verify"
           if (-not ($v.signature_valid -and $v.evidence_matches -and $v.investigation_matches)) { throw "signed record did not verify: $($v | ConvertTo-Json)" }
           'ok review, signing and verification'
-          $qr = Invoke-WebRequest "$base/01/02990000200013/10/460f93ca-B04" -MaximumRedirection 0 -SkipHttpErrorCheck
-          if ($qr.StatusCode -ne 307) { throw "QR resolver returned $($qr.StatusCode)" }
+          $handler = [System.Net.Http.HttpClientHandler]::new(); $handler.AllowAutoRedirect = $false
+          $qr = [System.Net.Http.HttpClient]::new($handler).GetAsync("$base/01/02990000200013/10/460f93ca-B04").Result
+          if ([int]$qr.StatusCode -ne 307) { throw "QR resolver returned $([int]$qr.StatusCode)" }
           "ok QR resolver -> $($qr.Headers.Location)"
 
           cd web
