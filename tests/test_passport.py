@@ -86,7 +86,7 @@ def test_new_evidence_after_the_record_shows_as_a_change(client):
 def test_digital_link_opens_the_passport(client):
     hoodie = next(p for p in client.get("/api/passport/C").json()["products"] if p["kind"] == "hoodie")
     r = client.get(hoodie["link"], follow_redirects=False)
-    assert r.status_code == 307 and r.headers["location"].endswith(f"#/passport/C/{hoodie['gtin']}")
+    assert r.status_code == 307 and r.headers["location"].endswith(f"#/passport/C/{hoodie['gtin']}/scan")
     p = client.get("/api/passport/C", params={"gtin": hoodie["gtin"]}).json()
     assert p["scanned"] and p["product"]["name"] == "Hoodie"
     assert client.get("/01/09506000134352/10/nope", follow_redirects=False).status_code == 404

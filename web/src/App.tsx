@@ -58,7 +58,9 @@ export function App() {
   const setCompanion = (on: boolean) => { setCompanionState(on); try { localStorage.setItem('tw:companion', on ? 'on' : 'off') } catch { /* private window */ } }
   const { curtain, run } = useCurtain(motion)
   const [, caseKey, bangla] = (hash.match(/^#\/case\/([A-E])(\/bn)?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
-  const [, passport, scannedGtin] = (hash.match(/^#\/passport\/([A-E])(?:\/(\d{14}))?$/) ?? []) as [string, CaseKey | undefined, string | undefined]
+  const [, passport, scannedGtin, scanFlag] = (hash.match(/^#\/passport\/([A-E])(?:\/(\d{14}))?(\/scan)?$/) ?? []) as [string, CaseKey | undefined, string | undefined, string | undefined]
+  // a garment's QR opens #/passport/X/<gtin>/scan: the person holding the garment sees the shopper's passport only, with no demo switcher
+  const scan = !!(passport && scanFlag)
   const report = hash.match(/^#\/report\/([A-E])$/)?.[1] as CaseKey | undefined
   const results = hash === '#/results'
   const how = hash === '#/how'
@@ -73,7 +75,7 @@ export function App() {
     if (r !== 'all') location.hash = START[r]
   }
   const page: Page = caseKey ? 'case' : report ? 'report' : passport ? 'passport' : results ? 'results' : how ? 'how' : trace ? 'trace' : factory ? 'factory' : 'home'
-  const allowed = role === 'all' || PAGES[role].includes(page)
+  const allowed = scan || role === 'all' || PAGES[role].includes(page)
   const [arrived] = useState(home && hash !== '#/story') // only a first visit to the garment plays the arrival
 
   useEffect(() => { document.body.classList.toggle('reduced', !motion) }, [motion])
@@ -95,7 +97,7 @@ export function App() {
       {curtain}
       <header className="header">
         <a className="wordmark" href="#/" aria-label="Tellwater home"><img src="/logo.svg" alt="" />tellwater</a>
-        {factory ? (
+        {scan ? null : factory ? (
           <nav aria-label="Factory navigation">
             {([['fv-requests', 'Requests'], ['fv-runs', 'Our dye runs'], ['fv-records', 'Our records']] as const).map(([id, label]) => (
               <a key={id} href={hash} onClick={(e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>{label}</a>
@@ -106,15 +108,15 @@ export function App() {
             {NAV[role].map(([href, label, p]) => <a key={href} href={href} aria-current={p === page ? 'page' : undefined}>{label}</a>)}
           </nav>
         )}
-        <div className="role-switch" role="group" aria-label="Viewing as">
+        {!scan && <div className="role-switch" role="group" aria-label="Viewing as">
           <span>Viewing as</span>
           {ROLES.map(([r, long, short]) => (
             <button key={r} aria-pressed={role === r} onClick={() => setRole(r)}><span className="role-long">{long}</span><span className="role-short">{short}</span></button>
           ))}
-        </div>
+        </div>}
       </header>
       <main>
-        {!allowed ? <OtherView role={role as Exclude<Role, 'all'>} onEverything={() => setRole('all')} /> : passport ? <Passport key={`${passport}${scannedGtin ?? ''}${role}`} caseKey={passport} gtin={scannedGtin} role={role} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : factoryId ? <Factory key={factoryId} which={factoryId} /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
+        {!allowed ? <OtherView role={role as Exclude<Role, 'all'>} onEverything={() => setRole('all')} /> : passport ? <Passport key={`${passport}${scannedGtin ?? ''}${scan ? 'scan' : role}`} caseKey={passport} gtin={scannedGtin} role={scan ? 'shopper' : role} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : factoryId ? <Factory key={factoryId} which={factoryId} /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
           <>
             <Hero entry={ENTRY[role][0]} onEnter={() => run(() => { location.hash = ENTRY[role][0] })} />
             <PhoneStory />

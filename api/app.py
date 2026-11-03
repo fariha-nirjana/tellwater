@@ -802,11 +802,11 @@ def passport_key() -> dict:
 
 @app.get("/01/{gtin}/10/{lot}")
 def resolve(gtin: str, lot: str) -> RedirectResponse:
-    """GS1 Digital Link resolver: the URL in the garment's QR code opens that batch's passport."""
+    """GS1 Digital Link resolver: the URL in the garment's QR code opens that batch's passport, as a shopper sees it."""
     key = next((k for k in DEMO for p in _products(k) if p["gtin"] == gtin and p["lot"] == lot), None)
     if not key:
         raise HTTPException(404, "no passport for that product and lot")
-    return RedirectResponse(f"{WEB_URL}/#/passport/{key}/{gtin}")
+    return RedirectResponse(f"{WEB_URL}/#/passport/{key}/{gtin}/scan")
 
 
 # ---- evaluation results
