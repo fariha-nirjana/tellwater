@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CaseKey } from './api'
 import { CaseFile } from './CaseFile'
 import { ChatLauncher } from './ChatLauncher'
@@ -27,6 +27,7 @@ function useHash() {
 type Role = 'all' | 'buyer' | 'factory' | 'shopper'
 type Page = 'home' | 'case' | 'report' | 'passport' | 'results' | 'how' | 'trace' | 'factory'
 const ROLES: [Role, string, string][] = [['all', 'All', 'All'], ['buyer', 'Buyer’s reviewer', 'Buyer'], ['factory', 'Factory', 'Factory'], ['shopper', 'Shopper', 'Shopper']]
+const SWITCHED: Record<Role, string> = { all: 'Now showing all views', buyer: 'Now showing the buyer’s reviewer’s view', factory: 'Now showing the factory’s view', shopper: 'Now showing the shopper’s view' }
 // each audience's own pages, and where it starts
 const PAGES: Record<Exclude<Role, 'all'>, Page[]> = {
   buyer: ['home', 'case', 'report', 'passport', 'how', 'results'],
@@ -78,7 +79,15 @@ export function App() {
   // who is looking: everything (the default, and the demo), or one audience with only its own pages
   const [chosenRole, setRoleState] = useState<Role>(() => { try { return (localStorage.getItem('tw:role') as Role) || 'all' } catch { return 'all' } })
   const role: Role = scanVisit ? 'shopper' : chosenRole
+  // a short note after each switch says which view is now showing, so the change reads as intended
+  const [switched, setSwitched] = useState('')
+  const [showSwitched, setShowSwitched] = useState(false)
+  const toastTimer = useRef<number>(undefined)
   const setRole = (r: Role) => {
+    if (r !== chosenRole) {
+      setSwitched(SWITCHED[r]); setShowSwitched(true); clearTimeout(toastTimer.current)
+      toastTimer.current = window.setTimeout(() => setShowSwitched(false), 2200)
+    }
     setRoleState(r); try { localStorage.setItem('tw:role', r) } catch { /* private window */ }
     if (r !== 'all') location.hash = START[r]
   }
@@ -126,6 +135,7 @@ export function App() {
           <small className="role-note">In a real deployment, each person signs in and sees only their own view.</small>
         </div>}
       </header>
+      <div id="toast" className={showSwitched ? 'show' : undefined} role="status" aria-live="polite">{switched}</div>
       {!scanVisit && <p className="demo-note">Demo control. In a real deployment, each person signs in and sees only their own view.</p>}
       <main>
         {!allowed ? <OtherView role={role as Exclude<Role, 'all'>} onEverything={() => setRole('all')} /> : passport ? <Passport key={`${passport}${scannedGtin ?? ''}${scan ? 'scan' : role}`} caseKey={passport} gtin={scannedGtin} role={scan ? 'shopper' : role} /> : report ? <Report caseKey={report} /> : results ? <Results /> : how ? <HowItWorks /> : trace ? <ScanLabel /> : factoryId ? <Factory key={factoryId} which={factoryId} /> : caseKey ? <CaseFile key={caseKey + (bangla ?? '')} caseKey={caseKey} bangla={!!bangla} /> : (
