@@ -182,7 +182,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 |---|---|
 | A Mac, Linux or Windows computer | Tested on macOS and Linux. On Windows, use the steps under “On Windows” below. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
-| Python 3.12 or newer | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
+| Python 3.12, 3.13 or 3.14 | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
 | Node.js 20 or newer | From [nodejs.org](https://nodejs.org). To check, type `node -v`. |
 | About 5 minutes | Most of it is installing. |
 
@@ -216,7 +216,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 <details>
 <summary>On Windows</summary>
 
-Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12 or newer from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 20 or newer from [nodejs.org](https://nodejs.org).
+Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12, 3.13 or 3.14 from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 20 or newer from [nodejs.org](https://nodejs.org).
 
 1. Download the project and install what it needs:
 
@@ -243,7 +243,7 @@ Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Py
 
 4. Open http://localhost:5173 in your browser. Press Ctrl+C in each window to stop.
 
-If PowerShell says *running scripts is disabled on this system* for `npm` or `npx`, type `npm.cmd` and `npx.cmd` instead. To use the live parts, `Copy-Item .env.example .env`, put the key in `MODEL_API_KEY`, and restart step 2. Tests: `.venv\Scripts\pytest`.
+If pip says *requires a different Python*, `py -3` found a Python older than 3.12 or a 3.15: delete the `.venv` folder and use `py -3.14 -m venv .venv`. If PowerShell says *running scripts is disabled on this system* for `npm` or `npx`, type `npm.cmd` and `npx.cmd` instead. To use the live parts, `Copy-Item .env.example .env`, put the key in `MODEL_API_KEY`, and restart step 2. Tests: `.venv\Scripts\pytest`.
 
 </details>
 
@@ -255,7 +255,7 @@ If PowerShell says *running scripts is disabled on this system* for `npm` or `np
 
 | What you see | Why, and what to do |
 |---|---|
-| `requires a different Python` | `python3` is older than 3.12 (some Macs ship 3.9). Install a newer one from python.org, open a new terminal, and start again from `python3 -m venv .venv` (on a Mac you can type the version, for example `python3.13 -m venv .venv`). |
+| `requires a different Python` | `python3` is older than 3.12 (some Macs ship 3.9) or is 3.15. Install 3.14 from python.org, open a new terminal, delete the `.venv` folder, and start again with `python3.14 -m venv .venv`. |
 | The page loads but shows no cases | The API from step 2 isn't running. Start it, then reload the page. |
 | `address already in use` | An earlier run is still open. Close that terminal, or stop it with Ctrl+C. |
 | A live run, the guide or a translation doesn't answer | That part calls Muse Spark. Add `MODEL_API_KEY` to `.env` and restart the API. |

@@ -25,8 +25,9 @@ jobs:
 
       - name: "Step 1: install"
         run: |
-          py -3 --version
-          py -3 -m venv .venv
+          # the runner also carries a Python 3.15 preview, which `py -3` would pick; use the one set up above
+          python --version
+          python -m venv .venv
           .venv\Scripts\pip install -e ".[dev]"
 
       - name: Tests
