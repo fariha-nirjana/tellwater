@@ -1,0 +1,2087 @@
+{
+  "status": "review_required",
+  "final": {
+    "kind": "assessment",
+    "status": "review_required",
+    "summary": "ETP power stayed within the expected band for inflow and meter photos match the digital feed. ETP inflow was normal, equalization tank level was stable, outfall pH remained near neutral throughout the treatment interval, and an accredited lab grab at 13/10/2026 14:30 shows BOD 13.1 mg/L with pH 7.47. Outfall flow is missing from 2026-10-13 10:30 to 2026-10-14 02:10 and outfall conductivity drops from the 5700s to the 3700s around 12:30-19:10, suggesting possible groundwater dilution at the outfall. Tank water balance shows 212.3 m\u00b3 unaccounted for, outside tolerance.",
+    "explanations": [
+      {
+        "id": "normal",
+        "label": "Wastewater treated normally through ETP",
+        "supporting": [
+          "calc:power_vs_load@1013-1000..1014-1400",
+          "sig:S2@1013-1000..1014-1400",
+          "sig:T1@1013-1000..1014-1400",
+          "sig:S4b@1013-1000..1014-1400",
+          "doc:lab-1013-1430",
+          "calc:reading_vs_feed:S3@1013-1603",
+          "calc:reading_vs_feed:S2@1013-1615"
+        ],
+        "contradicting": [],
+        "missing": [],
+        "status": "supported"
+      },
+      {
+        "id": "bypass",
+        "label": "Wastewater bypassed ETP to outfall",
+        "supporting": [],
+        "contradicting": [
+          "sig:S4b@1013-1000..1014-1400",
+          "sig:T1@1013-1000..1014-1400"
+        ],
+        "missing": [],
+        "status": "contradicted"
+      },
+      {
+        "id": "aeration_cut",
+        "label": "ETP inflow present but aeration cut (power low)",
+        "supporting": [],
+        "contradicting": [
+          "calc:power_vs_load@1013-1000..1014-1400",
+          "calc:reading_vs_feed:S3@1013-1603"
+        ],
+        "missing": [],
+        "status": "contradicted"
+      },
+      {
+        "id": "dilution",
+        "label": "Groundwater dilution at outfall masking untreated discharge",
+        "supporting": [
+          "sig:S4c@1013-1000..1014-1400"
+        ],
+        "contradicting": [
+          "sig:S4b@1013-1000..1014-1400"
+        ],
+        "missing": [
+          "sig:S4a@1013-1000..1014-1400"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "meter_fault",
+        "label": "Key meter faulty or replayed hiding true operation",
+        "supporting": [],
+        "contradicting": [
+          "calc:compare:S3@1013-1000..1014-1400",
+          "calc:compare:S2@1013-1000..1014-1400",
+          "calc:reading_vs_feed:S3@1013-1603",
+          "calc:reading_vs_feed:S2@1013-1615"
+        ],
+        "missing": [],
+        "status": "contradicted"
+      }
+    ],
+    "key_evidence": [
+      {
+        "id": "calc:power_vs_load@1013-1000..1014-1400",
+        "why": "Power within expected band for inflow, no aeration cut indicated."
+      },
+      {
+        "id": "sig:S4b@1013-1000..1014-1400",
+        "why": "Outfall pH stayed 7.17-7.83, no raw alkaline discharge."
+      },
+      {
+        "id": "doc:lab-1013-1430",
+        "why": "Accredited lab BOD 13.1 mg/L below 30 mg/L limit at 14:30."
+      },
+      {
+        "id": "sig:S4c@1013-1000..1014-1400",
+        "why": "Conductivity drops sharply 12:30-19:10 suggesting dilution."
+      },
+      {
+        "id": "sig:S4a@1013-1000..1014-1400",
+        "why": "Outfall flow missing 2026-10-13 10:30 to 2026-10-14 02:10, preventing dilution confirmation."
+      }
+    ],
+    "scope_line": "Based on flow, power, pH, conductivity records for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+    "limitations": "Outfall flow S4a coverage 44% with gap 2026-10-13 10:30 to 2026-10-14 02:10, so dilution cannot be confirmed or ruled out. Tank water balance shows 212.3 m\u00b3 unaccounted for outside tolerance. No continuous BOD data, only one grab sample.",
+    "unresolved": "Whether groundwater was added to the outfall during the conductivity drop, which would make outfall readings and the lab sample unrepresentative of treated effluent.",
+    "evidence_request": {
+      "items": [
+        "Outfall flow S4a digital feed",
+        "Outfall flow meter photo"
+      ],
+      "interval": "2026-10-13T10:30 to 2026-10-14T02:10",
+      "reason": "Outfall flow during the conductivity drop is needed to separate dilution from meter error and to assess whether the measurement point was tampered with."
+    }
+  },
+  "trace": {
+    "case_id": "factory-a-ee2d7896",
+    "model": "muse-glimmer-30b-sampler",
+    "steps": [
+      {
+        "n": 1,
+        "tool": "get_case_overview",
+        "args": {},
+        "why": "Need batch, treatment interval, plant facts, signal coverage, gaps, documents and alerts to plan checks.",
+        "result": {
+          "case_id": "factory-a-ee2d7896",
+          "claim": "The factory states this batch's wastewater was treated in its ETP before discharge.",
+          "batch": {
+            "id": "factory-a-ee2d7896-B04",
+            "production_start": "2026-10-12 22:00",
+            "production_end": "2026-10-13 02:00",
+            "shade": "light",
+            "planned_wastewater_m3": 151.2
+          },
+          "treatment_interval": {
+            "start": "2026-10-13 10:00",
+            "end": "2026-10-14 14:00",
+            "basis": "production window shifted by 12 to 36 h residence"
+          },
+          "case_data_range": {
+            "start": "2026-10-12 06:00",
+            "end": "2026-10-15 05:55"
+          },
+          "plant": {
+            "equalization_tank_m3": 700.0,
+            "reuse_fraction": 0.15,
+            "discharge_limits": {
+              "bod_mg_l": 30.0,
+              "ph": [
+                6.0,
+                9.0
+              ]
+            }
+          },
+          "signals": {
+            "S1": {
+              "name": "Intake flow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S2": {
+              "name": "ETP inflow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S3": {
+              "name": "ETP power",
+              "unit": "kW",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S4a": {
+              "name": "Outfall flow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 0.44,
+              "gaps": [
+                [
+                  "2026-10-13 10:30",
+                  "2026-10-14 02:10"
+                ]
+              ]
+            },
+            "S4b": {
+              "name": "Outfall pH",
+              "unit": "pH",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S4c": {
+              "name": "Outfall conductivity",
+              "unit": "uS/cm",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "T1": {
+              "name": "Equalization tank level",
+              "unit": "fraction of volume",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            }
+          },
+          "documents": [
+            {
+              "id": "doc:logbook-1013",
+              "type": "logbook",
+              "covers": [
+                "2026-10-13 00:00:00+06:00",
+                "2026-10-14 00:00:00+06:00"
+              ],
+              "received_at": "2026-10-14 02:00:00+06:00",
+              "author": "N. Islam",
+              "factory_claim": true
+            },
+            {
+              "id": "doc:photo-S3-1013-1605",
+              "type": "meter_photo",
+              "covers": [
+                "2026-10-13 16:05:00+06:00",
+                "2026-10-13 16:10:00+06:00"
+              ],
+              "received_at": "2026-10-13 17:35:37.680820046+06:00",
+              "author": "Site photo",
+              "factory_claim": false
+            },
+            {
+              "id": "doc:photo-S2-1013-1615",
+              "type": "meter_photo",
+              "covers": [
+                "2026-10-13 16:15:00+06:00",
+                "2026-10-13 16:20:00+06:00"
+              ],
+              "received_at": "2026-10-13 19:21:18.980883192+06:00",
+              "author": "Site photo",
+              "factory_claim": false
+            },
+            {
+              "id": "doc:lab-1013-1430",
+              "type": "lab_report",
+              "covers": [
+                "2026-10-13 14:30:00+06:00",
+                "2026-10-13 14:35:00+06:00"
+              ],
+              "received_at": "2026-10-16 14:30:00+06:00",
+              "author": "Accredited laboratory (simulated)",
+              "factory_claim": false
+            }
+          ],
+          "alerts": [
+            {
+              "id": "alert:signal_gap:1013-1030",
+              "check": "signal_gap",
+              "start": "2026-10-13 10:30",
+              "end": "2026-10-14 02:10",
+              "summary": "No readings from S4a",
+              "metrics": {}
+            }
+          ],
+          "budget": {
+            "checks_allowed": 16
+          }
+        },
+        "t": 1.36
+      },
+      {
+        "n": 2,
+        "tool": "update_hypotheses",
+        "args": {
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP to outfall",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP inflow present but aeration cut (power low)",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "dilution",
+              "label": "Groundwater dilution at outfall masking untreated discharge",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Key meter faulty or replayed hiding true operation",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            }
+          ]
+        },
+        "why": null,
+        "result": {
+          "recorded": true,
+          "checks_used": 0,
+          "checks_left": 16
+        },
+        "t": 6.44
+      },
+      {
+        "n": 3,
+        "tool": "check_power_vs_load",
+        "args": {
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Separates normal operation from aeration cut; power far below expected band with normal inflow indicates aeration cut.",
+        "result": {
+          "evidence_id": "calc:power_vs_load@1013-1000..1014-1400",
+          "start": "2026-10-13 10:00:00+06:00",
+          "end": "2026-10-14 14:00:00+06:00",
+          "observed_mean_kw": 54.4,
+          "expected_mean_kw": 58.4,
+          "band_half_width_kw": 12.4,
+          "share_below_band": 0.012,
+          "share_above_band": 0.0,
+          "observed_as_share_of_expected": 0.93,
+          "note": "Expected band fitted on the factory's normal-operation baseline from ETP inflow; with the ETP off, expected is standby power."
+        },
+        "t": 9.51
+      },
+      {
+        "n": 4,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S2",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check ETP inflow pattern to see if flow is normal and to compare with power; flat or stuck inflow would suggest meter fault.",
+        "result": {
+          "evidence_id": "sig:S2@1013-1000..1014-1400",
+          "signal": "S2",
+          "name": "ETP inflow",
+          "unit": "m3/h",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 60.2,
+          "min": 46.1,
+          "max": 70.5,
+          "std": 7.1,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              62.2
+            ],
+            [
+              "10-13 10:50",
+              64.7
+            ],
+            [
+              "10-13 11:40",
+              66.4
+            ],
+            [
+              "10-13 12:30",
+              66.6
+            ],
+            [
+              "10-13 13:20",
+              67.5
+            ],
+            [
+              "10-13 14:10",
+              68.8
+            ],
+            [
+              "10-13 15:00",
+              67.9
+            ],
+            [
+              "10-13 15:50",
+              67.7
+            ],
+            [
+              "10-13 16:40",
+              67.0
+            ],
+            [
+              "10-13 17:30",
+              67.1
+            ],
+            [
+              "10-13 18:20",
+              66.2
+            ],
+            [
+              "10-13 19:10",
+              65.8
+            ],
+            [
+              "10-13 20:00",
+              66.3
+            ],
+            [
+              "10-13 20:50",
+              66.9
+            ],
+            [
+              "10-13 21:40",
+              65.7
+            ],
+            [
+              "10-13 22:30",
+              60.9
+            ],
+            [
+              "10-13 23:20",
+              57.1
+            ],
+            [
+              "10-14 00:10",
+              52.9
+            ],
+            [
+              "10-14 01:00",
+              50.3
+            ],
+            [
+              "10-14 01:50",
+              48.3
+            ],
+            [
+              "10-14 02:40",
+              49.3
+            ],
+            [
+              "10-14 03:30",
+              49.2
+            ],
+            [
+              "10-14 04:20",
+              48.6
+            ],
+            [
+              "10-14 05:10",
+              48.7
+            ],
+            [
+              "10-14 06:00",
+              50.2
+            ],
+            [
+              "10-14 06:50",
+              53.1
+            ],
+            [
+              "10-14 07:40",
+              55.5
+            ],
+            [
+              "10-14 08:30",
+              57.4
+            ],
+            [
+              "10-14 09:20",
+              58.7
+            ],
+            [
+              "10-14 10:10",
+              60.6
+            ],
+            [
+              "10-14 11:00",
+              62.0
+            ],
+            [
+              "10-14 11:50",
+              62.9
+            ],
+            [
+              "10-14 12:40",
+              63.1
+            ],
+            [
+              "10-14 13:30",
+              62.9
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 65.3,
+            "p10": 46.0,
+            "p90": 77.2,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 10.55
+      },
+      {
+        "n": 5,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "T1",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Tank level shows whether inflow was held; rising level with ETP on would indicate blockage or bypass.",
+        "result": {
+          "evidence_id": "sig:T1@1013-1000..1014-1400",
+          "signal": "T1",
+          "name": "Equalization tank level",
+          "unit": "fraction of volume",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 0.39,
+          "min": 0.3,
+          "max": 0.45,
+          "std": 0.04,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              0.39
+            ],
+            [
+              "10-13 10:50",
+              0.41
+            ],
+            [
+              "10-13 11:40",
+              0.42
+            ],
+            [
+              "10-13 12:30",
+              0.42
+            ],
+            [
+              "10-13 13:20",
+              0.43
+            ],
+            [
+              "10-13 14:10",
+              0.43
+            ],
+            [
+              "10-13 15:00",
+              0.42
+            ],
+            [
+              "10-13 15:50",
+              0.43
+            ],
+            [
+              "10-13 16:40",
+              0.43
+            ],
+            [
+              "10-13 17:30",
+              0.43
+            ],
+            [
+              "10-13 18:20",
+              0.42
+            ],
+            [
+              "10-13 19:10",
+              0.41
+            ],
+            [
+              "10-13 20:00",
+              0.42
+            ],
+            [
+              "10-13 20:50",
+              0.43
+            ],
+            [
+              "10-13 21:40",
+              0.42
+            ],
+            [
+              "10-13 22:30",
+              0.39
+            ],
+            [
+              "10-13 23:20",
+              0.36
+            ],
+            [
+              "10-14 00:10",
+              0.34
+            ],
+            [
+              "10-14 01:00",
+              0.33
+            ],
+            [
+              "10-14 01:50",
+              0.31
+            ],
+            [
+              "10-14 02:40",
+              0.32
+            ],
+            [
+              "10-14 03:30",
+              0.32
+            ],
+            [
+              "10-14 04:20",
+              0.32
+            ],
+            [
+              "10-14 05:10",
+              0.31
+            ],
+            [
+              "10-14 06:00",
+              0.33
+            ],
+            [
+              "10-14 06:50",
+              0.34
+            ],
+            [
+              "10-14 07:40",
+              0.35
+            ],
+            [
+              "10-14 08:30",
+              0.37
+            ],
+            [
+              "10-14 09:20",
+              0.4
+            ],
+            [
+              "10-14 10:10",
+              0.39
+            ],
+            [
+              "10-14 11:00",
+              0.41
+            ],
+            [
+              "10-14 11:50",
+              0.4
+            ],
+            [
+              "10-14 12:40",
+              0.41
+            ],
+            [
+              "10-14 13:30",
+              0.41
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 0.41,
+            "p10": 0.31,
+            "p90": 0.48,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 11.62
+      },
+      {
+        "n": 6,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4b",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Outfall pH indicates if raw alkaline wastewater reached outfall; pH >9 suggests untreated water.",
+        "result": {
+          "evidence_id": "sig:S4b@1013-1000..1014-1400",
+          "signal": "S4b",
+          "name": "Outfall pH",
+          "unit": "pH",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 7.45,
+          "min": 7.17,
+          "max": 7.83,
+          "std": 0.13,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              7.6
+            ],
+            [
+              "10-13 10:50",
+              7.6
+            ],
+            [
+              "10-13 11:40",
+              7.48
+            ],
+            [
+              "10-13 12:30",
+              7.39
+            ],
+            [
+              "10-13 13:20",
+              7.44
+            ],
+            [
+              "10-13 14:10",
+              7.44
+            ],
+            [
+              "10-13 15:00",
+              7.34
+            ],
+            [
+              "10-13 15:50",
+              7.24
+            ],
+            [
+              "10-13 16:40",
+              7.27
+            ],
+            [
+              "10-13 17:30",
+              7.29
+            ],
+            [
+              "10-13 18:20",
+              7.45
+            ],
+            [
+              "10-13 19:10",
+              7.42
+            ],
+            [
+              "10-13 20:00",
+              7.42
+            ],
+            [
+              "10-13 20:50",
+              7.4
+            ],
+            [
+              "10-13 21:40",
+              7.34
+            ],
+            [
+              "10-13 22:30",
+              7.28
+            ],
+            [
+              "10-13 23:20",
+              7.37
+            ],
+            [
+              "10-14 00:10",
+              7.5
+            ],
+            [
+              "10-14 01:00",
+              7.51
+            ],
+            [
+              "10-14 01:50",
+              7.6
+            ],
+            [
+              "10-14 02:40",
+              7.77
+            ],
+            [
+              "10-14 03:30",
+              7.73
+            ],
+            [
+              "10-14 04:20",
+              7.59
+            ],
+            [
+              "10-14 05:10",
+              7.47
+            ],
+            [
+              "10-14 06:00",
+              7.36
+            ],
+            [
+              "10-14 06:50",
+              7.38
+            ],
+            [
+              "10-14 07:40",
+              7.4
+            ],
+            [
+              "10-14 08:30",
+              7.48
+            ],
+            [
+              "10-14 09:20",
+              7.52
+            ],
+            [
+              "10-14 10:10",
+              7.41
+            ],
+            [
+              "10-14 11:00",
+              7.42
+            ],
+            [
+              "10-14 11:50",
+              7.39
+            ],
+            [
+              "10-14 12:40",
+              7.41
+            ],
+            [
+              "10-14 13:30",
+              7.48
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 7.41,
+            "p10": 7.18,
+            "p90": 7.57,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 12.6
+      },
+      {
+        "n": 7,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4c",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Conductivity tracks dilution; drop with extra outfall flow suggests groundwater addition.",
+        "result": {
+          "evidence_id": "sig:S4c@1013-1000..1014-1400",
+          "signal": "S4c",
+          "name": "Outfall conductivity",
+          "unit": "uS/cm",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 4702.7,
+          "min": 3601.3,
+          "max": 5902.3,
+          "std": 616.1,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              5726.2
+            ],
+            [
+              "10-13 10:50",
+              5704.0
+            ],
+            [
+              "10-13 11:40",
+              5743.5
+            ],
+            [
+              "10-13 12:30",
+              3894.2
+            ],
+            [
+              "10-13 13:20",
+              3845.8
+            ],
+            [
+              "10-13 14:10",
+              3852.7
+            ],
+            [
+              "10-13 15:00",
+              3807.3
+            ],
+            [
+              "10-13 15:50",
+              3790.0
+            ],
+            [
+              "10-13 16:40",
+              3797.7
+            ],
+            [
+              "10-13 17:30",
+              3766.8
+            ],
+            [
+              "10-13 18:20",
+              3724.0
+            ],
+            [
+              "10-13 19:10",
+              3704.2
+            ],
+            [
+              "10-13 20:00",
+              5033.7
+            ],
+            [
+              "10-13 20:50",
+              5244.0
+            ],
+            [
+              "10-13 21:40",
+              5174.3
+            ],
+            [
+              "10-13 22:30",
+              5184.2
+            ],
+            [
+              "10-13 23:20",
+              5078.8
+            ],
+            [
+              "10-14 00:10",
+              5028.5
+            ],
+            [
+              "10-14 01:00",
+              4945.8
+            ],
+            [
+              "10-14 01:50",
+              4917.9
+            ],
+            [
+              "10-14 02:40",
+              4894.2
+            ],
+            [
+              "10-14 03:30",
+              4827.3
+            ],
+            [
+              "10-14 04:20",
+              4849.6
+            ],
+            [
+              "10-14 05:10",
+              4850.7
+            ],
+            [
+              "10-14 06:00",
+              4828.5
+            ],
+            [
+              "10-14 06:50",
+              4859.7
+            ],
+            [
+              "10-14 07:40",
+              4912.5
+            ],
+            [
+              "10-14 08:30",
+              4878.7
+            ],
+            [
+              "10-14 09:20",
+              4884.8
+            ],
+            [
+              "10-14 10:10",
+              4875.4
+            ],
+            [
+              "10-14 11:00",
+              4877.1
+            ],
+            [
+              "10-14 11:50",
+              4811.5
+            ],
+            [
+              "10-14 12:40",
+              4814.3
+            ],
+            [
+              "10-14 13:30",
+              4802.1
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 5769.1,
+            "p10": 4573.9,
+            "p90": 6454.7,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 13.56
+      },
+      {
+        "n": 8,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4a",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Outfall flow is missing over much of interval; need to see available data to assess dilution or bypass.",
+        "result": {
+          "evidence_id": "sig:S4a@1013-1000..1014-1400",
+          "signal": "S4a",
+          "name": "Outfall flow",
+          "unit": "m3/h",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 0.44,
+          "gaps": [
+            [
+              "2026-10-13 10:30",
+              "2026-10-14 02:10"
+            ]
+          ],
+          "mean": 46.5,
+          "min": 38.4,
+          "max": 54.8,
+          "std": 5.1,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              52.4
+            ],
+            [
+              "10-14 01:50",
+              41.1
+            ],
+            [
+              "10-14 02:40",
+              40.5
+            ],
+            [
+              "10-14 03:30",
+              40.9
+            ],
+            [
+              "10-14 04:20",
+              40.7
+            ],
+            [
+              "10-14 05:10",
+              40.4
+            ],
+            [
+              "10-14 06:00",
+              41.6
+            ],
+            [
+              "10-14 06:50",
+              44.4
+            ],
+            [
+              "10-14 07:40",
+              46.5
+            ],
+            [
+              "10-14 08:30",
+              47.3
+            ],
+            [
+              "10-14 09:20",
+              49.3
+            ],
+            [
+              "10-14 10:10",
+              51.2
+            ],
+            [
+              "10-14 11:00",
+              51.4
+            ],
+            [
+              "10-14 11:50",
+              52.2
+            ],
+            [
+              "10-14 12:40",
+              53.5
+            ],
+            [
+              "10-14 13:30",
+              53.5
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 54.8,
+            "p10": 38.5,
+            "p90": 64.5,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 14.53
+      },
+      {
+        "n": 9,
+        "tool": "compare_similar_windows",
+        "args": {
+          "signal": "S3",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Detect replayed power feed; a copied power feed would hide aeration cut.",
+        "result": {
+          "evidence_id": "calc:compare:S3@1013-1000..1014-1400",
+          "signal": "S3",
+          "comparisons": [
+            {
+              "window": "2026-10-12 10:00 to 2026-10-13 14:00",
+              "days_offset": -1,
+              "mean_here": 54.4,
+              "mean_there": 62.7,
+              "mean_abs_difference": 10.328,
+              "correlation": 0.704,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            }
+          ],
+          "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."
+        },
+        "t": 15.58
+      },
+      {
+        "n": 10,
+        "tool": "compare_similar_windows",
+        "args": {
+          "signal": "S2",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check if ETP inflow feed is replayed, which would make flow unreliable.",
+        "result": {
+          "evidence_id": "calc:compare:S2@1013-1000..1014-1400",
+          "signal": "S2",
+          "comparisons": [
+            {
+              "window": "2026-10-12 10:00 to 2026-10-13 14:00",
+              "days_offset": -1,
+              "mean_here": 60.2,
+              "mean_there": 64.2,
+              "mean_abs_difference": 5.398,
+              "correlation": 0.963,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            }
+          ],
+          "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."
+        },
+        "t": 16.56
+      },
+      {
+        "n": 11,
+        "tool": "compute_water_balance",
+        "args": {
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check if water unaccounted for left tank via bypass or meter error; balance uses intake, ETP inflow, tank change.",
+        "result": {
+          "evidence_id": "calc:water_balance@1013-1000..1014-1400",
+          "start": "2026-10-13 10:00:00+06:00",
+          "end": "2026-10-14 14:00:00+06:00",
+          "hours": 28.0,
+          "coverage": {
+            "S1": 1.0,
+            "S2": 1.0,
+            "S4a": 0.44,
+            "T1": 1.0
+          },
+          "etp": null,
+          "boundary": null,
+          "tank": {
+            "wastewater_arriving_m3": 1914.8,
+            "etp_inflow_m3": 1686.1,
+            "storage_change_m3": 16.4,
+            "unaccounted_m3": 212.3,
+            "tolerance_m3": 191.5,
+            "within_tolerance": false
+          },
+          "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). Tank balance: wastewater arriving (estimated from intake) vs ETP inflow + storage change; unaccounted water left the tank another way, or was intake water that never became wastewater. null means a required signal is under 80% coverage.",
+          "not_assessable": {
+            "etp": "cannot be computed: coverage S4a 44%; what this balance would show is unknown, not fine",
+            "boundary": "cannot be computed: coverage S4a 44%; what this balance would show is unknown, not fine"
+          }
+        },
+        "t": 17.66
+      },
+      {
+        "n": 12,
+        "tool": "get_lab_results",
+        "args": {},
+        "why": "Lab BOD result can confirm treatment worked at a specific time; needed if power feed is suspect.",
+        "result": {
+          "lab_results": [
+            {
+              "evidence_id": "doc:lab-1013-1430",
+              "sample_point": "Final outfall",
+              "sample_time": "13/10/2026 14:30",
+              "bod_mg_l": 13.1,
+              "cod_mg_l": 37.0,
+              "tss_mg_l": 42.6,
+              "ph": 7.47,
+              "bod_limit_mg_l": 30.0
+            }
+          ],
+          "note": "Grab samples from an accredited lab. None means no sample falls in this case's period."
+        },
+        "t": 18.69
+      },
+      {
+        "n": 13,
+        "tool": "read_document",
+        "args": {
+          "doc_id": "doc:photo-S3-1013-1605"
+        },
+        "why": "Meter photo of power at 16:05 may confirm feed; compare to digital feed.",
+        "result": {
+          "evidence_id": "doc:photo-S3-1013-1605",
+          "type": "meter_photo",
+          "author": "Site photo",
+          "factory_claim": false,
+          "covers": [
+            "2026-10-13 16:05:00+06:00",
+            "2026-10-13 16:10:00+06:00"
+          ],
+          "received_at": "2026-10-13 17:35:37.680820046+06:00",
+          "image": "docs/photo-S3-1013-1605.jpg",
+          "note": "The image follows. Read it yourself; no transcription is provided."
+        },
+        "t": 19.71
+      },
+      {
+        "n": 14,
+        "tool": "check_reading_against_feed",
+        "args": {
+          "signal": "S3",
+          "timestamp": "2026-10-13T16:03",
+          "value": 60.3
+        },
+        "why": "Compare meter photo reading to digital feed to see if feed is wrong.",
+        "result": {
+          "evidence_id": "calc:reading_vs_feed:S3@1013-1603",
+          "signal": "S3",
+          "time": "2026-10-13 16:03",
+          "reading_given": 60.3,
+          "feed_nearest": 58.35,
+          "feed_range_within_10_min": [
+            57.28,
+            62.47
+          ],
+          "difference": 1.95,
+          "tolerance": 4.67,
+          "consistent": true,
+          "note": "Compared within 10 minutes either side, allowing for meter clocks that are a few minutes off.",
+          "expected_kw_from_inflow": 65.4,
+          "expected_band_half_width_kw": 12.4,
+          "reading_vs_expected_band": "within",
+          "reading_as_share_of_expected": 0.92
+        },
+        "t": 21.11
+      },
+      {
+        "n": 15,
+        "tool": "read_document",
+        "args": {
+          "doc_id": "doc:photo-S2-1013-1615"
+        },
+        "why": "Meter photo of ETP inflow to verify flow reading.",
+        "result": {
+          "evidence_id": "doc:photo-S2-1013-1615",
+          "type": "meter_photo",
+          "author": "Site photo",
+          "factory_claim": false,
+          "covers": [
+            "2026-10-13 16:15:00+06:00",
+            "2026-10-13 16:20:00+06:00"
+          ],
+          "received_at": "2026-10-13 19:21:18.980883192+06:00",
+          "image": "docs/photo-S2-1013-1615.jpg",
+          "note": "The image follows. Read it yourself; no transcription is provided."
+        },
+        "t": 22.78
+      },
+      {
+        "n": 16,
+        "tool": "check_reading_against_feed",
+        "args": {
+          "signal": "S2",
+          "timestamp": "2026-10-13T16:15",
+          "value": 67.3
+        },
+        "why": "Verify ETP inflow meter photo matches digital feed.",
+        "result": {
+          "evidence_id": "calc:reading_vs_feed:S2@1013-1615",
+          "signal": "S2",
+          "time": "2026-10-13 16:15",
+          "reading_given": 67.3,
+          "feed_nearest": 65.15,
+          "feed_range_within_10_min": [
+            64.83,
+            69.76
+          ],
+          "difference": 2.15,
+          "tolerance": 3.91,
+          "consistent": true,
+          "note": "Compared within 10 minutes either side, allowing for meter clocks that are a few minutes off."
+        },
+        "t": 24.22
+      },
+      {
+        "n": 17,
+        "tool": "read_document",
+        "args": {
+          "doc_id": "doc:logbook-1013"
+        },
+        "why": "Logbook may claim maintenance or normal operation; test against signals.",
+        "result": {
+          "evidence_id": "doc:logbook-1013",
+          "type": "logbook",
+          "author": "N. Islam",
+          "factory_claim": true,
+          "covers": [
+            "2026-10-13 00:00:00+06:00",
+            "2026-10-14 00:00:00+06:00"
+          ],
+          "received_at": "2026-10-14 02:00:00+06:00",
+          "image": "docs/logbook-1013.jpg",
+          "note": "The image follows. Read it yourself; no transcription is provided."
+        },
+        "t": 25.51
+      },
+      {
+        "n": 18,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S1",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Intake flow needed to interpret water balance and dilution hypothesis.",
+        "result": {
+          "evidence_id": "sig:S1@1013-1000..1014-1400",
+          "signal": "S1",
+          "name": "Intake flow",
+          "unit": "m3/h",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 67.1,
+          "min": 30.7,
+          "max": 111.5,
+          "std": 21.4,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              76.1
+            ],
+            [
+              "10-13 10:50",
+              73.5
+            ],
+            [
+              "10-13 11:40",
+              67.0
+            ],
+            [
+              "10-13 12:30",
+              99.5
+            ],
+            [
+              "10-13 13:20",
+              103.4
+            ],
+            [
+              "10-13 14:10",
+              95.1
+            ],
+            [
+              "10-13 15:00",
+              96.0
+            ],
+            [
+              "10-13 15:50",
+              94.7
+            ],
+            [
+              "10-13 16:40",
+              94.0
+            ],
+            [
+              "10-13 17:30",
+              92.4
+            ],
+            [
+              "10-13 18:20",
+              92.4
+            ],
+            [
+              "10-13 19:10",
+              95.4
+            ],
+            [
+              "10-13 20:00",
+              73.3
+            ],
+            [
+              "10-13 20:50",
+              64.4
+            ],
+            [
+              "10-13 21:40",
+              43.6
+            ],
+            [
+              "10-13 22:30",
+              35.3
+            ],
+            [
+              "10-13 23:20",
+              34.2
+            ],
+            [
+              "10-14 00:10",
+              32.7
+            ],
+            [
+              "10-14 01:00",
+              34.4
+            ],
+            [
+              "10-14 01:50",
+              46.1
+            ],
+            [
+              "10-14 02:40",
+              47.3
+            ],
+            [
+              "10-14 03:30",
+              48.3
+            ],
+            [
+              "10-14 04:20",
+              45.6
+            ],
+            [
+              "10-14 05:10",
+              47.5
+            ],
+            [
+              "10-14 06:00",
+              64.4
+            ],
+            [
+              "10-14 06:50",
+              64.5
+            ],
+            [
+              "10-14 07:40",
+              63.0
+            ],
+            [
+              "10-14 08:30",
+              64.4
+            ],
+            [
+              "10-14 09:20",
+              70.1
+            ],
+            [
+              "10-14 10:10",
+              62.5
+            ],
+            [
+              "10-14 11:00",
+              64.4
+            ],
+            [
+              "10-14 11:50",
+              63.5
+            ],
+            [
+              "10-14 12:40",
+              64.5
+            ],
+            [
+              "10-14 13:30",
+              67.3
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 62.6,
+            "p10": 33.9,
+            "p90": 80.6,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 27.15
+      },
+      {
+        "n": 19,
+        "tool": "update_hypotheses",
+        "args": {
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP",
+              "supporting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "sig:S2@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400",
+                "sig:S4b@1013-1000..1014-1400",
+                "doc:lab-1013-1430",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "contradicting": [],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP to outfall",
+              "supporting": [],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400"
+              ],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP inflow present but aeration cut (power low)",
+              "supporting": [],
+              "contradicting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603"
+              ],
+              "missing": [],
+              "status": "open"
+            },
+            {
+              "id": "dilution",
+              "label": "Groundwater dilution at outfall masking untreated discharge",
+              "supporting": [
+                "sig:S4c@1013-1000..1014-1400"
+              ],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400"
+              ],
+              "missing": [
+                "sig:S4a@1013-1000..1014-1400"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Key meter faulty or replayed hiding true operation",
+              "supporting": [],
+              "contradicting": [
+                "calc:compare:S3@1013-1000..1014-1400",
+                "calc:compare:S2@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "missing": [],
+              "status": "open"
+            }
+          ]
+        },
+        "why": null,
+        "result": {
+          "recorded": true,
+          "checks_used": 16,
+          "checks_left": 0
+        },
+        "t": 29.99
+      },
+      {
+        "n": 20,
+        "tool": "submit_assessment",
+        "args": {
+          "status": "review_required",
+          "summary": "ETP power stayed within the expected band for inflow and meter photos match the digital feed. ETP inflow was normal, equalization tank level was stable, outfall pH remained near neutral throughout the treatment interval, and an accredited lab grab at 13/10/2026 14:30 shows BOD 13.1 mg/L with pH 7.47. Outfall flow is missing from 2026-10-13 10:30 to 2026-10-14 02:10 and outfall conductivity drops from ~5700 to ~3700 \u00b5S/cm around 12:30-19:10, suggesting possible groundwater dilution at the outfall. Tank water balance shows 212.3 m\u00b3 unaccounted for, outside tolerance.",
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP",
+              "supporting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "sig:S2@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400",
+                "sig:S4b@1013-1000..1014-1400",
+                "doc:lab-1013-1430",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "contradicting": [],
+              "missing": [],
+              "status": "supported"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP to outfall",
+              "supporting": [],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP inflow present but aeration cut (power low)",
+              "supporting": [],
+              "contradicting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            },
+            {
+              "id": "dilution",
+              "label": "Groundwater dilution at outfall masking untreated discharge",
+              "supporting": [
+                "sig:S4c@1013-1000..1014-1400"
+              ],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400"
+              ],
+              "missing": [
+                "sig:S4a@1013-1000..1014-1400"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Key meter faulty or replayed hiding true operation",
+              "supporting": [],
+              "contradicting": [
+                "calc:compare:S3@1013-1000..1014-1400",
+                "calc:compare:S2@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            }
+          ],
+          "key_evidence": [
+            {
+              "id": "calc:power_vs_load@1013-1000..1014-1400",
+              "why": "Power within expected band for inflow, no aeration cut indicated."
+            },
+            {
+              "id": "sig:S4b@1013-1000..1014-1400",
+              "why": "Outfall pH stayed 7.17-7.83, no raw alkaline discharge."
+            },
+            {
+              "id": "doc:lab-1013-1430",
+              "why": "Accredited lab BOD 13.1 mg/L below 30 mg/L limit at 14:30."
+            },
+            {
+              "id": "sig:S4c@1013-1000..1014-1400",
+              "why": "Conductivity drops sharply 12:30-19:10 suggesting dilution."
+            },
+            {
+              "id": "sig:S4a@1013-1000..1014-1400",
+              "why": "Outfall flow missing 2026-10-13 10:30 to 2026-10-14 02:10, preventing dilution confirmation."
+            }
+          ],
+          "scope_line": "Based on flow, power, pH, conductivity records for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+          "limitations": "Outfall flow S4a coverage 44% with gap 2026-10-13 10:30 to 2026-10-14 02:10, so dilution cannot be confirmed or ruled out. Tank water balance shows 212.3 m\u00b3 unaccounted for outside tolerance. No continuous BOD data, only one grab sample.",
+          "unresolved": "Whether groundwater was added to the outfall during the conductivity drop, which would make outfall readings and the lab sample unrepresentative of treated effluent.",
+          "evidence_request": {
+            "items": [
+              "Outfall flow S4a digital feed",
+              "Outfall flow meter photo"
+            ],
+            "interval": "2026-10-13T10:30 to 2026-10-14T02:10",
+            "reason": "Outfall flow during the conductivity drop is needed to separate dilution from meter error and to assess whether the measurement point was tampered with."
+          }
+        },
+        "why": null,
+        "result": {
+          "recorded": true
+        },
+        "t": 43.55
+      },
+      {
+        "n": 21,
+        "tool": "submit_assessment",
+        "args": {
+          "status": "review_required",
+          "summary": "ETP power stayed within the expected band for inflow and meter photos match the digital feed. ETP inflow was normal, equalization tank level was stable, outfall pH remained near neutral throughout the treatment interval, and an accredited lab grab at 13/10/2026 14:30 shows BOD 13.1 mg/L with pH 7.47. Outfall flow is missing from 2026-10-13 10:30 to 2026-10-14 02:10 and outfall conductivity drops from the 5700s to the 3700s around 12:30-19:10, suggesting possible groundwater dilution at the outfall. Tank water balance shows 212.3 m\u00b3 unaccounted for, outside tolerance.",
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP",
+              "supporting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "sig:S2@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400",
+                "sig:S4b@1013-1000..1014-1400",
+                "doc:lab-1013-1430",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "contradicting": [],
+              "missing": [],
+              "status": "supported"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP to outfall",
+              "supporting": [],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:T1@1013-1000..1014-1400"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP inflow present but aeration cut (power low)",
+              "supporting": [],
+              "contradicting": [
+                "calc:power_vs_load@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            },
+            {
+              "id": "dilution",
+              "label": "Groundwater dilution at outfall masking untreated discharge",
+              "supporting": [
+                "sig:S4c@1013-1000..1014-1400"
+              ],
+              "contradicting": [
+                "sig:S4b@1013-1000..1014-1400"
+              ],
+              "missing": [
+                "sig:S4a@1013-1000..1014-1400"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Key meter faulty or replayed hiding true operation",
+              "supporting": [],
+              "contradicting": [
+                "calc:compare:S3@1013-1000..1014-1400",
+                "calc:compare:S2@1013-1000..1014-1400",
+                "calc:reading_vs_feed:S3@1013-1603",
+                "calc:reading_vs_feed:S2@1013-1615"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            }
+          ],
+          "key_evidence": [
+            {
+              "id": "calc:power_vs_load@1013-1000..1014-1400",
+              "why": "Power within expected band for inflow, no aeration cut indicated."
+            },
+            {
+              "id": "sig:S4b@1013-1000..1014-1400",
+              "why": "Outfall pH stayed 7.17-7.83, no raw alkaline discharge."
+            },
+            {
+              "id": "doc:lab-1013-1430",
+              "why": "Accredited lab BOD 13.1 mg/L below 30 mg/L limit at 14:30."
+            },
+            {
+              "id": "sig:S4c@1013-1000..1014-1400",
+              "why": "Conductivity drops sharply 12:30-19:10 suggesting dilution."
+            },
+            {
+              "id": "sig:S4a@1013-1000..1014-1400",
+              "why": "Outfall flow missing 2026-10-13 10:30 to 2026-10-14 02:10, preventing dilution confirmation."
+            }
+          ],
+          "scope_line": "Based on flow, power, pH, conductivity records for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+          "limitations": "Outfall flow S4a coverage 44% with gap 2026-10-13 10:30 to 2026-10-14 02:10, so dilution cannot be confirmed or ruled out. Tank water balance shows 212.3 m\u00b3 unaccounted for outside tolerance. No continuous BOD data, only one grab sample.",
+          "unresolved": "Whether groundwater was added to the outfall during the conductivity drop, which would make outfall readings and the lab sample unrepresentative of treated effluent.",
+          "evidence_request": {
+            "items": [
+              "Outfall flow S4a digital feed",
+              "Outfall flow meter photo"
+            ],
+            "interval": "2026-10-13T10:30 to 2026-10-14T02:10",
+            "reason": "Outfall flow during the conductivity drop is needed to separate dilution from meter error and to assess whether the measurement point was tampered with."
+          }
+        },
+        "why": null,
+        "result": {
+          "recorded": true
+        },
+        "t": 46.86
+      }
+    ],
+    "ledger": [
+      [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP to outfall",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP inflow present but aeration cut (power low)",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "dilution",
+          "label": "Groundwater dilution at outfall masking untreated discharge",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Key meter faulty or replayed hiding true operation",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        }
+      ],
+      [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP",
+          "supporting": [
+            "calc:power_vs_load@1013-1000..1014-1400",
+            "sig:S2@1013-1000..1014-1400",
+            "sig:T1@1013-1000..1014-1400",
+            "sig:S4b@1013-1000..1014-1400",
+            "doc:lab-1013-1430",
+            "calc:reading_vs_feed:S3@1013-1603",
+            "calc:reading_vs_feed:S2@1013-1615"
+          ],
+          "contradicting": [],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP to outfall",
+          "supporting": [],
+          "contradicting": [
+            "sig:S4b@1013-1000..1014-1400",
+            "sig:T1@1013-1000..1014-1400"
+          ],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP inflow present but aeration cut (power low)",
+          "supporting": [],
+          "contradicting": [
+            "calc:power_vs_load@1013-1000..1014-1400",
+            "calc:reading_vs_feed:S3@1013-1603"
+          ],
+          "missing": [],
+          "status": "open"
+        },
+        {
+          "id": "dilution",
+          "label": "Groundwater dilution at outfall masking untreated discharge",
+          "supporting": [
+            "sig:S4c@1013-1000..1014-1400"
+          ],
+          "contradicting": [
+            "sig:S4b@1013-1000..1014-1400"
+          ],
+          "missing": [
+            "sig:S4a@1013-1000..1014-1400"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Key meter faulty or replayed hiding true operation",
+          "supporting": [],
+          "contradicting": [
+            "calc:compare:S3@1013-1000..1014-1400",
+            "calc:compare:S2@1013-1000..1014-1400",
+            "calc:reading_vs_feed:S3@1013-1603",
+            "calc:reading_vs_feed:S2@1013-1615"
+          ],
+          "missing": [],
+          "status": "open"
+        }
+      ]
+    ],
+    "final": {
+      "kind": "assessment",
+      "status": "review_required",
+      "summary": "ETP power stayed within the expected band for inflow and meter photos match the digital feed. ETP inflow was normal, equalization tank level was stable, outfall pH remained near neutral throughout the treatment interval, and an accredited lab grab at 13/10/2026 14:30 shows BOD 13.1 mg/L with pH 7.47. Outfall flow is missing from 2026-10-13 10:30 to 2026-10-14 02:10 and outfall conductivity drops from the 5700s to the 3700s around 12:30-19:10, suggesting possible groundwater dilution at the outfall. Tank water balance shows 212.3 m\u00b3 unaccounted for, outside tolerance.",
+      "explanations": [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP",
+          "supporting": [
+            "calc:power_vs_load@1013-1000..1014-1400",
+            "sig:S2@1013-1000..1014-1400",
+            "sig:T1@1013-1000..1014-1400",
+            "sig:S4b@1013-1000..1014-1400",
+            "doc:lab-1013-1430",
+            "calc:reading_vs_feed:S3@1013-1603",
+            "calc:reading_vs_feed:S2@1013-1615"
+          ],
+          "contradicting": [],
+          "missing": [],
+          "status": "supported"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP to outfall",
+          "supporting": [],
+          "contradicting": [
+            "sig:S4b@1013-1000..1014-1400",
+            "sig:T1@1013-1000..1014-1400"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP inflow present but aeration cut (power low)",
+          "supporting": [],
+          "contradicting": [
+            "calc:power_vs_load@1013-1000..1014-1400",
+            "calc:reading_vs_feed:S3@1013-1603"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        },
+        {
+          "id": "dilution",
+          "label": "Groundwater dilution at outfall masking untreated discharge",
+          "supporting": [
+            "sig:S4c@1013-1000..1014-1400"
+          ],
+          "contradicting": [
+            "sig:S4b@1013-1000..1014-1400"
+          ],
+          "missing": [
+            "sig:S4a@1013-1000..1014-1400"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Key meter faulty or replayed hiding true operation",
+          "supporting": [],
+          "contradicting": [
+            "calc:compare:S3@1013-1000..1014-1400",
+            "calc:compare:S2@1013-1000..1014-1400",
+            "calc:reading_vs_feed:S3@1013-1603",
+            "calc:reading_vs_feed:S2@1013-1615"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        }
+      ],
+      "key_evidence": [
+        {
+          "id": "calc:power_vs_load@1013-1000..1014-1400",
+          "why": "Power within expected band for inflow, no aeration cut indicated."
+        },
+        {
+          "id": "sig:S4b@1013-1000..1014-1400",
+          "why": "Outfall pH stayed 7.17-7.83, no raw alkaline discharge."
+        },
+        {
+          "id": "doc:lab-1013-1430",
+          "why": "Accredited lab BOD 13.1 mg/L below 30 mg/L limit at 14:30."
+        },
+        {
+          "id": "sig:S4c@1013-1000..1014-1400",
+          "why": "Conductivity drops sharply 12:30-19:10 suggesting dilution."
+        },
+        {
+          "id": "sig:S4a@1013-1000..1014-1400",
+          "why": "Outfall flow missing 2026-10-13 10:30 to 2026-10-14 02:10, preventing dilution confirmation."
+        }
+      ],
+      "scope_line": "Based on flow, power, pH, conductivity records for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+      "limitations": "Outfall flow S4a coverage 44% with gap 2026-10-13 10:30 to 2026-10-14 02:10, so dilution cannot be confirmed or ruled out. Tank water balance shows 212.3 m\u00b3 unaccounted for outside tolerance. No continuous BOD data, only one grab sample.",
+      "unresolved": "Whether groundwater was added to the outfall during the conductivity drop, which would make outfall readings and the lab sample unrepresentative of treated effluent.",
+      "evidence_request": {
+        "items": [
+          "Outfall flow S4a digital feed",
+          "Outfall flow meter photo"
+        ],
+        "interval": "2026-10-13T10:30 to 2026-10-14T02:10",
+        "reason": "Outfall flow during the conductivity drop is needed to separate dilution from meter error and to assess whether the measurement point was tampered with."
+      }
+    },
+    "status": "review_required",
+    "validation": [
+      {
+        "attempt": 1,
+        "issues": [
+          "numbers in the summary that no tool returned: 5700, 3700"
+        ]
+      },
+      {
+        "attempt": 2,
+        "issues": []
+      }
+    ],
+    "valid": true,
+    "turns": 21,
+    "checks_used": 16,
+    "prompt_tokens": 218320,
+    "completion_tokens": 8125,
+    "reasoning_tokens": 0,
+    "cached_tokens": 0,
+    "cost_usd": 0.4676,
+    "seconds": 46.9,
+    "finished_at": "2026-11-04T09:46:58+00:00",
+    "error": null
+  },
+  "cost": 0.4676,
+  "seconds": 46.9,
+  "checks": 16,
+  "valid": true,
+  "error": null,
+  "case_id": "factory-a-ee2d7896"
+}

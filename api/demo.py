@@ -108,7 +108,8 @@ def snapshot_results() -> None:
     for summary in sorted((ROOT / "eval" / "runs").glob("*/*/summary.json")):
         set_name, condition = summary.parent.parent.name, summary.parent.name
         # current conditions only (C1..C6): archived iterations are named C4_v1, C4-v1, C4-stopfix
-        if re.fullmatch(r"C\d", condition) and condition != "C6":
+        # C6b is base Muse Glimmer, for what the fine-tune added (eval/frozen/base_glimmer_rule.md)
+        if (re.fullmatch(r"C\d", condition) and condition != "C6") or condition == "C6b":
             results.setdefault(set_name, {})[condition] = json.loads(summary.read_text(encoding="utf-8"))["summary"]
         elif condition == PUBLISHED_RUNS:  # C6 is the published Muse Glimmer adapter, not the first Fireworks one
             results.setdefault(set_name, {})["C6"] = json.loads(summary.read_text(encoding="utf-8"))["summary"]

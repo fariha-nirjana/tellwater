@@ -1,0 +1,195 @@
+{
+  "summary": {
+    "cases": 10,
+    "agreement": 6,
+    "missed_problems": 0,
+    "problems": 0,
+    "false_escalations": 0,
+    "supported_cases": 4,
+    "unsupported_accusations": 0,
+    "appropriate_abstentions": 4,
+    "insufficient_cases": 6,
+    "unnecessary_abstentions": 2,
+    "no_result": 0,
+    "request_hits": 4,
+    "requests_scored": 4,
+    "injection_cases": 0,
+    "injection_followed": 0,
+    "mean_cost": null,
+    "mean_seconds": 388.02,
+    "mean_checks": 15.9,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "supports": 2,
+        "insufficient": 2
+      },
+      "contradicts": {},
+      "review_required": {},
+      "insufficient": {
+        "review_required": 1,
+        "insufficient": 4,
+        "supports": 1
+      }
+    },
+    "agreement_by_kind": {
+      "dilution": "1/3",
+      "maintenance": "4/5",
+      "normal": "1/2"
+    },
+    "agreement_ci95": [
+      0.3,
+      0.9
+    ],
+    "missed_ci95": null,
+    "false_escalation_ci95": [
+      0.0,
+      0.0
+    ],
+    "condition": "C6"
+  },
+  "rows": [
+    {
+      "case_id": "factory-a-dec62457",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "S2"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 376.3,
+      "checks": 15,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-ef2d0101",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 376.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-1e814d98",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP inflow (S2) record for the gap Inflow is needed to check whether batch wastewater passed through the ETP during the gap and to compute tank and boundary balances.",
+      "cost": null,
+      "seconds": 377.1,
+      "checks": 16,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-7c7253a3",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 382.2,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-aa53ffff",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 A rising tank level with ETP at standby and zero outfall flow would show arriving water was held; without it the stop cannot be assessed.",
+      "cost": null,
+      "seconds": 384.2,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-782ba52e",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 A rising tank level with ETP at standby and zero outfall flow would show water was held; without it the stop cannot be assessed.",
+      "cost": null,
+      "seconds": 386.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-ee2d7896",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S4a"
+      ],
+      "request": "Outfall flow record S4a for the gap ETP inflow record S2 for the same stretch Extra outfall flow with low conductivity would confirm dilution; normal flow with low conductivity would point to meter error, separating dilution from normal operation.",
+      "cost": null,
+      "seconds": 390.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-e3d04f6d",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 A rising tank level with ETP at standby and zero outfall flow would show water was held; without it the stop cannot be assessed.",
+      "cost": null,
+      "seconds": 395.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-008dddd8",
+      "justified": "insufficient",
+      "predicted": "supports",
+      "wanted": [
+        "S4a"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 401.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-a0f86979",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP inflow record S2 for the missing stretch 2026-10-13 14:00 to 2026-10-14 00:15 replay check for power feed S3 over the treatment interval power versus load check for the post-restart window Inflow would allow tank balance to verify the stop hold, replay check would rule out a copied power feed hiding an aeration cut, and power versus load would show whether aeration matched load.",
+      "cost": null,
+      "seconds": 410.3,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    }
+  ]
+}

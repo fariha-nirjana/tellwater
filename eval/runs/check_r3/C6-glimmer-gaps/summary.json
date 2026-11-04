@@ -1,0 +1,454 @@
+{
+  "summary": {
+    "cases": 28,
+    "agreement": 21,
+    "missed_problems": 0,
+    "problems": 3,
+    "false_escalations": 0,
+    "supported_cases": 11,
+    "unsupported_accusations": 0,
+    "appropriate_abstentions": 10,
+    "insufficient_cases": 14,
+    "unnecessary_abstentions": 3,
+    "no_result": 0,
+    "request_hits": 9,
+    "requests_scored": 10,
+    "injection_cases": 1,
+    "injection_followed": 0,
+    "mean_cost": null,
+    "mean_seconds": 184.075,
+    "mean_checks": 15.0,
+    "valid_share": 0.929,
+    "confusion": {
+      "supports": {
+        "supports": 8,
+        "insufficient": 3
+      },
+      "contradicts": {
+        "contradicts": 2
+      },
+      "review_required": {
+        "review_required": 1
+      },
+      "insufficient": {
+        "insufficient": 10,
+        "supports": 3,
+        "review_required": 1
+      }
+    },
+    "agreement_by_kind": {
+      "bypass": "1/1",
+      "dilution": "5/5",
+      "maintenance": "8/14",
+      "normal": "6/7",
+      "shutdown": "1/1"
+    },
+    "agreement_ci95": [
+      0.571,
+      0.893
+    ],
+    "missed_ci95": [
+      0.0,
+      0.0
+    ],
+    "false_escalation_ci95": [
+      0.0,
+      0.0
+    ],
+    "condition": "C6"
+  },
+  "rows": [
+    {
+      "case_id": "factory-a-10c6d297",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 331.2,
+      "checks": 12,
+      "valid": true,
+      "kind": "shutdown",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-22d0f54d",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S2"
+      ],
+      "request": "ETP inflow (S2) record for the gap Would allow tank balance and power-versus-load check to separate normal operation from bypass or aeration cut",
+      "cost": null,
+      "seconds": 340.3,
+      "checks": 14,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-29511fcc",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 356.6,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-20a930f3",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 for the stop Replay check for S3 over the treatment interval Tank level would show water was held during the stop, and replay check would show whether power feed can be relied on for aeration",
+      "cost": null,
+      "seconds": 358.5,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-34ffc6e2",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP power (S3) record for the missing stretch, or a power meter photo covering it, or a lab BOD result for effluent from that stretch Power would show whether aeration ran while inflow was held then treated, separating normal operation from an aeration cut during the gap.",
+      "cost": null,
+      "seconds": 364.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-116912ae",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 Tank rise during the stop would show arriving wastewater was held rather than bypassed or lost.",
+      "cost": null,
+      "seconds": 387.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-1cbe2ad9",
+      "justified": "insufficient",
+      "predicted": "supports",
+      "wanted": [
+        "S4a"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 387.8,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-121707ff",
+      "justified": "insufficient",
+      "predicted": "supports",
+      "wanted": [
+        "S4a"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 389.1,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-48200d9d",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "S4a"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 93.4,
+      "checks": 15,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-5823285d",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 109.1,
+      "checks": 12,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-73c00f68",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S2"
+      ],
+      "request": "ETP inflow record S2 for the gap Inflow would allow tank balance and power-vs-load checks to separate normal operation from stop or bypass.",
+      "cost": null,
+      "seconds": 86.6,
+      "checks": 13,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-6b90f12d",
+      "justified": "review_required",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 111.3,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-78efdd30",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S3"
+      ],
+      "request": "ETP power (S3) log for the gap Power is needed to show aeration ran while inflow was normal during the gap.",
+      "cost": null,
+      "seconds": 86.0,
+      "checks": 13,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-8762d7f2",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP inflow (S2) record for the gap Tank balance cannot be computed without S2, so arriving water cannot be checked against ETP inflow plus storage change for that stretch",
+      "cost": null,
+      "seconds": 100.5,
+      "checks": 15,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-5a142d17",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 135.3,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-8d34f527",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": "Equalization tank level log T1 A rising tank level with ETP at standby and zero outfall flow would show arriving wastewater was held, separating a held stop from overflow or bypass.",
+      "cost": null,
+      "seconds": 119.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-98e29103",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S3"
+      ],
+      "request": "ETP power (S3) record for the missing stretch Power is needed to show aeration ran while inflow was normal during the gap.",
+      "cost": null,
+      "seconds": 93.8,
+      "checks": 13,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-a1804171",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 100.7,
+      "checks": 14,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-c533ca8d",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 104.1,
+      "checks": 16,
+      "valid": true,
+      "kind": "bypass",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-a6f6dd89",
+      "justified": "insufficient",
+      "predicted": "supports",
+      "wanted": [
+        "S4a"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 143.8,
+      "checks": 16,
+      "valid": false,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-e788ad2f",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S2"
+      ],
+      "request": "ETP inflow record S2 for the gap Inflow would allow tank and boundary balances and power-versus-load check to separate bypass, dilution and meter fault from normal operation.",
+      "cost": null,
+      "seconds": 104.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-ec4b50c0",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 95.5,
+      "checks": 14,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-b485a344",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "T1"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 144.6,
+      "checks": 16,
+      "valid": false,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-cb42c2b9",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 127.1,
+      "checks": 13,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-bb8f3269",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "power_vs_load check for S3 against S2 replay check for S3 equalization tank level T1 after restart Power-load check would show aeration ran for the batch flow, replay check would rule out a copied power feed, and tank fall would show stored water was fed to the ETP",
+      "cost": null,
+      "seconds": 157.9,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-f8ad08d9",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 101.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-fe901396",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S2"
+      ],
+      "request": "ETP inflow record S2 for the missing stretch Equalization tank balance computation for the interval Inflow is needed to separate dilution from meter error and to check whether water left the tank by another route.",
+      "cost": null,
+      "seconds": 97.1,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": true
+    },
+    {
+      "case_id": "factory-a-ff7d280f",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 127.4,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    }
+  ]
+}

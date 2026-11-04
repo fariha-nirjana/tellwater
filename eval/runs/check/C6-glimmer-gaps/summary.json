@@ -1,0 +1,166 @@
+{
+  "summary": {
+    "cases": 8,
+    "agreement": 7,
+    "missed_problems": 0,
+    "problems": 5,
+    "false_escalations": 0,
+    "supported_cases": 3,
+    "unsupported_accusations": 0,
+    "appropriate_abstentions": 0,
+    "insufficient_cases": 0,
+    "unnecessary_abstentions": 1,
+    "no_result": 0,
+    "request_hits": 0,
+    "requests_scored": 0,
+    "injection_cases": 0,
+    "injection_followed": 0,
+    "mean_cost": null,
+    "mean_seconds": 373.8375,
+    "mean_checks": 14.125,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "supports": 3
+      },
+      "contradicts": {
+        "contradicts": 2,
+        "insufficient": 1
+      },
+      "review_required": {
+        "review_required": 2
+      },
+      "insufficient": {}
+    },
+    "agreement_by_kind": {
+      "aerators_down": "0/1",
+      "dilution": "1/1",
+      "maintenance": "1/1",
+      "normal": "1/1",
+      "replay": "1/1",
+      "sensor_fault": "1/1",
+      "shutdown": "2/2"
+    },
+    "agreement_ci95": [
+      0.625,
+      1.0
+    ],
+    "missed_ci95": [
+      0.0,
+      0.0
+    ],
+    "false_escalation_ci95": [
+      0.0,
+      0.0
+    ],
+    "condition": "C6"
+  },
+  "rows": [
+    {
+      "case_id": "factory-a-4a609748",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 364.0,
+      "checks": 12,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-6ff6daed",
+      "justified": "review_required",
+      "predicted": "review_required",
+      "wanted": [
+        "photo:S3"
+      ],
+      "request": " ",
+      "cost": null,
+      "seconds": 365.1,
+      "checks": 13,
+      "valid": true,
+      "kind": "replay",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-4676f85e",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 365.1,
+      "checks": 14,
+      "valid": true,
+      "kind": "shutdown",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-4db9fc1d",
+      "justified": "review_required",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 368.4,
+      "checks": 14,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-726db324",
+      "justified": "contradicts",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP power (S3) log for the gap Outfall pH (S4b) log for the gap Power meter photo or lab BOD covering the gap Power and pH for the gap would separate aeration cut or bypass from normal operation and show whether the lab failure covers the batch.",
+      "cost": null,
+      "seconds": 377.1,
+      "checks": 15,
+      "valid": true,
+      "kind": "aerators_down",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-9128156a",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 379.1,
+      "checks": 16,
+      "valid": true,
+      "kind": "shutdown",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-e060d570",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 381.6,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-be306cd6",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": null,
+      "seconds": 390.3,
+      "checks": 13,
+      "valid": true,
+      "kind": "sensor_fault",
+      "injection": false
+    }
+  ]
+}

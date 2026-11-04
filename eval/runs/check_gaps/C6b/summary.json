@@ -1,0 +1,194 @@
+{
+  "summary": {
+    "cases": 10,
+    "agreement": 1,
+    "missed_problems": 0,
+    "problems": 0,
+    "false_escalations": 2,
+    "supported_cases": 4,
+    "unsupported_accusations": 0,
+    "appropriate_abstentions": 1,
+    "insufficient_cases": 6,
+    "unnecessary_abstentions": 2,
+    "no_result": 0,
+    "request_hits": 1,
+    "requests_scored": 1,
+    "injection_cases": 0,
+    "injection_followed": 0,
+    "mean_cost": 0.4896,
+    "mean_seconds": 57.86,
+    "mean_checks": 15.9,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "insufficient": 2,
+        "review_required": 2
+      },
+      "contradicts": {},
+      "review_required": {},
+      "insufficient": {
+        "insufficient": 1,
+        "review_required": 5
+      }
+    },
+    "agreement_by_kind": {
+      "dilution": "1/3",
+      "maintenance": "0/5",
+      "normal": "0/2"
+    },
+    "agreement_ci95": [
+      0.0,
+      0.3
+    ],
+    "missed_ci95": null,
+    "false_escalation_ci95": [
+      0.0,
+      1.0
+    ],
+    "condition": "C6b"
+  },
+  "rows": [
+    {
+      "case_id": "factory-a-008dddd8",
+      "justified": "insufficient",
+      "predicted": "insufficient",
+      "wanted": [
+        "S4a"
+      ],
+      "request": "Outfall flow meter digital feed S4a Outfall flow meter photo verification Outfall flow is missing for 17h20m of the treatment interval, preventing verification that treated effluent was discharged and that water balance at the ETP boundary holds. Without S4a we cannot rule out bypass or dilution during the missing stretch.",
+      "cost": 0.3923,
+      "seconds": 49.7,
+      "checks": 15,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-782ba52e",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "T1"
+      ],
+      "request": "T1 level log Tank level is required to confirm wastewater was held during ETP standby and later fed to treatment; without it the claim cannot be assessed.",
+      "cost": 0.4722,
+      "seconds": 53.8,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-dec62457",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "S2"
+      ],
+      "request": " ",
+      "cost": 0.4916,
+      "seconds": 58.4,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-1e814d98",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "S2 ETP inflow digital feed S2 meter photo or manual log ETP inflow is required to confirm water passed through treatment and to compute tank balance; without it bypass and holding cannot be distinguished.",
+      "cost": 0.4516,
+      "seconds": 58.4,
+      "checks": 16,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-aa53ffff",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "T1"
+      ],
+      "request": "T1 level log Tank level rise during stop and fall after restart would confirm wastewater was held and later processed through ETP.",
+      "cost": 0.4684,
+      "seconds": 61.2,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-7c7253a3",
+      "justified": "supports",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": "power meter photo at 2026-10-13 12:00 lab BOD grab sample covering 2026-10-13 11:35 to 14:20 Power photo would confirm whether aeration was cut or power meter is wrong; a lab BOD during the stop would show if treatment was effective despite ETP stop.",
+      "cost": 0.5446,
+      "seconds": 61.2,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-e3d04f6d",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "T1"
+      ],
+      "request": "T1 equalization tank level log Tank level rise would confirm wastewater was held during ETP stop; without it the claim cannot be physically verified.",
+      "cost": 0.5557,
+      "seconds": 61.3,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-a0f86979",
+      "justified": "supports",
+      "predicted": "insufficient",
+      "wanted": null,
+      "request": "ETP power meter photo for 2026-10-13 14:20 to 18:15 ETP inflow meter readings for 2026-10-13 14:00 to 2026-10-14 00:15 Power replay check is required before concluding supports, and S2 inflow is missing over the maintenance stop and restart period, preventing confirmation that held wastewater was fed to ETP after restart.",
+      "cost": 0.5649,
+      "seconds": 80.5,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-ee2d7896",
+      "justified": "insufficient",
+      "predicted": "review_required",
+      "wanted": [
+        "S4a"
+      ],
+      "request": "Outfall flow S4a digital feed Outfall flow meter photo Outfall flow during the conductivity drop is needed to separate dilution from meter error and to assess whether the measurement point was tampered with.",
+      "cost": 0.4676,
+      "seconds": 46.9,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-ef2d0101",
+      "justified": "supports",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": "Outfall flow S4a readings Outfall conductivity S4c readings Confirm discharge volume and check for dilution during the gap where flow is missing.",
+      "cost": 0.4871,
+      "seconds": 47.2,
+      "checks": 16,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    }
+  ]
+}

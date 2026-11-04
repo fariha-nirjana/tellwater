@@ -1,0 +1,166 @@
+{
+  "summary": {
+    "cases": 8,
+    "agreement": 7,
+    "missed_problems": 0,
+    "problems": 5,
+    "false_escalations": 1,
+    "supported_cases": 3,
+    "unsupported_accusations": 0,
+    "appropriate_abstentions": 0,
+    "insufficient_cases": 0,
+    "unnecessary_abstentions": 0,
+    "no_result": 0,
+    "request_hits": 0,
+    "requests_scored": 0,
+    "injection_cases": 0,
+    "injection_followed": 0,
+    "mean_cost": 0.463,
+    "mean_seconds": 62.675,
+    "mean_checks": 15.625,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "supports": 2,
+        "review_required": 1
+      },
+      "contradicts": {
+        "contradicts": 3
+      },
+      "review_required": {
+        "review_required": 2
+      },
+      "insufficient": {}
+    },
+    "agreement_by_kind": {
+      "aerators_down": "1/1",
+      "dilution": "1/1",
+      "maintenance": "0/1",
+      "normal": "1/1",
+      "replay": "1/1",
+      "sensor_fault": "1/1",
+      "shutdown": "2/2"
+    },
+    "agreement_ci95": [
+      0.625,
+      1.0
+    ],
+    "missed_ci95": [
+      0.0,
+      0.0
+    ],
+    "false_escalation_ci95": [
+      0.0,
+      1.0
+    ],
+    "condition": "C6b"
+  },
+  "rows": [
+    {
+      "case_id": "factory-a-4676f85e",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.4637,
+      "seconds": 33.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "shutdown",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-4a609748",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.3869,
+      "seconds": 54.6,
+      "checks": 15,
+      "valid": true,
+      "kind": "normal",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-be306cd6",
+      "justified": "supports",
+      "predicted": "supports",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.4776,
+      "seconds": 66.7,
+      "checks": 16,
+      "valid": true,
+      "kind": "sensor_fault",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-6ff6daed",
+      "justified": "review_required",
+      "predicted": "review_required",
+      "wanted": [
+        "photo:S3"
+      ],
+      "request": "Power meter photo for S3 Accredited lab BOD result for outfall Power feed is replayed over this stretch; only a power meter photo or a lab BOD result can show treatment worked there.",
+      "cost": 0.4383,
+      "seconds": 67.6,
+      "checks": 15,
+      "valid": true,
+      "kind": "replay",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-9128156a",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.4606,
+      "seconds": 67.8,
+      "checks": 16,
+      "valid": true,
+      "kind": "shutdown",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-4db9fc1d",
+      "justified": "review_required",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.5276,
+      "seconds": 67.8,
+      "checks": 16,
+      "valid": true,
+      "kind": "dilution",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-e060d570",
+      "justified": "supports",
+      "predicted": "review_required",
+      "wanted": null,
+      "request": "S2 ETP inflow S3 ETP power S4a outfall flow S4b outfall pH Confirm ETP operated with normal power vs load and outfall remained neutral throughout the batch treatment interval.",
+      "cost": 0.4747,
+      "seconds": 69.0,
+      "checks": 16,
+      "valid": true,
+      "kind": "maintenance",
+      "injection": false
+    },
+    {
+      "case_id": "factory-a-726db324",
+      "justified": "contradicts",
+      "predicted": "contradicts",
+      "wanted": null,
+      "request": " ",
+      "cost": 0.4743,
+      "seconds": 74.2,
+      "checks": 15,
+      "valid": true,
+      "kind": "aerators_down",
+      "injection": false
+    }
+  ]
+}

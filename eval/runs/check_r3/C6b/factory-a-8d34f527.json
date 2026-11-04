@@ -1,0 +1,2284 @@
+{
+  "status": "review_required",
+  "final": {
+    "kind": "assessment",
+    "status": "review_required",
+    "summary": "ETP power was at standby 13:05-15:15 with ETP inflow and outfall flow flat at zero, while intake continued. Outfall pH stayed near neutral 7.3-7.5 and a lab sample at 13:20 shows BOD 19.9 mg/L below the 30 mg/L limit. The meter photo at 14:48 confirms power 4.0 kW matching the feed. Tank level is missing for the whole treatment interval, so it cannot be confirmed that arriving wastewater was held in the equalization tank during the stop.",
+    "explanations": [
+      {
+        "id": "normal",
+        "label": "Wastewater treated normally through ETP during treatment interval",
+        "supporting": [
+          "sig:S4b@1013-1000..1014-1400",
+          "sig:S4c@1013-1000..1014-1400",
+          "doc:lab-1013-1320"
+        ],
+        "contradicting": [
+          "sig:S3@1013-1300..1013-1530",
+          "sig:S2@1013-1300..1013-1530",
+          "sig:S4a@1013-1300..1013-1530"
+        ],
+        "missing": [
+          "T1 level over 13:05-15:15"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "aeration_cut",
+        "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+        "supporting": [
+          "sig:S3@1013-1300..1013-1530",
+          "calc:reading_vs_feed:S3@1013-1448",
+          "doc:maintenance-1013-1305"
+        ],
+        "contradicting": [
+          "sig:S4b@1013-1300..1013-1530",
+          "sig:S4a@1013-1300..1013-1530"
+        ],
+        "missing": [
+          "T1 level to confirm holding"
+        ],
+        "status": "open"
+      },
+      {
+        "id": "bypass",
+        "label": "Wastewater bypassed ETP during stop, discharged untreated",
+        "supporting": [],
+        "contradicting": [
+          "sig:S4b@1013-1300..1013-1530",
+          "sig:S4b@1013-1000..1014-1400"
+        ],
+        "missing": [],
+        "status": "contradicted"
+      },
+      {
+        "id": "meter_fault",
+        "label": "Power feed replayed or meter faulty, masking actual operation",
+        "supporting": [],
+        "contradicting": [
+          "calc:compare:S3@1013-1305..1013-1515",
+          "calc:reading_vs_feed:S3@1013-1448"
+        ],
+        "missing": [],
+        "status": "contradicted"
+      }
+    ],
+    "key_evidence": [
+      {
+        "id": "sig:S3@1013-1300..1013-1530",
+        "why": "Shows power at standby 3.7-4.3 kW 13:05-15:15 with restart at 15:15."
+      },
+      {
+        "id": "sig:S2@1013-1300..1013-1530",
+        "why": "ETP inflow flat at zero during stop, normal before and after."
+      },
+      {
+        "id": "sig:S4a@1013-1300..1013-1530",
+        "why": "Outfall flow flat at zero during stop, normal before and after."
+      },
+      {
+        "id": "sig:S4b@1013-1300..1013-1530",
+        "why": "Outfall pH stays 7.28-7.51 during stop, no alkaline spike."
+      },
+      {
+        "id": "calc:reading_vs_feed:S3@1013-1448",
+        "why": "Meter photo 4.0 kW matches feed 4.02 kW, confirming power feed."
+      },
+      {
+        "id": "doc:lab-1013-1320",
+        "why": "Lab BOD 19.9 mg/L at 13:20 below limit, pH 7.43."
+      }
+    ],
+    "scope_line": "Based on flow, power, pH, conductivity records and one lab sample for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+    "limitations": "Equalization tank level T1 missing for entire treatment interval, so water holding during ETP stop cannot be verified. No tank balance can be computed. Intake continued during stop, creating unaccounted water in boundary balance.",
+    "unresolved": "Whether wastewater arriving during 13:05-15:15 was held in the equalization tank or left via an unmeasured route.",
+    "evidence_request": {
+      "items": [
+        "T1 level log"
+      ],
+      "interval": "2026-10-13T13:05 to 2026-10-13T15:15",
+      "reason": "Tank level rise during stop with zero outfall flow would confirm water was held; a flat or falling level would indicate bypass or overflow."
+    }
+  },
+  "trace": {
+    "case_id": "factory-a-8d34f527",
+    "model": "muse-glimmer-30b-sampler",
+    "steps": [
+      {
+        "n": 1,
+        "tool": "get_case_overview",
+        "args": {},
+        "why": "Need batch, treatment interval, plant facts, signal coverage, gaps, documents and alerts to plan checks.",
+        "result": {
+          "case_id": "factory-a-8d34f527",
+          "claim": "The factory states this batch's wastewater was treated in its ETP before discharge.",
+          "batch": {
+            "id": "factory-a-8d34f527-B04",
+            "production_start": "2026-10-12 22:00",
+            "production_end": "2026-10-13 02:00",
+            "shade": "medium",
+            "planned_wastewater_m3": 169.6
+          },
+          "treatment_interval": {
+            "start": "2026-10-13 10:00",
+            "end": "2026-10-14 14:00",
+            "basis": "production window shifted by 12 to 36 h residence"
+          },
+          "case_data_range": {
+            "start": "2026-10-12 06:00",
+            "end": "2026-10-15 05:55"
+          },
+          "plant": {
+            "equalization_tank_m3": 700.0,
+            "reuse_fraction": 0.15,
+            "discharge_limits": {
+              "bod_mg_l": 30.0,
+              "ph": [
+                6.0,
+                9.0
+              ]
+            }
+          },
+          "signals": {
+            "S1": {
+              "name": "Intake flow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S2": {
+              "name": "ETP inflow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S3": {
+              "name": "ETP power",
+              "unit": "kW",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S4a": {
+              "name": "Outfall flow",
+              "unit": "m3/h",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S4b": {
+              "name": "Outfall pH",
+              "unit": "pH",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "S4c": {
+              "name": "Outfall conductivity",
+              "unit": "uS/cm",
+              "coverage_of_treatment_interval": 1.0,
+              "gaps": []
+            },
+            "T1": {
+              "name": "Equalization tank level",
+              "unit": "fraction of volume",
+              "coverage_of_treatment_interval": 0.0,
+              "gaps": [
+                [
+                  "2026-10-13 10:00",
+                  "2026-10-14 14:00"
+                ]
+              ]
+            }
+          },
+          "documents": [
+            {
+              "id": "doc:logbook-1013",
+              "type": "logbook",
+              "covers": [
+                "2026-10-13 00:00:00+06:00",
+                "2026-10-14 00:00:00+06:00"
+              ],
+              "received_at": "2026-10-14 02:00:00+06:00",
+              "author": "T. Rahman",
+              "factory_claim": true
+            },
+            {
+              "id": "doc:maintenance-1013-1305",
+              "type": "maintenance_record",
+              "covers": [
+                "2026-10-13 13:05:00+06:00",
+                "2026-10-13 15:15:00+06:00"
+              ],
+              "received_at": "2026-10-11 13:05:00+06:00",
+              "author": "Maintenance department",
+              "factory_claim": true
+            },
+            {
+              "id": "doc:photo-S3-1013-1450",
+              "type": "meter_photo",
+              "covers": [
+                "2026-10-13 14:50:00+06:00",
+                "2026-10-13 14:55:00+06:00"
+              ],
+              "received_at": "2026-10-13 15:50:53.859475525+06:00",
+              "author": "Site photo",
+              "factory_claim": false
+            },
+            {
+              "id": "doc:lab-1013-1320",
+              "type": "lab_report",
+              "covers": [
+                "2026-10-13 13:20:00+06:00",
+                "2026-10-13 13:25:00+06:00"
+              ],
+              "received_at": "2026-10-16 13:20:00+06:00",
+              "author": "Accredited laboratory (simulated)",
+              "factory_claim": false
+            }
+          ],
+          "alerts": [
+            {
+              "id": "alert:signal_gap:1012-0600",
+              "check": "signal_gap",
+              "start": "2026-10-12 06:00",
+              "end": "2026-10-15 06:00",
+              "summary": "No readings from T1",
+              "metrics": {}
+            },
+            {
+              "id": "alert:etp_power_off:1013-1305",
+              "check": "etp_power_off",
+              "start": "2026-10-13 13:05",
+              "end": "2026-10-13 15:15",
+              "summary": "ETP power at standby level",
+              "metrics": {}
+            }
+          ],
+          "budget": {
+            "checks_allowed": 16
+          }
+        },
+        "t": 1.16
+      },
+      {
+        "n": 2,
+        "tool": "update_hypotheses",
+        "args": {
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP during treatment interval",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [
+                "T1 level over stop to confirm water held if ETP stopped"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [
+                "T1 level to confirm holding, outfall pH/conductivity to rule out bypass, power photo confirmation"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP during stop, discharged untreated",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [
+                "Outfall pH >9 or conductivity drop with flow increase, T1 level"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Power feed replayed or meter faulty, masking actual operation",
+              "supporting": [],
+              "contradicting": [],
+              "missing": [
+                "Compare similar windows for S3, meter photo check"
+              ],
+              "status": "open"
+            }
+          ]
+        },
+        "why": null,
+        "result": {
+          "recorded": true,
+          "checks_used": 0,
+          "checks_left": 16
+        },
+        "t": 7.03
+      },
+      {
+        "n": 3,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S3",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check ETP power during reported standby to see if power is at standby level and confirm alert.",
+        "result": {
+          "evidence_id": "sig:S3@1013-1300..1013-1530",
+          "signal": "S3",
+          "name": "ETP power",
+          "unit": "kW",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 9.7,
+          "min": 3.7,
+          "max": 53.2,
+          "std": 14.8,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              53.2
+            ],
+            [
+              "10-13 13:05",
+              3.8
+            ],
+            [
+              "10-13 13:10",
+              3.7
+            ],
+            [
+              "10-13 13:15",
+              4.0
+            ],
+            [
+              "10-13 13:20",
+              4.1
+            ],
+            [
+              "10-13 13:25",
+              4.0
+            ],
+            [
+              "10-13 13:30",
+              4.0
+            ],
+            [
+              "10-13 13:35",
+              4.0
+            ],
+            [
+              "10-13 13:40",
+              4.0
+            ],
+            [
+              "10-13 13:45",
+              4.0
+            ],
+            [
+              "10-13 13:50",
+              4.1
+            ],
+            [
+              "10-13 13:55",
+              4.0
+            ],
+            [
+              "10-13 14:00",
+              4.1
+            ],
+            [
+              "10-13 14:05",
+              4.3
+            ],
+            [
+              "10-13 14:10",
+              4.3
+            ],
+            [
+              "10-13 14:15",
+              4.1
+            ],
+            [
+              "10-13 14:20",
+              4.1
+            ],
+            [
+              "10-13 14:25",
+              4.0
+            ],
+            [
+              "10-13 14:30",
+              4.1
+            ],
+            [
+              "10-13 14:35",
+              3.8
+            ],
+            [
+              "10-13 14:40",
+              4.0
+            ],
+            [
+              "10-13 14:45",
+              3.9
+            ],
+            [
+              "10-13 14:50",
+              4.0
+            ],
+            [
+              "10-13 14:55",
+              4.3
+            ],
+            [
+              "10-13 15:00",
+              4.3
+            ],
+            [
+              "10-13 15:05",
+              3.9
+            ],
+            [
+              "10-13 15:10",
+              3.9
+            ],
+            [
+              "10-13 15:15",
+              40.8
+            ],
+            [
+              "10-13 15:20",
+              44.9
+            ],
+            [
+              "10-13 15:25",
+              46.7
+            ]
+          ],
+          "flags": [
+            "4 isolated spikes far from the window's typical value"
+          ],
+          "outside_this_window": {
+            "median": 59.1,
+            "p10": 50.9,
+            "p90": 64.9,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 11.49
+      },
+      {
+        "n": 4,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S2",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check ETP inflow during power off to see if inflow is normal, low, or zero.",
+        "result": {
+          "evidence_id": "sig:S2@1013-1300..1013-1530",
+          "signal": "S2",
+          "name": "ETP inflow",
+          "unit": "m3/h",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 11.7,
+          "min": 0.0,
+          "max": 96.5,
+          "std": 30.8,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              64.3
+            ],
+            [
+              "10-13 13:05",
+              0.0
+            ],
+            [
+              "10-13 13:10",
+              0.0
+            ],
+            [
+              "10-13 13:15",
+              0.0
+            ],
+            [
+              "10-13 13:20",
+              0.0
+            ],
+            [
+              "10-13 13:25",
+              0.0
+            ],
+            [
+              "10-13 13:30",
+              0.0
+            ],
+            [
+              "10-13 13:35",
+              0.0
+            ],
+            [
+              "10-13 13:40",
+              0.0
+            ],
+            [
+              "10-13 13:45",
+              0.0
+            ],
+            [
+              "10-13 13:50",
+              0.0
+            ],
+            [
+              "10-13 13:55",
+              0.0
+            ],
+            [
+              "10-13 14:00",
+              0.0
+            ],
+            [
+              "10-13 14:05",
+              0.0
+            ],
+            [
+              "10-13 14:10",
+              0.0
+            ],
+            [
+              "10-13 14:15",
+              0.0
+            ],
+            [
+              "10-13 14:20",
+              0.0
+            ],
+            [
+              "10-13 14:25",
+              0.0
+            ],
+            [
+              "10-13 14:30",
+              0.0
+            ],
+            [
+              "10-13 14:35",
+              0.0
+            ],
+            [
+              "10-13 14:40",
+              0.0
+            ],
+            [
+              "10-13 14:45",
+              0.0
+            ],
+            [
+              "10-13 14:50",
+              0.0
+            ],
+            [
+              "10-13 14:55",
+              0.0
+            ],
+            [
+              "10-13 15:00",
+              0.0
+            ],
+            [
+              "10-13 15:05",
+              0.0
+            ],
+            [
+              "10-13 15:10",
+              0.0
+            ],
+            [
+              "10-13 15:15",
+              94.2
+            ],
+            [
+              "10-13 15:20",
+              96.5
+            ],
+            [
+              "10-13 15:25",
+              96.4
+            ]
+          ],
+          "flags": [
+            "readings do not change at all from 2026-10-13 13:05 to 2026-10-13 15:10 (flat stretch)"
+          ],
+          "outside_this_window": {
+            "median": 63.7,
+            "p10": 50.0,
+            "p90": 73.8,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 13.35
+      },
+      {
+        "n": 5,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4a",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check outfall flow during power off to see if discharge continued.",
+        "result": {
+          "evidence_id": "sig:S4a@1013-1300..1013-1530",
+          "signal": "S4a",
+          "name": "Outfall flow",
+          "unit": "m3/h",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 9.7,
+          "min": 0.0,
+          "max": 79.6,
+          "std": 25.4,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              53.9
+            ],
+            [
+              "10-13 13:05",
+              0.0
+            ],
+            [
+              "10-13 13:10",
+              0.0
+            ],
+            [
+              "10-13 13:15",
+              0.0
+            ],
+            [
+              "10-13 13:20",
+              0.0
+            ],
+            [
+              "10-13 13:25",
+              0.0
+            ],
+            [
+              "10-13 13:30",
+              0.0
+            ],
+            [
+              "10-13 13:35",
+              0.0
+            ],
+            [
+              "10-13 13:40",
+              0.0
+            ],
+            [
+              "10-13 13:45",
+              0.0
+            ],
+            [
+              "10-13 13:50",
+              0.0
+            ],
+            [
+              "10-13 13:55",
+              0.0
+            ],
+            [
+              "10-13 14:00",
+              0.0
+            ],
+            [
+              "10-13 14:05",
+              0.0
+            ],
+            [
+              "10-13 14:10",
+              0.0
+            ],
+            [
+              "10-13 14:15",
+              0.0
+            ],
+            [
+              "10-13 14:20",
+              0.0
+            ],
+            [
+              "10-13 14:25",
+              0.0
+            ],
+            [
+              "10-13 14:30",
+              0.0
+            ],
+            [
+              "10-13 14:35",
+              0.0
+            ],
+            [
+              "10-13 14:40",
+              0.0
+            ],
+            [
+              "10-13 14:45",
+              0.0
+            ],
+            [
+              "10-13 14:50",
+              0.0
+            ],
+            [
+              "10-13 14:55",
+              0.0
+            ],
+            [
+              "10-13 15:00",
+              0.0
+            ],
+            [
+              "10-13 15:05",
+              0.0
+            ],
+            [
+              "10-13 15:10",
+              0.0
+            ],
+            [
+              "10-13 15:15",
+              79.0
+            ],
+            [
+              "10-13 15:20",
+              77.6
+            ],
+            [
+              "10-13 15:25",
+              79.6
+            ]
+          ],
+          "flags": [
+            "readings do not change at all from 2026-10-13 13:05 to 2026-10-13 15:10 (flat stretch)"
+          ],
+          "outside_this_window": {
+            "median": 53.3,
+            "p10": 41.8,
+            "p90": 62.0,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 15.12
+      },
+      {
+        "n": 6,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4b",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check outfall pH during power off to detect untreated discharge.",
+        "result": {
+          "evidence_id": "sig:S4b@1013-1300..1013-1530",
+          "signal": "S4b",
+          "name": "Outfall pH",
+          "unit": "pH",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 7.42,
+          "min": 7.28,
+          "max": 7.51,
+          "std": 0.05,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              7.28
+            ],
+            [
+              "10-13 13:05",
+              7.51
+            ],
+            [
+              "10-13 13:10",
+              7.45
+            ],
+            [
+              "10-13 13:15",
+              7.37
+            ],
+            [
+              "10-13 13:20",
+              7.4
+            ],
+            [
+              "10-13 13:25",
+              7.39
+            ],
+            [
+              "10-13 13:30",
+              7.45
+            ],
+            [
+              "10-13 13:35",
+              7.4
+            ],
+            [
+              "10-13 13:40",
+              7.5
+            ],
+            [
+              "10-13 13:45",
+              7.4
+            ],
+            [
+              "10-13 13:50",
+              7.44
+            ],
+            [
+              "10-13 13:55",
+              7.4
+            ],
+            [
+              "10-13 14:00",
+              7.5
+            ],
+            [
+              "10-13 14:05",
+              7.38
+            ],
+            [
+              "10-13 14:10",
+              7.44
+            ],
+            [
+              "10-13 14:15",
+              7.44
+            ],
+            [
+              "10-13 14:20",
+              7.47
+            ],
+            [
+              "10-13 14:25",
+              7.4
+            ],
+            [
+              "10-13 14:30",
+              7.5
+            ],
+            [
+              "10-13 14:35",
+              7.42
+            ],
+            [
+              "10-13 14:40",
+              7.4
+            ],
+            [
+              "10-13 14:45",
+              7.48
+            ],
+            [
+              "10-13 14:50",
+              7.43
+            ],
+            [
+              "10-13 14:55",
+              7.41
+            ],
+            [
+              "10-13 15:00",
+              7.48
+            ],
+            [
+              "10-13 15:05",
+              7.45
+            ],
+            [
+              "10-13 15:10",
+              7.38
+            ],
+            [
+              "10-13 15:15",
+              7.37
+            ],
+            [
+              "10-13 15:20",
+              7.31
+            ],
+            [
+              "10-13 15:25",
+              7.47
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 7.52,
+            "p10": 7.3,
+            "p90": 7.72,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 16.54
+      },
+      {
+        "n": 7,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4c",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check outfall conductivity during power off to detect dilution or bypass.",
+        "result": {
+          "evidence_id": "sig:S4c@1013-1300..1013-1530",
+          "signal": "S4c",
+          "name": "Outfall conductivity",
+          "unit": "uS/cm",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 5181.0,
+          "min": 4958.9,
+          "max": 5396.7,
+          "std": 116.9,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              5299.2
+            ],
+            [
+              "10-13 13:05",
+              5090.4
+            ],
+            [
+              "10-13 13:10",
+              5028.5
+            ],
+            [
+              "10-13 13:15",
+              5193.5
+            ],
+            [
+              "10-13 13:20",
+              5288.2
+            ],
+            [
+              "10-13 13:25",
+              5396.7
+            ],
+            [
+              "10-13 13:30",
+              5335.5
+            ],
+            [
+              "10-13 13:35",
+              5267.2
+            ],
+            [
+              "10-13 13:40",
+              5157.0
+            ],
+            [
+              "10-13 13:45",
+              5270.4
+            ],
+            [
+              "10-13 13:50",
+              5028.3
+            ],
+            [
+              "10-13 13:55",
+              5044.3
+            ],
+            [
+              "10-13 14:00",
+              5341.4
+            ],
+            [
+              "10-13 14:05",
+              5236.5
+            ],
+            [
+              "10-13 14:10",
+              5060.7
+            ],
+            [
+              "10-13 14:15",
+              4958.9
+            ],
+            [
+              "10-13 14:20",
+              5208.2
+            ],
+            [
+              "10-13 14:25",
+              5273.1
+            ],
+            [
+              "10-13 14:30",
+              5154.0
+            ],
+            [
+              "10-13 14:35",
+              5061.4
+            ],
+            [
+              "10-13 14:40",
+              5286.7
+            ],
+            [
+              "10-13 14:45",
+              5225.8
+            ],
+            [
+              "10-13 14:50",
+              5234.8
+            ],
+            [
+              "10-13 14:55",
+              5312.0
+            ],
+            [
+              "10-13 15:00",
+              5159.8
+            ],
+            [
+              "10-13 15:05",
+              5207.0
+            ],
+            [
+              "10-13 15:10",
+              4965.7
+            ],
+            [
+              "10-13 15:15",
+              5111.9
+            ],
+            [
+              "10-13 15:20",
+              5108.7
+            ],
+            [
+              "10-13 15:25",
+              5125.4
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 5262.3,
+            "p10": 5034.0,
+            "p90": 5681.5,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 17.46
+      },
+      {
+        "n": 8,
+        "tool": "read_document",
+        "args": {
+          "doc_id": "doc:maintenance-1013-1305"
+        },
+        "why": "Factory claim of maintenance during power off; need to see what it claims.",
+        "result": {
+          "evidence_id": "doc:maintenance-1013-1305",
+          "type": "maintenance_record",
+          "author": "Maintenance department",
+          "factory_claim": true,
+          "covers": [
+            "2026-10-13 13:05:00+06:00",
+            "2026-10-13 15:15:00+06:00"
+          ],
+          "received_at": "2026-10-11 13:05:00+06:00",
+          "image": "docs/maintenance-1013-1305.jpg",
+          "note": "The image follows. Read it yourself; no transcription is provided."
+        },
+        "t": 19.08
+      },
+      {
+        "n": 9,
+        "tool": "read_document",
+        "args": {
+          "doc_id": "doc:photo-S3-1013-1450"
+        },
+        "why": "Meter photo may confirm power reading during stop.",
+        "result": {
+          "evidence_id": "doc:photo-S3-1013-1450",
+          "type": "meter_photo",
+          "author": "Site photo",
+          "factory_claim": false,
+          "covers": [
+            "2026-10-13 14:50:00+06:00",
+            "2026-10-13 14:55:00+06:00"
+          ],
+          "received_at": "2026-10-13 15:50:53.859475525+06:00",
+          "image": "docs/photo-S3-1013-1450.jpg",
+          "note": "The image follows. Read it yourself; no transcription is provided."
+        },
+        "t": 20.74
+      },
+      {
+        "n": 10,
+        "tool": "check_reading_against_feed",
+        "args": {
+          "signal": "S3",
+          "timestamp": "2026-10-13T14:48",
+          "value": 4.0
+        },
+        "why": "Compare meter photo reading to digital feed to verify power feed accuracy.",
+        "result": {
+          "evidence_id": "calc:reading_vs_feed:S3@1013-1448",
+          "signal": "S3",
+          "time": "2026-10-13 14:48",
+          "reading_given": 4.0,
+          "feed_nearest": 4.02,
+          "feed_range_within_10_min": [
+            3.94,
+            4.29
+          ],
+          "difference": -0.02,
+          "tolerance": 2.0,
+          "consistent": true,
+          "note": "Compared within 10 minutes either side, allowing for meter clocks that are a few minutes off.",
+          "expected_kw_from_inflow": 4.0,
+          "expected_band_half_width_kw": 12.4,
+          "reading_vs_expected_band": "within",
+          "reading_as_share_of_expected": 1.0
+        },
+        "t": 23.37
+      },
+      {
+        "n": 11,
+        "tool": "get_lab_results",
+        "args": {},
+        "why": "Check lab BOD result for effluent during treatment interval.",
+        "result": {
+          "lab_results": [
+            {
+              "evidence_id": "doc:lab-1013-1320",
+              "sample_point": "Final outfall",
+              "sample_time": "13/10/2026 13:20",
+              "bod_mg_l": 19.9,
+              "cod_mg_l": 49.0,
+              "tss_mg_l": 25.2,
+              "ph": 7.43,
+              "bod_limit_mg_l": 30.0
+            }
+          ],
+          "note": "Grab samples from an accredited lab. None means no sample falls in this case's period."
+        },
+        "t": 24.85
+      },
+      {
+        "n": 12,
+        "tool": "compare_similar_windows",
+        "args": {
+          "signal": "S3",
+          "start": "2026-10-13T13:05",
+          "end": "2026-10-13T15:15"
+        },
+        "why": "Detect replayed power feed during stop.",
+        "result": {
+          "evidence_id": "calc:compare:S3@1013-1305..1013-1515",
+          "signal": "S3",
+          "comparisons": [
+            {
+              "window": "2026-10-12 13:05 to 2026-10-12 15:15",
+              "days_offset": -1,
+              "mean_here": 4.0,
+              "mean_there": 64.4,
+              "mean_abs_difference": 60.414,
+              "correlation": 0.354,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            },
+            {
+              "window": "2026-10-14 13:05 to 2026-10-14 15:15",
+              "days_offset": 1,
+              "mean_here": 4.0,
+              "mean_there": 53.6,
+              "mean_abs_difference": 49.615,
+              "correlation": -0.056,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            }
+          ],
+          "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."
+        },
+        "t": 26.67
+      },
+      {
+        "n": 13,
+        "tool": "compare_similar_windows",
+        "args": {
+          "signal": "S2",
+          "start": "2026-10-13T13:05",
+          "end": "2026-10-13T15:15"
+        },
+        "why": "Check if ETP inflow feed is replayed during stop.",
+        "result": {
+          "evidence_id": "calc:compare:S2@1013-1305..1013-1515",
+          "signal": "S2",
+          "comparisons": [
+            {
+              "window": "2026-10-12 13:05 to 2026-10-12 15:15",
+              "days_offset": -1,
+              "mean_here": 0.0,
+              "mean_there": 70.5,
+              "mean_abs_difference": 70.478,
+              "correlation": null,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            },
+            {
+              "window": "2026-10-14 13:05 to 2026-10-14 15:15",
+              "days_offset": 1,
+              "mean_here": 0.0,
+              "mean_there": 63.3,
+              "mean_abs_difference": 63.294,
+              "correlation": null,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            }
+          ],
+          "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."
+        },
+        "t": 28.13
+      },
+      {
+        "n": 14,
+        "tool": "compare_similar_windows",
+        "args": {
+          "signal": "S4a",
+          "start": "2026-10-13T13:05",
+          "end": "2026-10-13T15:15"
+        },
+        "why": "Check if outfall flow feed is replayed during stop.",
+        "result": {
+          "evidence_id": "calc:compare:S4a@1013-1305..1013-1515",
+          "signal": "S4a",
+          "comparisons": [
+            {
+              "window": "2026-10-12 13:05 to 2026-10-12 15:15",
+              "days_offset": -1,
+              "mean_here": 0.0,
+              "mean_there": 58.7,
+              "mean_abs_difference": 58.711,
+              "correlation": null,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            },
+            {
+              "window": "2026-10-14 13:05 to 2026-10-14 15:15",
+              "days_offset": 1,
+              "mean_here": 0.0,
+              "mean_there": 52.9,
+              "mean_abs_difference": 52.922,
+              "correlation": null,
+              "longest_identical_stretch_minutes": 0,
+              "identical_stretch": null,
+              "identical_reading_for_reading": false
+            }
+          ],
+          "note": "Live meters never repeat noise exactly; identical readings for hours point to a replayed or copied feed."
+        },
+        "t": 29.39
+      },
+      {
+        "n": 15,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S1",
+          "start": "2026-10-13T13:00",
+          "end": "2026-10-13T15:30"
+        },
+        "why": "Check intake flow during stop to see if dyeing continued sending wastewater.",
+        "result": {
+          "evidence_id": "sig:S1@1013-1300..1013-1530",
+          "signal": "S1",
+          "name": "Intake flow",
+          "unit": "m3/h",
+          "start": "2026-10-13 13:00",
+          "end": "2026-10-13 15:30",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 71.1,
+          "min": 54.5,
+          "max": 79.1,
+          "std": 6.2,
+          "resolution_minutes": 5,
+          "series": [
+            [
+              "10-13 13:00",
+              59.7
+            ],
+            [
+              "10-13 13:05",
+              71.0
+            ],
+            [
+              "10-13 13:10",
+              74.9
+            ],
+            [
+              "10-13 13:15",
+              72.0
+            ],
+            [
+              "10-13 13:20",
+              72.7
+            ],
+            [
+              "10-13 13:25",
+              71.6
+            ],
+            [
+              "10-13 13:30",
+              75.1
+            ],
+            [
+              "10-13 13:35",
+              74.3
+            ],
+            [
+              "10-13 13:40",
+              71.5
+            ],
+            [
+              "10-13 13:45",
+              69.6
+            ],
+            [
+              "10-13 13:50",
+              71.3
+            ],
+            [
+              "10-13 13:55",
+              70.0
+            ],
+            [
+              "10-13 14:00",
+              79.1
+            ],
+            [
+              "10-13 14:05",
+              78.0
+            ],
+            [
+              "10-13 14:10",
+              76.6
+            ],
+            [
+              "10-13 14:15",
+              78.8
+            ],
+            [
+              "10-13 14:20",
+              73.6
+            ],
+            [
+              "10-13 14:25",
+              74.3
+            ],
+            [
+              "10-13 14:30",
+              73.1
+            ],
+            [
+              "10-13 14:35",
+              74.7
+            ],
+            [
+              "10-13 14:40",
+              72.6
+            ],
+            [
+              "10-13 14:45",
+              70.9
+            ],
+            [
+              "10-13 14:50",
+              71.0
+            ],
+            [
+              "10-13 14:55",
+              71.4
+            ],
+            [
+              "10-13 15:00",
+              70.6
+            ],
+            [
+              "10-13 15:05",
+              76.0
+            ],
+            [
+              "10-13 15:10",
+              69.2
+            ],
+            [
+              "10-13 15:15",
+              54.5
+            ],
+            [
+              "10-13 15:20",
+              57.7
+            ],
+            [
+              "10-13 15:25",
+              56.7
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 64.0,
+            "p10": 36.7,
+            "p90": 72.9,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 30.89
+      },
+      {
+        "n": 16,
+        "tool": "compute_water_balance",
+        "args": {
+          "start": "2026-10-13T13:05",
+          "end": "2026-10-13T15:15"
+        },
+        "why": "Check water balance to see if intake water is unaccounted for during stop.",
+        "result": {
+          "evidence_id": "calc:water_balance@1013-1305..1013-1515",
+          "start": "2026-10-13 13:05:00+06:00",
+          "end": "2026-10-13 15:15:00+06:00",
+          "hours": 2.17,
+          "coverage": {
+            "S1": 1.0,
+            "S2": 1.0,
+            "S4a": 1.0,
+            "T1": 0.0
+          },
+          "etp": {
+            "etp_inflow_m3": 0.0,
+            "treated_to_outfall_m3": 0.0,
+            "outfall_m3": 0.0,
+            "residual_m3": 0.0,
+            "tolerance_m3": 0.1,
+            "within_tolerance": true
+          },
+          "boundary": {
+            "intake_m3": 158.7,
+            "outfall_m3": 0.0,
+            "process_losses_m3": 15.9,
+            "sludge_water_m3": 0.0,
+            "storage_change_m3": null,
+            "residual_m3": 142.8,
+            "tolerance_m3": 432.7,
+            "within_tolerance": true
+          },
+          "tank": null,
+          "note": "ETP balance: treated flow reaching the outfall vs outfall flow (same time). Boundary balance: intake vs outfall + losses + sludge water + tank storage change (reuse cancels). Tank balance: wastewater arriving (estimated from intake) vs ETP inflow + storage change; unaccounted water left the tank another way, or was intake water that never became wastewater. null means a required signal is under 80% coverage.",
+          "not_assessable": {
+            "tank": "cannot be computed: coverage T1 0%; what this balance would show is unknown, not fine"
+          }
+        },
+        "t": 32.23
+      },
+      {
+        "n": 17,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4b",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check outfall pH over whole treatment interval for any untreated discharge.",
+        "result": {
+          "evidence_id": "sig:S4b@1013-1000..1014-1400",
+          "signal": "S4b",
+          "name": "Outfall pH",
+          "unit": "pH",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 7.52,
+          "min": 7.28,
+          "max": 7.78,
+          "std": 0.1,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              7.51
+            ],
+            [
+              "10-13 10:50",
+              7.46
+            ],
+            [
+              "10-13 11:40",
+              7.39
+            ],
+            [
+              "10-13 12:30",
+              7.41
+            ],
+            [
+              "10-13 13:20",
+              7.43
+            ],
+            [
+              "10-13 14:10",
+              7.44
+            ],
+            [
+              "10-13 15:00",
+              7.4
+            ],
+            [
+              "10-13 15:50",
+              7.39
+            ],
+            [
+              "10-13 16:40",
+              7.46
+            ],
+            [
+              "10-13 17:30",
+              7.51
+            ],
+            [
+              "10-13 18:20",
+              7.58
+            ],
+            [
+              "10-13 19:10",
+              7.53
+            ],
+            [
+              "10-13 20:00",
+              7.57
+            ],
+            [
+              "10-13 20:50",
+              7.59
+            ],
+            [
+              "10-13 21:40",
+              7.55
+            ],
+            [
+              "10-13 22:30",
+              7.52
+            ],
+            [
+              "10-13 23:20",
+              7.52
+            ],
+            [
+              "10-14 00:10",
+              7.46
+            ],
+            [
+              "10-14 01:00",
+              7.5
+            ],
+            [
+              "10-14 01:50",
+              7.46
+            ],
+            [
+              "10-14 02:40",
+              7.5
+            ],
+            [
+              "10-14 03:30",
+              7.52
+            ],
+            [
+              "10-14 04:20",
+              7.48
+            ],
+            [
+              "10-14 05:10",
+              7.6
+            ],
+            [
+              "10-14 06:00",
+              7.53
+            ],
+            [
+              "10-14 06:50",
+              7.58
+            ],
+            [
+              "10-14 07:40",
+              7.6
+            ],
+            [
+              "10-14 08:30",
+              7.7
+            ],
+            [
+              "10-14 09:20",
+              7.68
+            ],
+            [
+              "10-14 10:10",
+              7.64
+            ],
+            [
+              "10-14 11:00",
+              7.5
+            ],
+            [
+              "10-14 11:50",
+              7.54
+            ],
+            [
+              "10-14 12:40",
+              7.59
+            ],
+            [
+              "10-14 13:30",
+              7.71
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 7.51,
+            "p10": 7.27,
+            "p90": 7.76,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 33.53
+      },
+      {
+        "n": 18,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4c",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check conductivity over treatment interval for dilution.",
+        "result": {
+          "evidence_id": "sig:S4c@1013-1000..1014-1400",
+          "signal": "S4c",
+          "name": "Outfall conductivity",
+          "unit": "uS/cm",
+          "start": "2026-10-13 10:00",
+          "end": "2026-10-14 14:00",
+          "coverage": 1.0,
+          "gaps": [],
+          "mean": 5191.3,
+          "min": 4773.7,
+          "max": 5655.7,
+          "std": 172.8,
+          "resolution_minutes": 50,
+          "series": [
+            [
+              "10-13 10:00",
+              5223.4
+            ],
+            [
+              "10-13 10:50",
+              5181.9
+            ],
+            [
+              "10-13 11:40",
+              5178.0
+            ],
+            [
+              "10-13 12:30",
+              5118.6
+            ],
+            [
+              "10-13 13:20",
+              5236.6
+            ],
+            [
+              "10-13 14:10",
+              5177.6
+            ],
+            [
+              "10-13 15:00",
+              5088.5
+            ],
+            [
+              "10-13 15:50",
+              5126.9
+            ],
+            [
+              "10-13 16:40",
+              5091.1
+            ],
+            [
+              "10-13 17:30",
+              5076.4
+            ],
+            [
+              "10-13 18:20",
+              5082.6
+            ],
+            [
+              "10-13 19:10",
+              4993.9
+            ],
+            [
+              "10-13 20:00",
+              5016.8
+            ],
+            [
+              "10-13 20:50",
+              5010.2
+            ],
+            [
+              "10-13 21:40",
+              5003.1
+            ],
+            [
+              "10-13 22:30",
+              5022.6
+            ],
+            [
+              "10-13 23:20",
+              5076.9
+            ],
+            [
+              "10-14 00:10",
+              5105.8
+            ],
+            [
+              "10-14 01:00",
+              5039.8
+            ],
+            [
+              "10-14 01:50",
+              5073.8
+            ],
+            [
+              "10-14 02:40",
+              5140.4
+            ],
+            [
+              "10-14 03:30",
+              5186.3
+            ],
+            [
+              "10-14 04:20",
+              5210.5
+            ],
+            [
+              "10-14 05:10",
+              5199.5
+            ],
+            [
+              "10-14 06:00",
+              5308.0
+            ],
+            [
+              "10-14 06:50",
+              5297.6
+            ],
+            [
+              "10-14 07:40",
+              5329.0
+            ],
+            [
+              "10-14 08:30",
+              5373.1
+            ],
+            [
+              "10-14 09:20",
+              5488.9
+            ],
+            [
+              "10-14 10:10",
+              5490.1
+            ],
+            [
+              "10-14 11:00",
+              5437.0
+            ],
+            [
+              "10-14 11:50",
+              5467.3
+            ],
+            [
+              "10-14 12:40",
+              5412.4
+            ],
+            [
+              "10-14 13:30",
+              5273.7
+            ]
+          ],
+          "flags": [],
+          "outside_this_window": {
+            "median": 5329.2,
+            "p10": 5083.1,
+            "p90": 5735.0,
+            "note": "the same signal over the rest of the case data, for comparison"
+          }
+        },
+        "t": 34.95
+      },
+      {
+        "n": 19,
+        "tool": "get_signal_window",
+        "args": {
+          "signal": "S4c",
+          "start": "2026-10-13T10:00",
+          "end": "2026-10-14T14:00"
+        },
+        "why": "Check conductivity over treatment interval for dilution.",
+        "result": {
+          "error": "tool budget of 16 checks is spent; submit an assessment or an evidence request now"
+        },
+        "t": 36.38
+      },
+      {
+        "n": 20,
+        "tool": "update_hypotheses",
+        "args": {
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP during treatment interval",
+              "supporting": [
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:S4c@1013-1000..1014-1400",
+                "doc:lab-1013-1320"
+              ],
+              "contradicting": [
+                "sig:S3@1013-1300..1013-1530",
+                "sig:S2@1013-1300..1013-1530",
+                "sig:S4a@1013-1300..1013-1530"
+              ],
+              "missing": [
+                "T1 level over 13:05-15:15 to confirm water held"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+              "supporting": [
+                "sig:S3@1013-1300..1013-1530",
+                "calc:reading_vs_feed:S3@1013-1448",
+                "doc:maintenance-1013-1305"
+              ],
+              "contradicting": [
+                "sig:S4b@1013-1300..1013-1530",
+                "sig:S4a@1013-1300..1013-1530"
+              ],
+              "missing": [
+                "T1 level to confirm holding"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP during stop, discharged untreated",
+              "supporting": [],
+              "contradicting": [
+                "sig:S4b@1013-1300..1013-1530",
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:S4c@1013-1000..1014-1400"
+              ],
+              "missing": [
+                "T1 level"
+              ],
+              "status": "contradicted"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Power feed replayed or meter faulty, masking actual operation",
+              "supporting": [],
+              "contradicting": [
+                "calc:compare:S3@1013-1305..1013-1515",
+                "calc:reading_vs_feed:S3@1013-1448"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            }
+          ]
+        },
+        "why": null,
+        "result": {
+          "recorded": true,
+          "checks_used": 16,
+          "checks_left": 0
+        },
+        "t": 51.98
+      },
+      {
+        "n": 21,
+        "tool": "submit_assessment",
+        "args": {
+          "status": "review_required",
+          "summary": "ETP power was at standby 13:05-15:15 with ETP inflow and outfall flow flat at zero, while intake continued. Outfall pH stayed near neutral 7.3-7.5 and a lab sample at 13:20 shows BOD 19.9 mg/L below the 30 mg/L limit. The meter photo at 14:48 confirms power 4.0 kW matching the feed. Tank level is missing for the whole treatment interval, so it cannot be confirmed that arriving wastewater was held in the equalization tank during the stop.",
+          "explanations": [
+            {
+              "id": "normal",
+              "label": "Wastewater treated normally through ETP during treatment interval",
+              "supporting": [
+                "sig:S4b@1013-1000..1014-1400",
+                "sig:S4c@1013-1000..1014-1400",
+                "doc:lab-1013-1320"
+              ],
+              "contradicting": [
+                "sig:S3@1013-1300..1013-1530",
+                "sig:S2@1013-1300..1013-1530",
+                "sig:S4a@1013-1300..1013-1530"
+              ],
+              "missing": [
+                "T1 level over 13:05-15:15"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "aeration_cut",
+              "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+              "supporting": [
+                "sig:S3@1013-1300..1013-1530",
+                "calc:reading_vs_feed:S3@1013-1448",
+                "doc:maintenance-1013-1305"
+              ],
+              "contradicting": [
+                "sig:S4b@1013-1300..1013-1530",
+                "sig:S4a@1013-1300..1013-1530"
+              ],
+              "missing": [
+                "T1 level to confirm holding"
+              ],
+              "status": "open"
+            },
+            {
+              "id": "bypass",
+              "label": "Wastewater bypassed ETP during stop, discharged untreated",
+              "supporting": [],
+              "contradicting": [
+                "sig:S4b@1013-1300..1013-1530",
+                "sig:S4b@1013-1000..1014-1400"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            },
+            {
+              "id": "meter_fault",
+              "label": "Power feed replayed or meter faulty, masking actual operation",
+              "supporting": [],
+              "contradicting": [
+                "calc:compare:S3@1013-1305..1013-1515",
+                "calc:reading_vs_feed:S3@1013-1448"
+              ],
+              "missing": [],
+              "status": "contradicted"
+            }
+          ],
+          "key_evidence": [
+            {
+              "id": "sig:S3@1013-1300..1013-1530",
+              "why": "Shows power at standby 3.7-4.3 kW 13:05-15:15 with restart at 15:15."
+            },
+            {
+              "id": "sig:S2@1013-1300..1013-1530",
+              "why": "ETP inflow flat at zero during stop, normal before and after."
+            },
+            {
+              "id": "sig:S4a@1013-1300..1013-1530",
+              "why": "Outfall flow flat at zero during stop, normal before and after."
+            },
+            {
+              "id": "sig:S4b@1013-1300..1013-1530",
+              "why": "Outfall pH stays 7.28-7.51 during stop, no alkaline spike."
+            },
+            {
+              "id": "calc:reading_vs_feed:S3@1013-1448",
+              "why": "Meter photo 4.0 kW matches feed 4.02 kW, confirming power feed."
+            },
+            {
+              "id": "doc:lab-1013-1320",
+              "why": "Lab BOD 19.9 mg/L at 13:20 below limit, pH 7.43."
+            }
+          ],
+          "scope_line": "Based on flow, power, pH, conductivity records and one lab sample for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+          "limitations": "Equalization tank level T1 missing for entire treatment interval, so water holding during ETP stop cannot be verified. No tank balance can be computed. Intake continued during stop, creating unaccounted water in boundary balance.",
+          "unresolved": "Whether wastewater arriving during 13:05-15:15 was held in the equalization tank or left via an unmeasured route.",
+          "evidence_request": {
+            "items": [
+              "T1 level log"
+            ],
+            "interval": "2026-10-13T13:05 to 2026-10-13T15:15",
+            "reason": "Tank level rise during stop with zero outfall flow would confirm water was held; a flat or falling level would indicate bypass or overflow."
+          }
+        },
+        "why": null,
+        "result": {
+          "recorded": true
+        },
+        "t": 59.26
+      }
+    ],
+    "ledger": [
+      [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP during treatment interval",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [
+            "T1 level over stop to confirm water held if ETP stopped"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [
+            "T1 level to confirm holding, outfall pH/conductivity to rule out bypass, power photo confirmation"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP during stop, discharged untreated",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [
+            "Outfall pH >9 or conductivity drop with flow increase, T1 level"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Power feed replayed or meter faulty, masking actual operation",
+          "supporting": [],
+          "contradicting": [],
+          "missing": [
+            "Compare similar windows for S3, meter photo check"
+          ],
+          "status": "open"
+        }
+      ],
+      [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP during treatment interval",
+          "supporting": [
+            "sig:S4b@1013-1000..1014-1400",
+            "sig:S4c@1013-1000..1014-1400",
+            "doc:lab-1013-1320"
+          ],
+          "contradicting": [
+            "sig:S3@1013-1300..1013-1530",
+            "sig:S2@1013-1300..1013-1530",
+            "sig:S4a@1013-1300..1013-1530"
+          ],
+          "missing": [
+            "T1 level over 13:05-15:15 to confirm water held"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+          "supporting": [
+            "sig:S3@1013-1300..1013-1530",
+            "calc:reading_vs_feed:S3@1013-1448",
+            "doc:maintenance-1013-1305"
+          ],
+          "contradicting": [
+            "sig:S4b@1013-1300..1013-1530",
+            "sig:S4a@1013-1300..1013-1530"
+          ],
+          "missing": [
+            "T1 level to confirm holding"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP during stop, discharged untreated",
+          "supporting": [],
+          "contradicting": [
+            "sig:S4b@1013-1300..1013-1530",
+            "sig:S4b@1013-1000..1014-1400",
+            "sig:S4c@1013-1000..1014-1400"
+          ],
+          "missing": [
+            "T1 level"
+          ],
+          "status": "contradicted"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Power feed replayed or meter faulty, masking actual operation",
+          "supporting": [],
+          "contradicting": [
+            "calc:compare:S3@1013-1305..1013-1515",
+            "calc:reading_vs_feed:S3@1013-1448"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        }
+      ]
+    ],
+    "final": {
+      "kind": "assessment",
+      "status": "review_required",
+      "summary": "ETP power was at standby 13:05-15:15 with ETP inflow and outfall flow flat at zero, while intake continued. Outfall pH stayed near neutral 7.3-7.5 and a lab sample at 13:20 shows BOD 19.9 mg/L below the 30 mg/L limit. The meter photo at 14:48 confirms power 4.0 kW matching the feed. Tank level is missing for the whole treatment interval, so it cannot be confirmed that arriving wastewater was held in the equalization tank during the stop.",
+      "explanations": [
+        {
+          "id": "normal",
+          "label": "Wastewater treated normally through ETP during treatment interval",
+          "supporting": [
+            "sig:S4b@1013-1000..1014-1400",
+            "sig:S4c@1013-1000..1014-1400",
+            "doc:lab-1013-1320"
+          ],
+          "contradicting": [
+            "sig:S3@1013-1300..1013-1530",
+            "sig:S2@1013-1300..1013-1530",
+            "sig:S4a@1013-1300..1013-1530"
+          ],
+          "missing": [
+            "T1 level over 13:05-15:15"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "aeration_cut",
+          "label": "ETP power off 13:05-15:15 indicates aeration cut, possibly bypass or untreated discharge",
+          "supporting": [
+            "sig:S3@1013-1300..1013-1530",
+            "calc:reading_vs_feed:S3@1013-1448",
+            "doc:maintenance-1013-1305"
+          ],
+          "contradicting": [
+            "sig:S4b@1013-1300..1013-1530",
+            "sig:S4a@1013-1300..1013-1530"
+          ],
+          "missing": [
+            "T1 level to confirm holding"
+          ],
+          "status": "open"
+        },
+        {
+          "id": "bypass",
+          "label": "Wastewater bypassed ETP during stop, discharged untreated",
+          "supporting": [],
+          "contradicting": [
+            "sig:S4b@1013-1300..1013-1530",
+            "sig:S4b@1013-1000..1014-1400"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        },
+        {
+          "id": "meter_fault",
+          "label": "Power feed replayed or meter faulty, masking actual operation",
+          "supporting": [],
+          "contradicting": [
+            "calc:compare:S3@1013-1305..1013-1515",
+            "calc:reading_vs_feed:S3@1013-1448"
+          ],
+          "missing": [],
+          "status": "contradicted"
+        }
+      ],
+      "key_evidence": [
+        {
+          "id": "sig:S3@1013-1300..1013-1530",
+          "why": "Shows power at standby 3.7-4.3 kW 13:05-15:15 with restart at 15:15."
+        },
+        {
+          "id": "sig:S2@1013-1300..1013-1530",
+          "why": "ETP inflow flat at zero during stop, normal before and after."
+        },
+        {
+          "id": "sig:S4a@1013-1300..1013-1530",
+          "why": "Outfall flow flat at zero during stop, normal before and after."
+        },
+        {
+          "id": "sig:S4b@1013-1300..1013-1530",
+          "why": "Outfall pH stays 7.28-7.51 during stop, no alkaline spike."
+        },
+        {
+          "id": "calc:reading_vs_feed:S3@1013-1448",
+          "why": "Meter photo 4.0 kW matches feed 4.02 kW, confirming power feed."
+        },
+        {
+          "id": "doc:lab-1013-1320",
+          "why": "Lab BOD 19.9 mg/L at 13:20 below limit, pH 7.43."
+        }
+      ],
+      "scope_line": "Based on flow, power, pH, conductivity records and one lab sample for 2026-10-13 10:00 to 2026-10-14 14:00. Does not measure every pollutant.",
+      "limitations": "Equalization tank level T1 missing for entire treatment interval, so water holding during ETP stop cannot be verified. No tank balance can be computed. Intake continued during stop, creating unaccounted water in boundary balance.",
+      "unresolved": "Whether wastewater arriving during 13:05-15:15 was held in the equalization tank or left via an unmeasured route.",
+      "evidence_request": {
+        "items": [
+          "T1 level log"
+        ],
+        "interval": "2026-10-13T13:05 to 2026-10-13T15:15",
+        "reason": "Tank level rise during stop with zero outfall flow would confirm water was held; a flat or falling level would indicate bypass or overflow."
+      }
+    },
+    "status": "review_required",
+    "validation": [
+      {
+        "attempt": 1,
+        "issues": []
+      }
+    ],
+    "valid": true,
+    "turns": 21,
+    "checks_used": 16,
+    "prompt_tokens": 226526,
+    "completion_tokens": 6741,
+    "reasoning_tokens": 0,
+    "cached_tokens": 0,
+    "cost_usd": 0.4769,
+    "seconds": 59.3,
+    "finished_at": "2026-11-04T09:49:55+00:00",
+    "error": null
+  },
+  "cost": 0.4769,
+  "seconds": 59.3,
+  "checks": 16,
+  "valid": true,
+  "error": null,
+  "case_id": "factory-a-8d34f527"
+}
