@@ -1,0 +1,178 @@
+# A judge following the README's "Run it on your own computer", word for word, on fresh Linux, macOS and
+# Windows machines with no AI key: clone from GitHub into the home folder, install, start the API, open a
+# second terminal in the home folder and start the interface, then open every page in a real browser
+# (Chromium), review and sign a case, and check its signed record. Python 3.12 to 3.14 and the oldest Node
+# versions the README allows are covered. Screenshots of every page are kept with each run.
+name: A judge follows the README
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  unix:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }} · Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.12", node: "20.19.0" }
+          - { os: ubuntu-latest, python: "3.13", node: "22.12.0" }
+          - { os: ubuntu-latest, python: "3.14", node: "24" }
+          - { os: macos-latest, python: "3.12", node: "20.19.0" }
+          - { os: macos-latest, python: "3.14", node: "24" }
+    steps:
+      # What the judge installs first ("What you need"): Python from python.org, Node.js from nodejs.org
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: "Step 1: download the project and install what it needs"
+        run: |
+          cd ~
+          git clone https://github.com/${{ github.repository }}
+          cd tellwater
+          git checkout -q ${{ github.sha }}   # this commit; a judge gets the latest, which is this one
+          python3 --version
+          python3 -m venv .venv
+          .venv/bin/pip install -e ".[dev]"
+
+      - name: "Step 2: start the API, and leave this terminal open"
+        run: |
+          cd ~/tellwater
+          nohup .venv/bin/uvicorn api.app:app --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
+          for i in $(seq 60); do curl -sf http://127.0.0.1:8000/api/cases > /dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:8000/api/cases > /dev/null
+
+      - name: "Step 3: a second terminal, in the home folder, starts the interface"
+        run: |
+          cd ~
+          cd tellwater/web
+          npm install
+          nohup npx vite > "$RUNNER_TEMP/vite.log" 2>&1 &
+          for i in $(seq 60); do curl -sf http://localhost:5173/ > /dev/null && break; sleep 1; done
+          curl -sf http://localhost:5173/ | grep -q 'id="root"'
+
+      - name: "Step 4: open http://localhost:5173 in a browser, every page"
+        run: |
+          python3 -m venv ~/browser
+          ~/browser/bin/pip install -q playwright
+          ~/browser/bin/playwright install --with-deps chromium > /dev/null
+          ~/browser/bin/python ~/tellwater/.github/judge/browser_check.py "$RUNNER_TEMP/screens"
+
+      - name: "Without a key: review a case, sign it, and check the signed record"
+        run: |
+          cases=$(curl -sf http://localhost:5173/api/cases | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
+          [ "$cases" = 5 ] || { echo "expected 5 cases, got $cases"; exit 1; }
+          curl -sf -X POST -H 'Content-Type: application/json' \
+            -d '{"action":"approve","reason":"Checked by following the README","reviewer":"Judge path"}' \
+            http://localhost:5173/api/cases/A/review > /dev/null
+          curl -sf http://localhost:5173/api/passport/A/verify | python3 -c "
+          import json, sys
+          v = json.load(sys.stdin)
+          assert v['signature_valid'] and v['evidence_matches'] and v['investigation_matches'], v
+          print('ok review, signing and verification')"
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:5173/01/02990000200013/10/460f93ca-B04)
+          [ "$code" = 307 ] || { echo "the garment QR returned $code"; exit 1; }
+          echo "ok the garment's QR code resolves to its passport"
+
+      - name: Keep the screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: judge-path-${{ matrix.os }}-py${{ matrix.python }}-node${{ matrix.node }}
+          path: |
+            ${{ runner.temp }}/screens
+            ${{ runner.temp }}/api.log
+            ${{ runner.temp }}/vite.log
+
+  windows:
+    name: windows · Python ${{ matrix.python }} · Node ${{ matrix.node }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { python: "3.14", node: "24" }
+          - { python: "3.12", node: "22.12.0" }
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: "Step 1: download the project and install what it needs (the README's PowerShell steps)"
+        run: |
+          cd $HOME
+          git clone https://github.com/${{ github.repository }}
+          cd tellwater
+          git checkout -q ${{ github.sha }}
+          "py -3 finds: $(py -3 --version)"
+          py -3 -m venv .venv
+          .venv\Scripts\pip install -e ".[dev]"
+          if ($LASTEXITCODE -ne 0) {
+            # the README's own fix: "If pip says requires a different Python, py -3 found a Python older than
+            # 3.12 or a 3.15: delete the .venv folder and use py -3.14" (the runner carries a 3.15 preview)
+            "README fallback: py -3 picked an unsupported Python; following the README's fix"
+            Remove-Item -Recurse -Force .venv
+            py -${{ matrix.python }} -m venv .venv
+            .venv\Scripts\pip install -e ".[dev]"
+            if ($LASTEXITCODE -ne 0) { throw "install failed" }
+          }
+
+      - name: "Step 2: start the API, and leave this window open"
+        run: |
+          cd $HOME\tellwater
+          Start-Process -FilePath .venv\Scripts\uvicorn.exe -ArgumentList 'api.app:app','--port','8000' -NoNewWindow -RedirectStandardOutput $env:RUNNER_TEMP\api.log -RedirectStandardError $env:RUNNER_TEMP\api.err
+          for ($i = 0; $i -lt 60; $i++) { try { Invoke-RestMethod 'http://127.0.0.1:8000/api/cases' | Out-Null; break } catch { Start-Sleep 1 } }
+          Invoke-RestMethod 'http://127.0.0.1:8000/api/cases' | Out-Null
+
+      - name: "Step 3: a second PowerShell window, in the home folder, starts the interface"
+        run: |
+          cd $HOME
+          cd tellwater\web
+          npm install
+          if ($LASTEXITCODE -ne 0) { throw "npm install failed" }
+          Start-Process -FilePath npx.cmd -ArgumentList 'vite' -NoNewWindow -RedirectStandardOutput $env:RUNNER_TEMP\vite.log -RedirectStandardError $env:RUNNER_TEMP\vite.err
+          for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest 'http://localhost:5173/' | Out-Null; break } catch { Start-Sleep 1 } }
+          if ((Invoke-WebRequest 'http://localhost:5173/').Content -notmatch 'id="root"') { throw 'the interface did not load' }
+
+      - name: "Step 4: open http://localhost:5173 in a browser, every page"
+        run: |
+          python -m venv $HOME\browser
+          & $HOME\browser\Scripts\pip install -q playwright
+          & $HOME\browser\Scripts\playwright install chromium | Out-Null
+          & $HOME\browser\Scripts\python $HOME\tellwater\.github\judge\browser_check.py $env:RUNNER_TEMP\screens
+          if ($LASTEXITCODE -ne 0) { throw "a page did not load" }
+
+      - name: "Without a key: review a case, sign it, and check the signed record"
+        run: |
+          $cases = Invoke-RestMethod 'http://localhost:5173/api/cases'
+          if ($cases.Count -ne 5) { throw "expected 5 cases, got $($cases.Count)" }
+          $body = '{"action":"approve","reason":"Checked by following the README","reviewer":"Judge path"}'
+          Invoke-RestMethod -Method Post -ContentType 'application/json' -Body $body 'http://localhost:5173/api/cases/A/review' | Out-Null
+          $v = Invoke-RestMethod 'http://localhost:5173/api/passport/A/verify'
+          if (-not ($v.signature_valid -and $v.evidence_matches -and $v.investigation_matches)) { throw "signed record did not verify" }
+          'ok review, signing and verification'
+
+      - name: Keep the screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: judge-path-windows-py${{ matrix.python }}-node${{ matrix.node }}
+          path: |
+            ${{ runner.temp }}/screens
+            ${{ runner.temp }}/api.log
+            ${{ runner.temp }}/api.err
+            ${{ runner.temp }}/vite.log
+            ${{ runner.temp }}/vite.err

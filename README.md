@@ -236,7 +236,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 | A Mac, Linux or Windows computer | Tested on macOS, Linux and Windows. On Windows, use the steps under “On Windows” below. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
 | Python 3.12, 3.13 or 3.14 | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
-| Node.js 20 or newer | From [nodejs.org](https://nodejs.org). To check, type `node -v`. |
+| Node.js 24 (or 22.12+, or 20.19+) | From [nodejs.org](https://nodejs.org), the LTS version. To check, type `node -v`. Older versions stop at step 3. |
 | About 5 minutes | Most of it is installing. |
 
 **Steps**, typed in a terminal:
@@ -256,7 +256,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
    .venv/bin/uvicorn api.app:app --port 8000
    ```
 
-3. In a second terminal, go to the same folder and start the interface:
+3. Open a second terminal and start the interface. A new terminal starts in your home folder; if you ran step 1 somewhere else, `cd` there first.
 
    ```bash
    cd tellwater/web
@@ -269,7 +269,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 <details>
 <summary>On Windows</summary>
 
-Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12, 3.13 or 3.14 from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 20 or newer from [nodejs.org](https://nodejs.org).
+Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12, 3.13 or 3.14 from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 24 (or 22.12+, or 20.19+) from [nodejs.org](https://nodejs.org) (to check, type `node -v`).
 
 1. Download the project and install what it needs:
 
@@ -286,7 +286,7 @@ Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Py
    .venv\Scripts\uvicorn api.app:app --port 8000
    ```
 
-3. In a second PowerShell window, go to the same folder and start the interface:
+3. Open a second PowerShell window and start the interface. A new window starts in your home folder; if you ran step 1 somewhere else, `cd` there first.
 
    ```powershell
    cd tellwater\web
@@ -300,7 +300,7 @@ If pip says *requires a different Python*, `py -3` found a Python older than 3.1
 
 </details>
 
-**What works without an AI key:** everything except the four things that call Muse Spark live: a fresh investigation, the guide, translating the passport, and the letter to a factory. The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. A fresh copy starts with nothing signed: open a case, press *Review assessment* and approve it, and that dye run's passport then carries a signed record, checked again in its *For auditors* tab. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
+**What works without an AI key:** everything except the five things that call a Meta model live: a fresh investigation, the guide, translating the passport, the letter to a factory (all Muse Spark), and turning a factory's voice reply into text (Muse Voice Transcribe; typing a reply still works). The saved investigations, the case file, the factory pages, review and signing, the passport and the results all work. A fresh copy starts with nothing signed: open a case, press *Review assessment* and approve it, and that dye run's passport then carries a signed record, checked again in its *For auditors* tab. Every saved investigation was made by Muse Spark, and every second reading by Muse Glimmer on our Modal GPU; nothing in them was written by hand. Every model the project calls is a Meta model; the rest (water balances, charts, signing) is plain code.
 
 **To use the live parts,** copy `.env.example` to `.env` and put a Meta Model API key in `MODEL_API_KEY`, then restart step 2.
 
@@ -311,7 +311,7 @@ If pip says *requires a different Python*, `py -3` found a Python older than 3.1
 | `requires a different Python` | `python3` is older than 3.12 (some Macs ship 3.9) or is 3.15. Install 3.14 from python.org, open a new terminal, delete the `.venv` folder, and start again with `python3.14 -m venv .venv`. |
 | The page loads but shows no cases | The API from step 2 isn't running. Start it, then reload the page. |
 | `address already in use` | An earlier run is still open. Close that terminal, or stop it with Ctrl+C. |
-| A live run, the guide or a translation doesn't answer | That part calls Muse Spark. Add `MODEL_API_KEY` to `.env` and restart the API. |
+| A live run, the guide, a translation or a voice reply doesn't answer | That part calls a Meta model. Add `MODEL_API_KEY` to `.env` and restart the API. |
 
 <details>
 <summary>Evaluation, Muse Glimmer and deployment</summary>

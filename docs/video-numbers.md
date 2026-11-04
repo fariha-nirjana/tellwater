@@ -7,7 +7,7 @@ Every number spoken in the 3-minute video, the record it comes from, and how to 
 | Spoken | The number | Where it comes from |
 |---|---|---|
 | "the logbook says an aerator was serviced for **under two hours**" | 11:40 to 13:20, 1 hour 40 minutes | Demo case B's handwritten logbook page and maintenance record (`doc:maintenance-1013-1140` in [`data/demo/B/trace.json`](../data/demo/B/trace.json)) |
-| "**low power continues**, about **five hours** altogether" | 11:40 to 16:45, 5.08 hours. Plant power averaged 39.2 kW, against a median of 62.0 kW over the rest of the case | Muse Spark's power and water-balance checks in case B (`calc:power_vs_load` and `calc:water_balance` for 11:40 to 16:45, same file) |
+| "**low power continues**, about **five hours** altogether" | 11:40 to 16:45, 5.08 hours. Plant power averaged 39.2 kW, against the 59.9 kW the inflow needed (the "39.2 vs 59.9" on screen) | Muse Spark's power and water-balance checks in case B (`calc:power_vs_load` and `calc:water_balance` for 11:40 to 16:45, same file) |
 | "the outfall sample's BOD is **twice the stated limit**" | 60.9 mg/L against a limit of 30 mg/L (2.03×), sampled at 16:10 | Case B's lab report (`doc:lab-1013-1610`, same file) |
 | "the records **support the claim**" (case C, after the factory sends the tank log) | Insufficient evidence before the tank log, supports the claim after it | [`data/demo/C/trace.json`](../data/demo/C/trace.json), then [`data/demo/C/trace-after.json`](../data/demo/C/trace-after.json) |
 | "Muse Glimmer **thirty-B**" | 30B parameters | The base model the adapter is trained on, `muse-glimmer-30b` ([`agent/glimmer.py`](../agent/glimmer.py)) |
