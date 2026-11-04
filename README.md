@@ -235,7 +235,7 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 |---|---|
 | A Mac, Linux or Windows computer | Tested on macOS, Linux and Windows. On Windows, use the steps under “On Windows” below. |
 | Git | Already on most Macs (type `git --version`). On Linux: `sudo apt install git`. |
-| Python 3.12, 3.13 or 3.14 | From [python.org](https://www.python.org/downloads/). To check, type `python3 --version`. |
+| Python 3.14 (3.12 and 3.13 also work) | From [python.org's 3.14 page](https://www.python.org/downloads/release/python-31410/). **Not 3.15**, which python.org's main download button now gives: a library the project needs doesn't support it yet. To check, type `python3 --version`. |
 | Node.js 24 (or 22.12+, or 20.19+) | From [nodejs.org](https://nodejs.org), the LTS version. To check, type `node -v`. Older versions stop at step 3. |
 | About 5 minutes | Most of it is installing. |
 
@@ -269,14 +269,14 @@ This runs the whole interface on your computer, with investigations Muse Spark a
 <details>
 <summary>On Windows</summary>
 
-Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.12, 3.13 or 3.14 from [python.org](https://www.python.org/downloads/) (to check, type `py --version`) and Node.js 24 (or 22.12+, or 20.19+) from [nodejs.org](https://nodejs.org) (to check, type `node -v`).
+Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Python 3.14 from [python.org's 3.14 page](https://www.python.org/downloads/release/python-31410/) (not 3.15, which the main download button now gives; 3.12 and 3.13 also work) and Node.js 24 (or 22.12+, or 20.19+) from [nodejs.org](https://nodejs.org) (to check, type `node -v`).
 
 1. Download the project and install what it needs:
 
    ```powershell
    git clone https://github.com/fariha-nirjana/tellwater
    cd tellwater
-   py -3 -m venv .venv
+   py -3.14 -m venv .venv
    .venv\Scripts\pip install -e ".[dev]"
    ```
 
@@ -296,7 +296,7 @@ Use PowerShell. You need [Git for Windows](https://git-scm.com/download/win), Py
 
 4. Open http://localhost:5173 in your browser. Press Ctrl+C in each window to stop.
 
-If pip says *requires a different Python*, `py -3` found a Python older than 3.12 or a 3.15: delete the `.venv` folder and use `py -3.14 -m venv .venv`. If PowerShell says *running scripts is disabled on this system* for `npm` or `npx`, type `npm.cmd` and `npx.cmd` instead. To use the live parts, `Copy-Item .env.example .env`, put the key in `MODEL_API_KEY`, and restart step 2. Tests: `.venv\Scripts\pytest`.
+If `py -3.14` says no suitable Python was found, install 3.14 from the link above, or use `py -3.13` or `py -3.12` if you have one of those. If PowerShell says *running scripts is disabled on this system* for `npm` or `npx`, type `npm.cmd` and `npx.cmd` instead. To use the live parts, `Copy-Item .env.example .env`, put the key in `MODEL_API_KEY`, and restart step 2. Tests: `.venv\Scripts\pytest`.
 
 </details>
 

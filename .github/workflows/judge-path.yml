@@ -99,7 +99,7 @@ jobs:
       matrix:
         include:
           - { python: "3.14", node: "24" }
-          - { python: "3.12", node: "22.12.0" }
+          - { python: "3.14", node: "22.12.0" }
     defaults:
       run:
         shell: pwsh
@@ -117,28 +117,19 @@ jobs:
           git clone https://github.com/${{ github.repository }}
           cd tellwater
           git checkout -q ${{ github.sha }}
-          "py -3 finds: $(py -3 --version)"
-          py -3 -m venv .venv
+          py -3.14 -m venv .venv
           .venv\Scripts\pip install -e ".[dev]"
-          if ($LASTEXITCODE -ne 0) {
-            # the README's own fix: "If pip says requires a different Python, py -3 found a Python older than
-            # 3.12 or a 3.15: delete the .venv folder and use py -3.14" (the runner carries a 3.15 preview)
-            "README fallback: py -3 picked an unsupported Python; following the README's fix"
-            Remove-Item -Recurse -Force .venv
-            py -${{ matrix.python }} -m venv .venv
-            .venv\Scripts\pip install -e ".[dev]"
-            if ($LASTEXITCODE -ne 0) { throw "install failed" }
-          }
+          if ($LASTEXITCODE -ne 0) { throw "install failed" }
 
-      - name: "Step 2: start the API, and leave this window open"
+      # One step: Windows stops a step's background programs when the step ends
+      - name: "Steps 2 to 4: the API, a second window with the interface, every page in a browser, and signing without a key"
         run: |
           cd $HOME\tellwater
           Start-Process -FilePath .venv\Scripts\uvicorn.exe -ArgumentList 'api.app:app','--port','8000' -NoNewWindow -RedirectStandardOutput $env:RUNNER_TEMP\api.log -RedirectStandardError $env:RUNNER_TEMP\api.err
           for ($i = 0; $i -lt 60; $i++) { try { Invoke-RestMethod 'http://127.0.0.1:8000/api/cases' | Out-Null; break } catch { Start-Sleep 1 } }
           Invoke-RestMethod 'http://127.0.0.1:8000/api/cases' | Out-Null
+          'ok step 2: the API is up'
 
-      - name: "Step 3: a second PowerShell window, in the home folder, starts the interface"
-        run: |
           cd $HOME
           cd tellwater\web
           npm install
@@ -146,17 +137,14 @@ jobs:
           Start-Process -FilePath npx.cmd -ArgumentList 'vite' -NoNewWindow -RedirectStandardOutput $env:RUNNER_TEMP\vite.log -RedirectStandardError $env:RUNNER_TEMP\vite.err
           for ($i = 0; $i -lt 60; $i++) { try { Invoke-WebRequest 'http://localhost:5173/' | Out-Null; break } catch { Start-Sleep 1 } }
           if ((Invoke-WebRequest 'http://localhost:5173/').Content -notmatch 'id="root"') { throw 'the interface did not load' }
+          'ok step 3: the interface is up'
 
-      - name: "Step 4: open http://localhost:5173 in a browser, every page"
-        run: |
           python -m venv $HOME\browser
           & $HOME\browser\Scripts\pip install -q playwright
           & $HOME\browser\Scripts\playwright install chromium | Out-Null
           & $HOME\browser\Scripts\python $HOME\tellwater\.github\judge\browser_check.py $env:RUNNER_TEMP\screens
           if ($LASTEXITCODE -ne 0) { throw "a page did not load" }
 
-      - name: "Without a key: review a case, sign it, and check the signed record"
-        run: |
           $cases = Invoke-RestMethod 'http://localhost:5173/api/cases'
           if ($cases.Count -ne 5) { throw "expected 5 cases, got $($cases.Count)" }
           $body = '{"action":"approve","reason":"Checked by following the README","reviewer":"Judge path"}'
@@ -176,3 +164,21 @@ jobs:
             ${{ runner.temp }}/api.err
             ${{ runner.temp }}/vite.log
             ${{ runner.temp }}/vite.err
+
+  python-315:
+    name: Python 3.15 stops at install with the README's error
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.15"
+      - name: "Step 1 on Python 3.15, python.org's main download"
+        run: |
+          cd ~
+          git clone https://github.com/${{ github.repository }}
+          cd tellwater
+          git checkout -q ${{ github.sha }}
+          python3 -m venv .venv
+          if .venv/bin/pip install -e ".[dev]" > ~/pip.log 2>&1; then echo "3.15 installed: the README can drop its warning"; exit 1; fi
+          grep -i "requires a different Python" ~/pip.log
+          echo "ok: pip says 'requires a different Python', the README's troubleshooting row"
