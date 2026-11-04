@@ -31,10 +31,10 @@ const MEANS: [Status, string][] = [
 ]
 
 const MODELS: [string, string, string][] = [
-  ['Muse Spark', 'The investigator', 'Chooses one check at a time from a small set of tools, says why, and keeps competing explanations open until the evidence settles them. Every citation is checked against the record before a finding is accepted. 57 of 60 development cases and 100 of 120 on the held-out test agree with the justified answer.'],
+  ['Muse Spark', 'The investigator', 'Chooses one check at a time from a small set of tools, says why, and keeps competing explanations open until the evidence settles them. Every citation is checked against the record before a finding is accepted. On the held-out test it was right, or asked for a record or a person, on 112 of 120, and 66 of its 74 verdicts were ones you can trust.'],
   ['Muse Spark (vision)', 'Reads the paperwork', 'Reads handwritten logbook photos, meter photos and lab reports itself; no transcription is given. We measured where it finds each logbook line: sending the photo padded to a square takes it from 34% to 99.5% of lines placed right.'],
   ['Muse Spark', 'The thread guide', 'Answers your questions about a case only from that case’s investigation, and every record it cites must exist there; citations that don’t are removed.'],
-  ['Muse Spark Open', 'Open weights', 'The same investigation on open weights (served on Fireworks): 54 of 60 development cases, 99 of 120 on the held-out test.'],
+  ['Muse Spark Open', 'Open weights', 'The same investigation on open weights (served on Fireworks): on the held-out test, right or asked on 110 of 120, with 10 harmful mistakes.'],
   ['Muse Voice Transcribe', 'Hears the factory', 'A factory can answer a request by voice, in Bangla or English; the transcript goes into the reply box to check and edit before sending. On three Bangla voice notes it got all 23 times, numbers and facts we scored right.'],
   ['Muse Glimmer', 'Distilled from our own runs', "A small open model, fine-tuned on Muse Spark's own correct investigations (never the test set) and run on our own GPU, the way a factory could run it on site. It reads every case a second time; where the two disagree, a person decides."],
 ]
