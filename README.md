@@ -2,7 +2,7 @@
 
 # Tellwater
 
-**A garment's label can lead back to its water. Tellwater checks whether that water was really cleaned, from the factory's own meters, not just its paperwork.**
+**A garment's label can lead back to the wastewater its fabric's dyeing made. Tellwater checks whether that wastewater was really treated, from the factory's own meters, not just its paperwork.**
 
 Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 2026) · Indie track · *Build for Your World*
 
@@ -10,7 +10,7 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 
 **Live demo:** https://fariha-nirjana--tellwater-web.us-east.modal.run (live Muse Spark runs are capped per visitor per day)
 
-<!-- Video (3 min): link once uploaded. -->
+**Video (3 min):** https://youtu.be/AQAexZWCw-Q
 
 **Three cases to try**, in the live demo or on your own computer:
 - **Case B:** follow the handwritten logbook's claim (aerator serviced 11:40–13:20) against the power readings, the meter photo and the lab result.
@@ -60,7 +60,7 @@ The factory documents hid 7 planted instructions, and none were followed.
 | **Impact** (30%) | A brand's reviewer checks a supplier's wastewater claim between audits. An honest factory missing a record is asked for it, not suspected, and the shopper sees the reviewed result from the garment's label. [What it feels like](#what-it-feels-like) · [Why I built this](#why-i-built-this) · [Why it matters](#why-it-matters) |
 | **Use of Meta AI tooling** (25%) | Muse Spark investigates and reads the handwriting, meter photos and lab reports. Muse Glimmer 30B, which I fine-tuned and [published](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), gives a second reading. Muse Spark Open runs the same investigation on open weights. Muse Voice Transcribe takes a factory's reply in Bangla. [Meta's models](#metas-models-and-where-they-run) · [An open model a factory could run itself](#an-open-model-a-factory-could-run-itself) |
 | **Technical depth** (20%) | Frozen before the test, seven approaches on 120 unseen cases, and every Muse Glimmer check's rule written down first, failures included. [Does it hold?](#does-it-hold) · [What I tried and dropped](#what-i-tried-and-dropped) · `python -m eval.check_numbers` recomputes this page's numbers |
-| **Demo** (25%) | The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key. [Try it](#try-it) |
+| **Demo** (25%) | The [3-minute video](https://youtu.be/AQAexZWCw-Q). The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key. [Try it](#try-it) |
 
 ## Why I built this
 
@@ -255,7 +255,7 @@ Every model the project calls while it runs is a Meta model.
 
 Open the [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run). It starts in the “All” view, so you can move between the buyer's reviewer, the factory and the shopper. The investigation replays step by step; *Trace a garment* shows a shirt's QR code leading to its dye run's passport.
 
-<!-- Demo video link (3 minutes) once recorded. -->
+Or watch the [3-minute video](https://youtu.be/AQAexZWCw-Q) first.
 
 ### Run it on your own computer
 
