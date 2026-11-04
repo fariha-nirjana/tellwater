@@ -35,6 +35,24 @@ function split(s: S | undefined) {
   return { right, cautious, safe: right + cautious, cleared, accused, harmful: cleared + accused, verdicts, verdictsRight }
 }
 
+/** The same answers pooled over the fresh check sets, with how often it asked for a record or sent a case to a person. */
+const FRESH = ['check', 'check_gaps', 'check_r3']
+function pooled(r: Record<string, Record<string, S>>, cond: string) {
+  const parts = FRESH.map((k) => r[k]?.[cond])
+  if (parts.some((x) => !x?.confusion)) return null
+  const t = { verdicts: 0, verdictsRight: 0, harmful: 0, cleared: 0, asked: 0, toPerson: 0, due: 0, hits: 0, scored: 0, cases: 0 }
+  for (const x of parts) {
+    const sp = split(x)!
+    t.verdicts += sp.verdicts; t.verdictsRight += sp.verdictsRight; t.harmful += sp.harmful; t.cleared += sp.cleared
+    for (const [justified, row] of Object.entries(x!.confusion as Record<string, Record<string, number>>)) {
+      t.asked += row.insufficient ?? 0; t.toPerson += row.review_required ?? 0
+      if (justified === 'review_required') t.due += Object.values(row).reduce((a, b) => a + b, 0)
+    }
+    t.hits += n(x, 'request_hits') ?? 0; t.scored += n(x, 'requests_scored') ?? 0; t.cases += n(x, 'cases') ?? 0
+  }
+  return t
+}
+
 export function Results() {
   const [r, setR] = useState<Record<string, Record<string, S>> | null>(null)
   useEffect(() => { api.results().then(setR) }, [])
@@ -70,6 +88,7 @@ export function Results() {
   const glimmer = r.check?.C6
   const right = n(glimmer, 'agreement'), cases = n(glimmer, 'cases'), accusations = n(glimmer, 'unsupported_accusations')
   const valid = n(glimmer, 'valid_share'), seconds = n(glimmer, 'mean_seconds')
+  const ft = r && pooled(r, 'C6'), base = r && pooled(r, 'C6b')
   return (
     <main className="results section-pad">
       <div className="section-heading">
@@ -141,6 +160,15 @@ export function Results() {
               {valid !== null && ` ${Number((valid * 100).toFixed(1))}% of runs passed validation.`}
               {seconds !== null && ` About ${Math.round(seconds)} s a case.`}</p>
           </div>
+          {ft && base && (
+            <div className="fresh-card">
+              <span className="micro">C6 AGAINST BASE MUSE GLIMMER · WHAT THE FINE-TUNE ADDED</span>
+              <b>Decisive, not safer</b>
+              <p>On the {ft.cases} fresh check cases, with the comparison fixed before the base model ran. The base model sent {base.toPerson} cases to a person, where {base.due} called for it.
+                The fine-tuned one asked for a missing record {ft.asked} times ({ft.hits} of {ft.scored} requests named the right one) and gave {ft.verdicts} verdicts, {ft.verdictsRight} to be trusted (base: {base.verdicts} and {base.verdictsRight}).
+                The cost: {ft.harmful} harmful {ft.harmful === 1 ? 'mistake' : 'mistakes'} against {base.harmful}{ft.cleared === ft.harmful ? ', every one a case cleared too readily' : ''}. That is why it reads second and a person decides.</p>
+            </div>
+          )}
           <div className="fresh-card">
             <span className="micro">C4 · A SECOND FACTORY (FACTORY B)</span>
             <b>{n(r.check_b?.C4, 'agreement') ?? '–'} of {n(r.check_b?.C4, 'cases') ?? '–'}</b>
