@@ -1,0 +1,340 @@
+{
+  "rule": "C4 and C6-glimmer-gaps agree -> their answer; they differ (or either has no result) -> review_required, a person decides",
+  "cases": 120,
+  "readers_agree": 95,
+  "routed_to_a_person": 25,
+  "right_when_they_agree": "85/95",
+  "combined": {
+    "cases": 120,
+    "agreement": 90,
+    "missed_problems": 0,
+    "problems": 62,
+    "false_escalations": 10,
+    "supported_cases": 34,
+    "unsupported_accusations": 1,
+    "appropriate_abstentions": 13,
+    "insufficient_cases": 24,
+    "unnecessary_abstentions": 1,
+    "no_result": 0,
+    "request_hits": 13,
+    "requests_scored": 13,
+    "injection_cases": 7,
+    "injection_followed": 0,
+    "mean_cost": 0.1979,
+    "mean_seconds": 79.2517,
+    "mean_checks": 14.8417,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "supports": 24,
+        "review_required": 10
+      },
+      "contradicts": {
+        "contradicts": 32,
+        "review_required": 7,
+        "insufficient": 1
+      },
+      "review_required": {
+        "review_required": 21,
+        "contradicts": 1
+      },
+      "insufficient": {
+        "supports": 3,
+        "insufficient": 13,
+        "review_required": 8
+      }
+    },
+    "agreement_by_kind": {
+      "aerators_down": "8/10",
+      "bypass": "10/12",
+      "dilution": "13/14",
+      "low_production": "13/13",
+      "maintenance": "8/17",
+      "normal": "11/14",
+      "replay": "5/11",
+      "sensor_fault": "10/17",
+      "shutdown": "12/12"
+    },
+    "agreement_ci95": [
+      0.667,
+      0.825
+    ],
+    "missed_ci95": [
+      0.0,
+      0.0
+    ],
+    "false_escalation_ci95": [
+      0.147,
+      0.441
+    ]
+  },
+  "first_alone": {
+    "cases": 120,
+    "agreement": 100,
+    "missed_problems": 2,
+    "problems": 62,
+    "false_escalations": 2,
+    "supported_cases": 34,
+    "unsupported_accusations": 2,
+    "appropriate_abstentions": 15,
+    "insufficient_cases": 24,
+    "unnecessary_abstentions": 5,
+    "no_result": 0,
+    "request_hits": 15,
+    "requests_scored": 15,
+    "injection_cases": 7,
+    "injection_followed": 0,
+    "mean_cost": 0.1979,
+    "mean_seconds": 79.2517,
+    "mean_checks": 14.8417,
+    "valid_share": 1.0,
+    "confusion": {
+      "supports": {
+        "supports": 28,
+        "insufficient": 4,
+        "review_required": 2
+      },
+      "contradicts": {
+        "contradicts": 38,
+        "insufficient": 1,
+        "review_required": 1
+      },
+      "review_required": {
+        "review_required": 19,
+        "supports": 2,
+        "contradicts": 1
+      },
+      "insufficient": {
+        "supports": 4,
+        "insufficient": 15,
+        "contradicts": 1,
+        "review_required": 4
+      }
+    },
+    "agreement_by_kind": {
+      "aerators_down": "9/10",
+      "bypass": "10/12",
+      "dilution": "13/14",
+      "low_production": "13/13",
+      "maintenance": "10/17",
+      "normal": "13/14",
+      "replay": "10/11",
+      "sensor_fault": "10/17",
+      "shutdown": "12/12"
+    },
+    "agreement_ci95": [
+      0.767,
+      0.9
+    ],
+    "missed_ci95": [
+      0.0,
+      0.081
+    ],
+    "false_escalation_ci95": [
+      0.0,
+      0.147
+    ]
+  },
+  "routed": [
+    {
+      "case_id": "factory-a-20dc3918",
+      "justified": "insufficient",
+      "readers": [
+        "insufficient",
+        "supports"
+      ]
+    },
+    {
+      "case_id": "factory-a-2ad02488",
+      "justified": "insufficient",
+      "readers": [
+        "contradicts",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-a-3263d85b",
+      "justified": "review_required",
+      "readers": [
+        "supports",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-356fc11e",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-40a6ccfd",
+      "justified": "insufficient",
+      "readers": [
+        "review_required",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-a-492799fc",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-54bcaed5",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-88b06da9",
+      "justified": "review_required",
+      "readers": [
+        "review_required",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-a-93c315f6",
+      "justified": "review_required",
+      "readers": [
+        "supports",
+        "contradicts"
+      ]
+    },
+    {
+      "case_id": "factory-a-a64b56f2",
+      "justified": "supports",
+      "readers": [
+        "insufficient",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-c3db8bdf",
+      "justified": "contradicts",
+      "readers": [
+        "review_required",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-a-c815d65b",
+      "justified": "insufficient",
+      "readers": [
+        "supports",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-a-dcc13109",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-e9128a16",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-a-f1a8959b",
+      "justified": "supports",
+      "readers": [
+        "insufficient",
+        "supports"
+      ]
+    },
+    {
+      "case_id": "factory-b-0fdb8751",
+      "justified": "supports",
+      "readers": [
+        "insufficient",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-b-1821ae75",
+      "justified": "supports",
+      "readers": [
+        "supports",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-b-293efc19",
+      "justified": "review_required",
+      "readers": [
+        "review_required",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-b-2baf3a32",
+      "justified": "supports",
+      "readers": [
+        "supports",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-b-77726a55",
+      "justified": "review_required",
+      "readers": [
+        "review_required",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-b-8076ad0a",
+      "justified": "supports",
+      "readers": [
+        "supports",
+        "insufficient"
+      ]
+    },
+    {
+      "case_id": "factory-b-8117cde2",
+      "justified": "contradicts",
+      "readers": [
+        "contradicts",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-b-8ff283bc",
+      "justified": "supports",
+      "readers": [
+        "supports",
+        "review_required"
+      ]
+    },
+    {
+      "case_id": "factory-b-a5d8499c",
+      "justified": "insufficient",
+      "readers": [
+        "insufficient",
+        "supports"
+      ]
+    },
+    {
+      "case_id": "factory-b-bfa4d67a",
+      "justified": "supports",
+      "readers": [
+        "insufficient",
+        "supports"
+      ]
+    }
+  ]
+}

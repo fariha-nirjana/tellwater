@@ -4,16 +4,15 @@ and check that the README still says them.
     .venv/bin/python -m eval.check_numbers
 
 Sources, all in the repository:
-- data/demo/results.json: the held-out test (120 cases), one score per approach, with its confusion matrix
+- eval/runs/test/<approach>/summary.json: each approach's 120 per-case rows (justified answer, answer
+  given, kind of case) from the held-out test. Scoring them again must give data/demo/results.json.
+- data/demo/results.json: the held-out test, one score per approach, with its confusion matrix
   (justified answer -> answer given). The trust numbers are worked out from that matrix here, not read
   from a summary: "right" is the justified answer, "asked" is insufficient evidence or review required
   given in place of another answer, and every other answer is a harmful mistake (it cleared a case it
   shouldn't have, or accused without the evidence).
 - data/demo/B, C, D: the saved demo investigations the video shows.
 - eval/frozen/test_manifest.json: the frozen test set.
-
-A few README numbers need the per-case rows in eval/runs/test/, which are not committed. They are
-checked when those files exist and reported as skipped otherwise.
 
 Exits with 1 if any number disagrees, so it can run as a test.
 """
@@ -187,7 +186,7 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
     r.says("Muse Glimmer, seconds a case", f"about {round(c6['mean_seconds'])} seconds a case", text)
     r.says("Muse Spark Open", f"right or asked on {t['C5'].right_or_asked} of 120, with {t['C5'].harmful} harmful mistakes", text)
 
-    print("\nNumbers that need the per-case rows (eval/runs/test, not committed)")
+    print("\nNumbers from the per-case rows (eval/runs/test)")
     summary = RUNS / "C4" / "summary.json"
     if summary.exists():
         rows_c4 = json.loads(summary.read_text(encoding="utf-8"))["rows"]
@@ -207,6 +206,39 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
         r.says("right when the readers agree", f"they were right {right} times out of {agreed}", text)
     else:
         r.skip("right when the readers agree", "eval/runs/test/two_readers.json is not in the repository")
+
+
+def results_from_rows(r: Report, test: dict) -> None:
+    """results.json's held-out scores, recomputed from the 120 per-case rows of each approach."""
+    from eval.metrics import score
+
+    print("\nThe held-out scores in results.json, recomputed from the per-case rows")
+    folders = {"C1": "C1", "C2": "C2", "C3": "C3", "C4": "C4", "C5": "C5", "C6": "C6-glimmer-gaps"}
+    for key, folder in folders.items():
+        path = RUNS / folder / "summary.json"
+        if not path.exists():
+            r.skip(key, f"{path.relative_to(ROOT)} is not in the repository")
+            continue
+        rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+        scored = score(rows)
+        r.check(f"{key}: {len(rows)} cases, confusion and counts", "same as results.json",
+                "same as results.json" if all(scored[k] == test[key][k] for k in SCORED) else
+                ", ".join(k for k in SCORED if scored[k] != test[key][k]) + " differ")
+    two = RUNS / "two_readers.json"
+    if two.exists():
+        combined = json.loads(two.read_text(encoding="utf-8"))
+        same = all(combined["combined"][k] == test["two_readers"][k] for k in SCORED) and all(
+            combined[k] == test["two_readers"][k] for k in ("readers_agree", "routed_to_a_person"))
+        r.check("two readers: confusion, counts and cases routed to a person", "same as results.json",
+                "same as results.json" if same else "differ")
+    else:
+        r.skip("two readers", "eval/runs/test/two_readers.json is not in the repository")
+
+
+# The scoring fields compared between the per-case rows and results.json (not cost or time)
+SCORED = ("cases", "agreement", "missed_problems", "false_escalations", "unsupported_accusations",
+          "appropriate_abstentions", "unnecessary_abstentions", "no_result", "request_hits", "requests_scored",
+          "injection_cases", "injection_followed", "confusion")
 
 
 def video_numbers(r: Report, test: dict) -> None:
@@ -249,7 +281,8 @@ def video_numbers(r: Report, test: dict) -> None:
 def main() -> int:
     test = json.loads(RESULTS.read_text(encoding="utf-8"))["test"]
     r = Report()
-    print("Recomputed from data/demo/results.json and the saved demo cases; checked against README.md")
+    print("Recomputed from the per-case rows, data/demo/results.json and the saved demo cases; checked against README.md")
+    results_from_rows(r, test)
     readme_numbers(r, README.read_text(encoding="utf-8"), test)
     video_numbers(r, test)
     print(f"\n{'All numbers match.' if not r.failed else f'{r.failed} number(s) disagree.'}"
