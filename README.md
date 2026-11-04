@@ -44,6 +44,15 @@ The factory documents hid 7 planted instructions, and none were followed.
 
 <!-- Screenshot row: the case file at the contradiction · the factory sending the tank log · the passport on a phone -->
 
+## For judges
+
+| Criterion | Where to look |
+|---|---|
+| **Impact** (30%) | A buyer's reviewer checks a factory's wastewater claim against the plant's own records. An honest factory missing a record is asked for it, not suspected. The shopper scans the label and sees the result ([What it feels like](#what-it-feels-like)). Why this matters in Bangladesh, with sources: [Why I built this](#why-i-built-this), [Why it matters](#why-it-matters). |
+| **Use of Meta AI tooling** (25%) | Muse Spark investigates one check at a time and reads handwriting and meter photos itself. Muse Glimmer 30B, which I fine-tuned and [published](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), reads every case a second time. Muse Spark Open runs the same investigation on open weights. Muse Voice Transcribe takes a factory's reply in Bangla ([Meta's models](#metas-models-and-where-they-run), [An open model a factory could run itself](#an-open-model-a-factory-could-run-itself)). |
+| **Technical depth** (20%) | The arithmetic is in code, and every record a finding cites is checked. The test set and the investigator were frozen before the test, and seven approaches ran on 120 unseen cases ([Does it hold?](#does-it-hold)). Every Muse Glimmer check had its rule written down first, and the attempts that failed are reported ([What I tried and dropped](#what-i-tried-and-dropped)). `python -m eval.check_numbers` recomputes this page's trust numbers from the committed results and checks them. |
+| **Demo** (25%) | The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key ([Try it](#try-it)). Every saved investigation was made by Muse Spark; none was written by hand. |
+
 ## Why I built this
 
 I was born and raised in Dhaka. People who come to the city from the countryside mention a smell in the air. I never noticed it. When you live inside something long enough, you stop seeing what's wrong with it.
@@ -160,6 +169,17 @@ A factory may not want its plant data to leave the site, so I distilled the inve
 - What I learned: a distilled model inherits its teacher's blind spots, and training only on the teacher's correct answers leaves out exactly the hard cases.
 
 That's also why it never decides alone. Muse Spark and Muse Glimmer are two readers of the same case. The rule for when they disagree was written down before any test case ran, in [`eval/frozen/two_reader_rule.md`](eval/frozen/two_reader_rule.md): **neither answer is used, and a person decides.**
+
+### What I tried and dropped
+
+| What I tried | Why I dropped it |
+|---|---|
+| Muse Spark Open on Baseten | Turns with an image timed out at 120 to 180 seconds. Fireworks serves the same weights and handled the photos, so Muse Spark Open runs there. |
+| Muse Spark Open as Muse Glimmer's teacher | On three trial cases it took 7 to 31 minutes a case: one answer was an accusation the evidence didn't support, one run stopped calling its tools, and one didn't finish. Muse Spark teaches instead. |
+| Fine-tuning Muse Glimmer on Fireworks | Its weights can't be downloaded, so they couldn't be published. I retrained on Modal with the same data and recipe ([above](#an-open-model-a-factory-could-run-itself)). |
+| Training round 2: the teacher's reasoning at every step | Stopped at its halfway check, by the rule written before training ([`glimmer_round2_rule.md`](eval/frozen/glimmer_round2_rule.md)): 9 of 16 right with 5 overclaims, against `glimmer-gaps`' 12 with 1. |
+| Training round 3: a guided teacher and a balanced, grounded set | Stopped at its halfway check, by its rule ([`glimmer_round3_rule.md`](eval/frozen/glimmer_round3_rule.md)): 18 of 28 by the rule's count with 5 overclaims, against `glimmer-gaps`' 20 with 3. |
+| Sending logbook photos as they are, to find each line | 34% of lines were placed right. Padding the photo to a square took it to 99.5% (60 pages, 442 lines). |
 
 ### What I don't claim
 
@@ -296,11 +316,12 @@ If pip says *requires a different Python*, `py -3` found a Python older than 3.1
 <details>
 <summary>Evaluation, Muse Glimmer and deployment</summary>
 
-Tests: `.venv/bin/pytest` (136 tests, no key needed; 11 skip because they read Muse Glimmer training runs that aren't in the repo).
+Tests: `.venv/bin/pytest` (139 tests, no key needed; 10 skip because they read Muse Glimmer training runs that aren't in the repo).
 
 Evaluation:
 
 ```bash
+.venv/bin/python -m eval.check_numbers            # recompute this page's trust numbers and the video's spoken numbers, and check them
 .venv/bin/python -m eval.caseset dev              # generate the development set
 .venv/bin/python -m eval.run_set dev C4           # run a condition and score it
 .venv/bin/python -m api.demo results              # refresh the results page's snapshot
