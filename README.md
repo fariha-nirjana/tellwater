@@ -6,11 +6,18 @@
 
 Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 2026) · Indie track · *Build for Your World*
 
-> Every factory, record and result here is simulated. Nothing describes a real factory.
+> Every factory and record here is simulated, and nothing describes a real factory. The investigations and test results are real runs, of Meta's models and of the rule-based baselines.
 
 **Live demo:** https://fariha-nirjana--tellwater-web.us-east.modal.run (live Muse Spark runs are capped per visitor per day)
 
 <!-- Video (3 min): link once uploaded. -->
+
+**Three cases to try**, in the live demo or on your own computer:
+- **Case B:** follow the handwritten logbook's claim (aerator serviced 11:40–13:20) against the power readings, the meter photo and the lab result.
+- **Case C:** one record is missing, so Tellwater asks for it. On the factory's page, send the tank log, then open case C again: the investigation that ran with it supports the claim.
+- **Case D:** Muse Spark and Muse Glimmer disagree, so the passport holds the finding until the buyer's reviewer decides.
+
+The investigations and Muse Glimmer's second readings are saved runs. *Run it live with Muse Spark* starts a fresh Muse Spark investigation.
 
 ## At a glance
 
@@ -25,20 +32,22 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 
 **Meta models.**
 - **Muse Spark** investigates one check at a time, and reads the handwriting and the meter photos itself.
-- **Muse Glimmer 30B**, which I fine-tuned and serve on my own GPU, reads every case a second time.
+- **Muse Glimmer 30B**, which I fine-tuned and serve on my own GPU, gave every test case and every demo case a second reading.
 - **Muse Spark Open** runs the same investigation on open weights.
 - **Muse Voice Transcribe** lets a factory reply in Bangla.
 
 **Can you trust it?** I tested it on 120 unseen simulated cases, with the system frozen before the test. When Muse Spark isn't sure, it asks for a record or a person instead of guessing. It was right, or asked, 112 times. It made 8 harmful mistakes: it cleared 6 cases too readily and made 2 accusations the evidence didn't support. Rules alone made 27, and 20 of those were accusations. A person still signs every result, but they start from a finished investigation, not from zero.
 
-<p align="center"><img src="docs/readme/trust.svg" alt="Bar chart of the 120 held-out cases. Muse Spark investigating: 112 right or asked, 8 harmful. Muse Glimmer: 113 and 7. Both reading: 116 and 4. Muse Spark everything at once: 115 and 5. Muse Spark Open: 110 and 10. Rules plus document reading: 96 and 24. Rules alone: 93 and 27." width="100%"></p>
+<p align="center"><img src="docs/readme/trust.svg" alt="Bar chart of the 120 held-out cases. Muse Spark investigating: 112 right or asked, 8 harmful. Muse Glimmer: 113 and 7. Two readers: 116 and 4. Muse Spark everything at once: 115 and 5. Muse Spark Open: 110 and 10. Rules plus document reading: 96 and 24. Rules alone: 93 and 27." width="100%"></p>
 
 | On 120 unseen cases | Right, or asked for help | Harmful mistakes | Verdicts you can trust |
 |---|---|---|---|
 | Muse Spark | 112 | 8 | 89% (66 of 74) |
 | Muse Glimmer, fine-tuned by me | 113 | 7 | 89% (58 of 65) |
-| Both reading, a person settling disagreements | 116 | 4 | 93% (56 of 60) |
+| Two readers, disagreements sent to a person | 116 | 4 | 93% (56 of 60) |
 | Rules alone | 93 | 27 | 61% (42 of 69) |
+
+*Right, or asked* counts right answers and requests for a record or a person, including requests that weren't needed (12 of Muse Spark's). It isn't exact-match accuracy. *Verdicts you can trust* is the share of its "supports" and "contradicts" answers that were right on these simulated cases. Two readers cut harmful mistakes from 8 to 4, but sent 25 of 120 cases to a person and held up 10 clean runs.
 
 The factory documents hid 7 planted instructions, and none were followed.
 
@@ -48,10 +57,10 @@ The factory documents hid 7 planted instructions, and none were followed.
 
 | Criterion | Where to look |
 |---|---|
-| **Impact** (30%) | A buyer's reviewer checks a factory's wastewater claim against the plant's own records. An honest factory missing a record is asked for it, not suspected. The shopper scans the label and sees the result ([What it feels like](#what-it-feels-like)). Why this matters in Bangladesh, with sources: [Why I built this](#why-i-built-this), [Why it matters](#why-it-matters). |
-| **Use of Meta AI tooling** (25%) | Muse Spark investigates one check at a time and reads handwriting and meter photos itself. Muse Glimmer 30B, which I fine-tuned and [published](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), reads every case a second time. Muse Spark Open runs the same investigation on open weights. Muse Voice Transcribe takes a factory's reply in Bangla ([Meta's models](#metas-models-and-where-they-run), [An open model a factory could run itself](#an-open-model-a-factory-could-run-itself)). |
-| **Technical depth** (20%) | The arithmetic is in code, and every record a finding cites is checked. The test set and the investigator were frozen before the test, and seven approaches ran on 120 unseen cases ([Does it hold?](#does-it-hold)). Every Muse Glimmer check had its rule written down first, and the attempts that failed are reported ([What I tried and dropped](#what-i-tried-and-dropped)). `python -m eval.check_numbers` recomputes this page's trust numbers from the committed results and checks them. |
-| **Demo** (25%) | The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key ([Try it](#try-it)). Every saved investigation was made by Muse Spark; none was written by hand. |
+| **Impact** (30%) | A brand's reviewer checks a supplier's wastewater claim between audits. An honest factory missing a record is asked for it, not suspected, and the shopper sees the reviewed result from the garment's label. [What it feels like](#what-it-feels-like) · [Why I built this](#why-i-built-this) · [Why it matters](#why-it-matters) |
+| **Use of Meta AI tooling** (25%) | Muse Spark investigates and reads the handwriting, meter photos and lab reports. Muse Glimmer 30B, which I fine-tuned and [published](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), gives a second reading. Muse Spark Open runs the same investigation on open weights. Muse Voice Transcribe takes a factory's reply in Bangla. [Meta's models](#metas-models-and-where-they-run) · [An open model a factory could run itself](#an-open-model-a-factory-could-run-itself) |
+| **Technical depth** (20%) | Frozen before the test, seven approaches on 120 unseen cases, and every Muse Glimmer check's rule written down first, failures included. [Does it hold?](#does-it-hold) · [What I tried and dropped](#what-i-tried-and-dropped) · `python -m eval.check_numbers` recomputes this page's numbers |
+| **Demo** (25%) | The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key. [Try it](#try-it) |
 
 ## Why I built this
 
@@ -107,9 +116,7 @@ I'm not saying Tellwater will save every river in Bangladesh. But I want our kid
 
 **The factory's words are a claim. The meters are the evidence. A gap is a gap, never guilt.**
 
-So Tellwater can only give four answers, and each one says what it rests on:
-
-The companion, a swatch of gamchha check with a loose thread, walks you through each case on the site and shows which answer it reached:
+So Tellwater can only give four answers, and each one says what it rests on. The companion, a swatch of gamchha check with a loose thread, walks you through each case on the site and shows which answer it reached:
 
 |  | Answer | When | What happens next |
 |---|---|---|---|
@@ -124,20 +131,6 @@ A missing record is never treated as proof of anything. It's asked for. Living i
 
 I tried hard to break it. Every case is scored against its **justified** answer: what the available evidence can actually support, worked out by a deterministic oracle. Guessing right without the evidence counts as an error.
 
-**60 development cases, five ways to check them** (the investigator's column was rerun on the frozen version; the others are from before the freeze):
-
-| | Rules on the meters | Rules + document reading | Muse Spark, everything at once | **Muse Spark investigating** | Muse Spark Open investigating |
-|---|---|---|---|---|---|
-| Right answer | 34 / 60 | 42 / 60 | 56 / 60 | **57 / 60** | 54 / 60 |
-| Accused without evidence | 11 | 9 | 0 | **0** | 0 |
-| Passed a real problem as fine | 1 | 0 | 0 | **0** | 0 |
-| Held up a clean run | 4 | 2 | 1 | **0** | 1 |
-
-- **It doesn't take orders from the documents.** Five cases hide instructions inside the factory's own records. None of the five ways followed them.
-- **It's not free.** Investigating costs about $0.19 a case. Giving the model everything at once is cheaper on short records ($0.10 a case on 3 days), but it costs $0.85 on 45 days and, by our estimate, stops fitting at about 70 days; investigating stays at $0.18 to $0.23 because it only fetches what it needs.
-- **Real handwriting.** Three people wrote four logbook pages (two English, two Bangla), plus one photographed in dim light at an angle. Read twice and scored line by line against what is on each page: every English line was right both times; Bangla was 9, then 11, of 14 lines; and every number on every page was right both times (37 of 37). So a handwritten page needs a person to confirm it. In 18 runs of honest cases built around these pages, a misread page never made it accuse the factory: it takes the times from the meters and checks the page as a claim. Demo case B's logbook is a real handwritten page too.
-- **A second, differently built factory.** On 10 fresh cases from factory B it reached 10 of 10 after one general fix; the first run's miss is stated on the results page.
-
 **The held-out test: 120 cases it had never seen.** Half are from factory A and half from factory B. They were generated and frozen before any test case ran (SHA-256 `c49aa489…` in [`eval/frozen/test_manifest.json`](eval/frozen/test_manifest.json)). Before the test, the investigator was declared final: every file that decides what it sees, does or answers is fingerprinted in [`eval/frozen/investigator.json`](eval/frozen/investigator.json), and the test refuses to run if any of them changes. Each approach ran once.
 
 | | Rules on the meters | Rules + document reading | Muse Spark, everything at once | **Muse Spark investigating** | Muse Spark Open investigating | Muse Glimmer investigating | **Two readers** (Spark + Glimmer) |
@@ -150,27 +143,59 @@ I tried hard to break it. Every case is scored against its **justified** answer:
 | **Right, or asked for a record or a person** | 93 | 96 | 115 | **112** | 110 | 113 | **116** |
 | **Harmful mistakes** (cleared wrongly + accused wrongly) | 27 | 24 | 5 | **8** | 10 | 7 | **4** |
 
-- **It never cleared a run that broke the rules.** Of the 40 runs where the evidence shows the claim is false, the investigator called out 38 and sent 2 to a person or asked for a record. The 2 problems it passed as fine were sensor faults that a person should have weighed. On factory A it was right, or asked, on 55 of 60, with 5 harmful mistakes. On factory B, which it was never tuned on, it was 57 of 60, with 3.
+- **It never cleared a run that broke the rules.** Of the 40 runs where the evidence shows the claim is false, the investigator called out 38 and sent 2 to a person or asked for a record. The 2 problems it passed as fine were sensor faults that a person should have weighed. On factory A it was right, or asked, on 55 of 60, with 5 harmful mistakes. On factory B, a second, differently built factory, it was right, or asked, on 57 of 60, with 3.
 - **When it isn't sure, it asks.** Of its 20 misses, 12 were caution: it asked for a record or a person when it didn't need to. That costs an honest factory one extra request, or the reviewer one extra look. The 8 that matter: it cleared 6 cases too readily (4 where a record was missing, 2 that a person should have weighed) and made 2 accusations the evidence didn't support. So it was right, or asked, on 112 of 120, and 66 of its 74 verdicts were ones you can trust.
-- **Giving Muse Spark everything at once did as well or slightly better here: right, or asked, on 115 against 112, with 5 harmful mistakes against 8.** When the evidence is already gathered and short, one careful read is enough. The investigator earns its place elsewhere: it costs the same as the records grow while "everything at once" doesn't (see above), it asks for exactly the record that's missing (15 of 15 requests named the right one), and every step it takes is on the record for a person to check.
+- **Giving Muse Spark everything at once did as well or slightly better here: right, or asked, on 115 against 112, with 5 harmful mistakes against 8.** When the evidence is already gathered and short, one careful read is enough. The investigator earns its place elsewhere: its measured cost stayed between $0.18 and $0.23 a case from 3 to 45 days of records, while "everything at once" rose to $0.85 (see below), it asks for exactly the record that's missing (15 of 15 requests named the right one), and every step it takes is on the record for a person to check.
 - **Planted instructions:** seven test cases hide instructions in the factory's documents. The investigator followed none of them.
 - **About $0.20 and 80 seconds** per investigation.
 - **Two readers catch some mistakes, not all.** With the rule below, no real problem passed as fine and only one accusation lacked evidence, but 25 of 120 cases went to a person and 10 clean runs were held up. When the two readers agree, they were right 85 times out of 95. Agreement makes an answer more likely to be right, not certain, which is why a person still signs every result.
 
+**Beyond the test**
+
+- **It's not free.** Investigating costs about $0.19 a case. Giving the model everything at once is cheaper on short records ($0.10 a case on 3 days), but it costs $0.85 on 45 days and, by our estimate, stops fitting at about 70 days; investigating stays at $0.18 to $0.23 because it only fetches what it needs.
+- **Real handwriting.** Three people wrote four logbook pages (two English, two Bangla), plus one photographed in dim light at an angle. Read twice and scored line by line against what is on each page: every English line was right both times; Bangla was 9, then 11, of 14 lines; and every number on every page was right both times (37 of 37). So a handwritten page needs a person to confirm it. In 18 runs of honest cases built around these pages, a misread page never made it accuse the factory: it takes the times from the meters and checks the page as a claim. Demo case B's logbook is a real handwritten page too.
+
+<details>
+<summary>The 60 development cases, before the test</summary>
+
+**60 development cases, five ways to check them** (the investigator's column was rerun on the frozen version; the others are from before the freeze):
+
+| | Rules on the meters | Rules + document reading | Muse Spark, everything at once | **Muse Spark investigating** | Muse Spark Open investigating |
+|---|---|---|---|---|---|
+| Right answer | 34 / 60 | 42 / 60 | 56 / 60 | **57 / 60** | 54 / 60 |
+| Accused without evidence | 11 | 9 | 0 | **0** | 0 |
+| Passed a real problem as fine | 1 | 0 | 0 | **0** | 0 |
+| Held up a clean run | 4 | 2 | 1 | **0** | 1 |
+
+- **It doesn't take orders from the documents.** Five cases hide instructions inside the factory's own records. None of the five ways followed them.
+- **A second, differently built factory.** On 10 fresh cases from factory B it reached 10 of 10 after one general fix; the first run's miss is stated on the results page.
+
+</details>
+
 ### An open model a factory could run itself
 
-A factory may not want its plant data to leave the site, so I distilled the investigator into **Muse Glimmer 30B**, an open-weights model: a LoRA adapter trained on Muse Spark's own correct investigations (never the test set), on one GPU.
+A factory may not want its plant data to leave the site, so I distilled the investigator into **Muse Glimmer 30B**, an open-weights model: a LoRA adapter trained on Muse Spark's own correct investigations (never the test set), on one GPU. I [published the adapter](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator) and [its training data](https://huggingface.co/datasets/boundlesssky1512/tellwater-glimmer-training), and serve it with vLLM on Modal.
+
+- **On the held-out test** it was right, or asked, on 113 of 120, with 7 harmful mistakes: it cleared 5 cases too readily and made 2 accusations the evidence didn't support. 58 of its 65 verdicts were ones you can trust. It passed no real problem as fine. It takes about 138 seconds a case on one GPU.
+- **What the fine-tune added.** Fine-tuning made Muse Glimmer decisive, not safer. Against the untuned base model on 46 fresh cases, it gave more verdicts (21 against 15) but made more harmful mistakes (4 against 1), every one a "supports" where a record that decides the case was missing. So its measured effect is the targeted retrain: on a separate check of 6 fresh missing-record cases, it cut "supports" answers from 4 to 1 against the earlier adapter (below). That's why its answers go to a second reader and a person.
+- What I learned: a distilled model inherits its teacher's blind spots, and training only on the teacher's correct answers leaves out exactly the hard cases.
+
+<details>
+<summary>How I trained it, and what the fine-tune added against the base model</summary>
 
 - **Getting weights I could publish.** The first adapter was trained on Fireworks, which doesn't let its weights be downloaded. I retrained it from the open base weights on one H200 on Modal, with the same data and recipe. Its loss matched the first run step for step, and it got the same answer on all 8 fresh check cases.
 - **Fixing its weak spot.** On fresh cases where a record was missing, it said "supports" 4 times out of 6. Only 13 of its training investigations ended by asking for a record. I added Muse Spark's investigations of 30 new cases, weighted towards missing records, and retrained once. With the bar written down before the result, it overclaimed once instead of 4 times. That adapter, `glimmer-gaps`, is the one published and tested: [weights and model card on Hugging Face](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), with [its training data](https://huggingface.co/datasets/boundlesssky1512/tellwater-glimmer-training).
 - **Trying to improve on it.** I tested two more training recipes: one where every step carries the teacher's reasoning, and one with a guided, balanced and grounded set of training cases. Each had a check written down before it ran, at the halfway point. Neither beat `glimmer-gaps` at its check, so I kept `glimmer-gaps` and stopped. On the 28-case challenge set built for the second attempt, the rule written before the check counted 20 for `glimmer-gaps` and 16 for Muse Spark, with 3 overclaims each. That's a narrow, targeted set, not a general ranking.
-- **On the held-out test** it was right, or asked, on 113 of 120, with 7 harmful mistakes: it cleared 5 cases too readily and made 2 accusations the evidence didn't support. 58 of its 65 verdicts were ones you can trust. It passed no real problem as fine. It takes about 138 seconds a case on one GPU.
-- **What the fine-tune added.** I compared it with the untuned base model on the 46 fresh cases built for what the fine-tune targets, with the comparison written down before the base model ran ([`eval/frozen/base_glimmer_rule.md`](eval/frozen/base_glimmer_rule.md)). Fine-tuning made Muse Glimmer decisive, not safer. The base model handed most cases to a person: "review required" on 22 of 46, where 3 called for it. The fine-tuned one asked for a missing record on 20 cases, against the base model's 9 (where a record was missing, 13 of its 14 requests named the right one, against 5 of 5), and gave 21 verdicts, 17 of them ones you can trust, against the base model's 15 and 14. The cost: right, or asked, on 41 against the base model's 45, and 4 harmful mistakes against 1, every one of them a "supports" on a case where a record that decides it was missing (4 of 20 against 1). That's why its answers go to a second reader and a person.
-- What I learned: a distilled model inherits its teacher's blind spots, and training only on the teacher's correct answers leaves out exactly the hard cases.
+- **What the fine-tune added.** I compared it with the untuned base model on the 46 fresh cases built for what the fine-tune targets, with the comparison written down before the base model ran ([`eval/frozen/base_glimmer_rule.md`](eval/frozen/base_glimmer_rule.md)). Fine-tuning made Muse Glimmer decisive, not safer. The base model often handed a case to a person: "review required" on 22 of 46, where 3 called for it. The fine-tuned one asked for a missing record on 20 cases, against the base model's 9 (where a record was missing, 13 of its 14 requests named the right one, against 5 of 5), and gave 21 verdicts, 17 of them ones you can trust, against the base model's 15 and 14. The cost: right, or asked, on 41 against the base model's 45, and 4 harmful mistakes against 1, every one of them a "supports" on a case where a record that decides it was missing (4 of 20 against 1). That's why its answers go to a second reader and a person.
+
+</details>
 
 That's also why it never decides alone. Muse Spark and Muse Glimmer are two readers of the same case. The rule for when they disagree was written down before any test case ran, in [`eval/frozen/two_reader_rule.md`](eval/frozen/two_reader_rule.md): **neither answer is used, and a person decides.**
 
 ### What I tried and dropped
+
+<details>
+<summary>Six things, and why each was dropped</summary>
 
 | What I tried | Why I dropped it |
 |---|---|
@@ -180,6 +205,8 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 | Training round 2: the teacher's reasoning at every step | Stopped at its halfway check, by the rule written before training ([`glimmer_round2_rule.md`](eval/frozen/glimmer_round2_rule.md)): 9 of 16 right with 5 overclaims, against `glimmer-gaps`' 12 with 1. |
 | Training round 3: a guided teacher and a balanced, grounded set | Stopped at its halfway check, by its rule ([`glimmer_round3_rule.md`](eval/frozen/glimmer_round3_rule.md)): 18 of 28 by the rule's count with 5 overclaims, against `glimmer-gaps`' 20 with 3. |
 | Sending logbook photos as they are, to find each line | 34% of lines were placed right. Padding the photo to a square took it to 99.5% (60 pages, 442 lines). |
+
+</details>
 
 ### What I don't claim
 
@@ -194,6 +221,9 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 
 <p align="center"><img src="docs/readme/built.svg" alt="How Tellwater is built: factory records go to tools in code, then Muse Spark investigates one check at a time, a citation validator checks every cited record, Muse Glimmer reads each case a second time, a person reviews, and the result becomes a signed passport behind the garment's QR code. If the two models disagree, nothing is published until a person decides." width="100%"></p>
 
+<details>
+<summary>What's in each folder</summary>
+
 | Path | What it holds |
 |---|---|
 | `sim/` | The simulator: a knit dyehouse's production, equalization tank, treatment plant with aeration, outfall and meters (with noise, gaps, faults and tampering), the document renderer, Bangla logbook pages, and the oracle that works out each case's justified answer |
@@ -204,6 +234,8 @@ That's also why it never decides alone. Muse Spark and Muse Glimmer are two read
 | `passport/` | The signed passport record |
 | `web/` | The interface (React) |
 | `deploy/` | The Modal apps: the demo, and Muse Glimmer's training and serving |
+
+</details>
 
 ## Meta's models, and where they run
 
@@ -349,11 +381,13 @@ Every line of code in this repository was written during the hackathon, from Oct
 
 ## Credits and licences
 
-- Meta models: Muse Spark and Muse Spark Open (Meta Model API), Muse Glimmer, Muse Image (the garment photographs).
+- Meta models: Muse Spark and Muse Voice Transcribe (Meta Model API), Muse Spark Open (on Fireworks), Muse Glimmer (fine-tuned and served on Modal), Muse Image (the garment photographs).
 - Platforms: Modal (hosting the demo; training and serving Muse Glimmer), Fireworks (Muse Spark Open serving; the first Muse Glimmer fine-tune), Baseten (early Muse Spark Open trials).
 - Handwritten logbook pages: written and photographed for this project by people who agreed to their use.
 - Fonts bundled for the simulator's documents: Courier Prime, Caveat, Kalam, Reenie Beanie, DSEG7, Atma, Galada and Noto Sans Bengali (SIL Open Font License) and Homemade Apple (Apache License 2.0); licence files in [`assets/fonts/`](assets/fonts/).
 - Photographs in the story section: the garment worker from Unsplash (Unsplash License, image ID 1770196035129-0a0affd4a519); the Dhaka riverfront by Tanjir Hasan on Pexels (Pexels License, photo 32700005). Contextual only, not from any factory.
+- Photograph in the demo video's closing: an aerial view of boats on a Bangladesh waterway, by Bangladesh Nature on Pexels (Pexels License, photo 9265631). Contextual only, not from any factory.
+- Music in the demo video: "Nature Piano" by Leberch, from Pixabay (Pixabay Content License, ID 628034).
 - Plant parameters: *Water and electricity consumption patterns with effluent quality in the textile processing industry of Bangladesh*, RSC Advances, doi:10.1039/D5RA05917H; the ECR 2023 textile effluent limit for BOD.
 
 Released under the [MIT License](LICENSE).

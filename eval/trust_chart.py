@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ROWS = [("C4", "Muse Spark, investigating"), ("C6", "Muse Glimmer, fine-tuned"), ("two_readers", "Both reading, a person settling disagreements"),
+ROWS = [("C4", "Muse Spark, investigating"), ("C6", "Muse Glimmer, fine-tuned"), ("two_readers", "Two readers, disagreements sent to a person"),
         ("C3", "Muse Spark, everything at once"), ("C5", "Muse Spark Open"), ("C2", "Rules + document reading"), ("C1", "Rules alone")]
 
 

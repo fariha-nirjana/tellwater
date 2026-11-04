@@ -116,14 +116,14 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
     print("\nAt a glance: the trust table")
     rows = table(text, "| On 120 unseen cases")
     for label, key in [("Muse Spark", "C4"), ("Muse Glimmer, fine-tuned by me", "C6"),
-                       ("Both reading, a person settling disagreements", "two_readers"), ("Rules alone", "C1")]:
+                       ("Two readers, disagreements sent to a person", "two_readers"), ("Rules alone", "C1")]:
         r.check(f"{label}: right or asked", t[key].right_or_asked, rows[label][0])
         r.check(f"{label}: harmful", t[key].harmful, rows[label][1])
         r.check(f"{label}: verdicts you can trust", t[key].trusted_line, rows[label][2])
 
     print("\nAt a glance: the chart's description")
     alt = re.search(r'trust\.svg" alt="([^"]+)"', text).group(1)
-    for label, key in [("Muse Spark investigating", "C4"), ("Muse Glimmer", "C6"), ("Both reading", "two_readers"),
+    for label, key in [("Muse Spark investigating", "C4"), ("Muse Glimmer", "C6"), ("Two readers", "two_readers"),
                        ("Muse Spark everything at once", "C3"), ("Muse Spark Open", "C5"),
                        ("Rules plus document reading", "C2"), ("Rules alone", "C1")]:
         m = re.search(re.escape(label) + r": (\d+)(?: right or asked)?(?:,| and) (\d+)", alt)
@@ -135,6 +135,11 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
            f"it cleared {spark.cleared} cases too readily and made {spark.accused} accusations", text)
     r.says("rules alone", f"Rules alone made {rules.harmful}, and {rules.accused} of those were accusations", text)
     c4 = test["C4"]
+    tr = test["two_readers"]
+    r.says("what right or asked counts", f"including requests that weren't needed ({spark.cautious} of Muse Spark's)", text)
+    r.says("what two readers cost",
+           f"Two readers cut harmful mistakes from {spark.harmful} to {both.harmful}, but sent {tr['routed_to_a_person']} "
+           f"of {tr['cases']} cases to a person and held up {tr['false_escalations']} clean runs", text)
     if c4["injection_followed"] == 0:
         r.says("planted instructions", f"hid {c4['injection_cases']} planted instructions, and none were followed", text)
     else:
@@ -173,7 +178,11 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
            f"harmful mistakes against {spark.harmful}", text)
     r.says("evidence requests", f"{c4['request_hits']} of {c4['requests_scored']} requests named the right one", text)
     r.says("cost and time", f"About ${c4['mean_cost']:.2f} and {round(c4['mean_seconds'], -1):.0f} seconds", text)
-    tr = test["two_readers"]
+    results = json.loads(RESULTS.read_text(encoding="utf-8"))
+    costs = [results[f"scale_{days}"]["C4"]["mean_cost"] for days in (3, 14, 45)]
+    r.says("cost as the records grow (3, 14 and 45 days)",
+           f"stayed between ${min(costs):.2f} and ${max(costs):.2f} a case from 3 to 45 days of records, while "
+           f"\"everything at once\" rose to ${results['scale_45']['C3']['mean_cost']:.2f}", text)
     r.says("two readers", f"{tr['routed_to_a_person']} of {tr['cases']} cases went to a person and "
            f"{tr['false_escalations']} clean runs were held up", text)
 
@@ -185,6 +194,15 @@ def readme_numbers(r: Report, text: str, test: dict) -> None:
     r.says("Muse Glimmer, verdicts you can trust", f"{glimmer.trusted} of its {glimmer.verdicts} verdicts were ones you can trust", text)
     r.says("Muse Glimmer, seconds a case", f"about {round(c6['mean_seconds'])} seconds a case", text)
     r.says("Muse Spark Open", f"right or asked on {t['C5'].right_or_asked} of 120, with {t['C5'].harmful} harmful mistakes", text)
+    # the fine-tuned adapter (C6) against base Muse Glimmer (C6b) on the 46 fresh check cases (eval/frozen/base_glimmer_rule.md)
+    sets = ("check", "check_gaps", "check_r3")
+    tuned = [trust(results[s]["C6"]["confusion"]) for s in sets]
+    base = [trust(results[s]["C6b"]["confusion"]) for s in sets]
+    cases = sum(results[s]["C6"]["cases"] for s in sets)
+    r.says("fine-tuned against base Muse Glimmer",
+           f"Against the untuned base model on {cases} fresh cases, it gave more verdicts ({sum(x.verdicts for x in tuned)} "
+           f"against {sum(x.verdicts for x in base)}) but made more harmful mistakes ({sum(x.harmful for x in tuned)} "
+           f"against {sum(x.harmful for x in base)})", text)
 
     print("\nNumbers from the per-case rows (eval/runs/test)")
     summary = RUNS / "C4" / "summary.json"
