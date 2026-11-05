@@ -55,7 +55,6 @@ The investigations and Muse Glimmer's second readings are saved runs. *Run it li
 
 The factory documents hid 7 planted instructions, and none were followed.
 
-<!-- Screenshot row: the case file at the contradiction · the factory sending the tank log · the passport on a phone -->
 
 ## For judges
 
@@ -112,7 +111,13 @@ I'm not saying Tellwater will save every river in Bangladesh. But I want our kid
 5. **The factory can answer.** On its own page, in English or Bangla, a factory sees exactly what a buyer asked for and why. When one record is missing, it is asked for that record, sends it, and the buyer's case runs again with it.
 6. **The shopper scans the label.** Each garment's QR code (a GS1 Digital Link, the format product passports use) opens the dye run's passport: a plain answer for the shopper, details for buyers, and for auditors the signed record, whose fingerprints are checked again every time it opens. Shoppers and buyers can read it in English or ten other languages.
 
-<!-- Screenshot grid: the case file at the contradiction, the factory page sending the tank log, the passport's three tabs, the guide answering in Bangla. Captured from the deployed site before the README goes public. -->
+<table>
+<tr>
+<td width="40%" valign="top"><img src="docs/readme/factory.jpg" alt="The factory's own page: a buyer's request for the equalization tank level log, why it's needed, the file to send, a note to the buyer and Reply in your voice"><br><sub>The factory sees exactly what the buyer asked for and why, and can send it or reply by voice.</sub></td>
+<td width="40%" valign="top"><img src="docs/readme/two-readers.jpg" alt="Case D: Muse Spark says the evidence contradicts the claim, Muse Glimmer says it is insufficient; neither answer is used until a person decides"><br><sub>Two readers, two answers: nothing is published until a person decides.</sub></td>
+<td width="20%" valign="top"><img src="docs/readme/passport-phone.jpg" alt="The coffee T-shirt's passport on a phone after scanning its label: Evidence contradicts the claim"><br><sub>The shopper scans the label.</sub></td>
+</tr>
+</table>
 
 **Why a dye run, not a garment?** Garments don't make wastewater; dye runs do. Fabric is dyed in lots and cut into many garments later, and a run's water mixes with its neighbours in the equalization tank before treatment, so there is no “this shirt's water”. Each answer covers one dye run over its treatment window, and every garment cut from that run carries it.
 
