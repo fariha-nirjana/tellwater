@@ -21,7 +21,7 @@ from agent.models import Reply, load_env
 BASE_MODEL = "accounts/fireworks/models/muse-glimmer-30b"
 # The adapter that is published and reported as C6 (trained on Modal, deploy/glimmer.py). Its runs are in
 # eval/runs/<set>/C6-<run>; the results page and the two-reader report read them from there.
-PUBLISHED = "glimmer-gaps/epoch2"  # chosen by the rule written before its check (worklog, Nov 1)
+PUBLISHED = "glimmer-gaps/epoch2"  # kept: rounds 2 and 3 failed their pre-written checks (eval/frozen/glimmer_round2_rule.md, glimmer_round3_rule.md)
 
 
 def runs_folder(adapter: str) -> str:

@@ -62,7 +62,7 @@ The factory documents hid 7 planted instructions, and none were followed.
 |---|---|
 | **Impact** (30%) | A brand's reviewer checks a supplier's wastewater claim between audits. An honest factory missing a record is asked for it, not suspected, and the shopper sees the reviewed result from the garment's label. [What it feels like](#what-it-feels-like) · [Why I built this](#why-i-built-this) · [Why it matters](#why-it-matters) |
 | **Use of Meta AI tooling** (25%) | Muse Spark investigates and reads the handwriting, meter photos and lab reports. Muse Glimmer 30B, which I fine-tuned and [published](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), gives a second reading. Muse Spark Open runs the same investigation on open weights. Muse Voice Transcribe takes a factory's reply in Bangla. [Meta's models](#metas-models-and-where-they-run) · [An open model a factory could run itself](#an-open-model-a-factory-could-run-itself) |
-| **Technical depth** (20%) | Frozen before the test, seven approaches on 120 unseen cases, and every Muse Glimmer check's rule written down first, failures included. [Does it hold?](#does-it-hold) · [What I tried and dropped](#what-i-tried-and-dropped) · `python -m eval.check_numbers` recomputes this page's numbers |
+| **Technical depth** (20%) | Frozen before the test, seven approaches on 120 unseen cases, and every Muse Glimmer check's rule written down first, failures included. [Does it hold?](#does-it-hold) · [What I tried and dropped](#what-i-tried-and-dropped) · `python -m eval.check_numbers` recomputes this page's numbers and [the video's](docs/video-numbers.md) |
 | **Demo** (25%) | The [3-minute video](https://youtu.be/AQAexZWCw-Q). The [live demo](https://fariha-nirjana--tellwater-web.us-east.modal.run) needs no sign-in, or run it on your own computer with no AI key. [Try it](#try-it) |
 
 ## Why I built this
@@ -357,7 +357,7 @@ If `py -3.14` says no suitable Python was found, install 3.14 from the link abov
 <details>
 <summary>Evaluation, Muse Glimmer and deployment</summary>
 
-Tests: `.venv/bin/pytest` (139 tests, no key needed; 10 skip because they read Muse Glimmer training runs that aren't in the repo).
+Tests: `.venv/bin/pytest` (138 tests, no key needed; on a fresh clone 127 pass and 11 skip: 10 read Muse Glimmer training runs and one needs Fireworks' training cookbook, neither of which is in the repo).
 
 Evaluation:
 

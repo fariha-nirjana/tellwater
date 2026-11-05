@@ -271,7 +271,9 @@ def video_numbers(r: Report, test: dict) -> None:
 
     m = re.search(r'"evidence_id": "calc:water_balance@[^"]+", "start": "[^"]+", "end": "[^"]+", "hours": ([\d.]+)', text)
     hours = float(m.group(1))
-    r.check("B: low power lasts about five hours", "about 5", f"about {round(hours)}")
+    r.check("B: two hours on paper, five on the meters", "about 5", f"about {round(hours)}")
+    gap = round(hours * 60) - minutes
+    r.check("B: the stretch the logbook doesn't show (3 h 25 min on screen)", "205 minutes", f"{gap} minutes")
 
     m = re.search(r'"bod_mg_l": ([\d.]+)[^}]*"bod_limit_mg_l": ([\d.]+)', text)
     bod, limit = float(m.group(1)), float(m.group(2))
@@ -280,6 +282,11 @@ def video_numbers(r: Report, test: dict) -> None:
     c_before = json.loads((DEMO / "C" / "trace.json").read_text(encoding="utf-8"))["final"]["status"]
     c_after = json.loads((DEMO / "C" / "trace-after.json").read_text(encoding="utf-8"))["final"]["status"]
     r.check("C: asks for the tank log, then supports the claim with it", "insufficient -> supports", f"{c_before} -> {c_after}")
+    after = json.dumps(json.loads((DEMO / "C" / "trace-after.json").read_text(encoding="utf-8")))
+    m = re.search(r'"signal": "T1", "name": "[^"]+", "unit": "[^"]+", "start": "2026-10-13 12:30", "end": "2026-10-13 16:00".*?"min": ([\d.]+), "max": ([\d.]+)', after)
+    r.check("C: the tank rose (45% to 71% on screen)", "45% to 71%", f"{round(float(m.group(1)) * 100)}% to {round(float(m.group(2)) * 100)}%")
+    m = re.search(r'"calc:water_balance@1013-1310\.\.1013-1540".*?"outfall_m3": ([\d.]+)', after)
+    r.check("C: nothing left the outfall during the stop (m3)", "0", f"{float(m.group(1)):g}")
 
     d_spark = json.loads((DEMO / "D" / "trace.json").read_text(encoding="utf-8"))["final"]["status"]
     d_glim = json.loads((DEMO / "D" / "second_reader.json").read_text(encoding="utf-8"))
@@ -290,8 +297,10 @@ def video_numbers(r: Report, test: dict) -> None:
     factories = sorted({row["case_id"].rsplit("-", 1)[0] for row in manifest["rows"]})
     r.check("120 unseen simulated cases, from two factories", "120 cases, 2 factories", f"{manifest['cases']} cases, {len(factories)} factories")
 
-    spark, both = trust(test["C4"]["confusion"]), trust(test["two_readers"]["confusion"])
+    spark, both, rules = trust(test["C4"]["confusion"]), trust(test["two_readers"]["confusion"]), trust(test["C1"]["confusion"])
+    r.check("Muse Spark was right, or asked for help, 112 times", 112, spark.right_or_asked)
     r.check("Spark made eight harmful mistakes", 8, spark.harmful)
+    r.check("on plain rules it would have been 27", 27, rules.harmful)
     r.check("two readers reduced that to four", 4, both.harmful)
     r.check("while sending 25 cases to a person", 25, test["two_readers"]["routed_to_a_person"])
 
