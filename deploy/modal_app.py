@@ -28,7 +28,7 @@ image = (
                  "fastapi>=0.162", "uvicorn>=0.54", "python-multipart>=0.0.20", "cryptography>=44", "httpx>=0.28")
     .env({"TW_RUNTIME_DIR": RUNTIME, "TW_TRUST_PROXY": "1", "PYTHONPATH": APP,
           # judging (Nov 5-9): live calls bill to a card, so the daily totals keep the worst case near $2 a day
-          "TW_RUNS_PER_VISITOR": "2", "TW_RUNS_PER_DAY": "5",
+          "TW_RUNS_PER_VISITOR": "3", "TW_RUNS_PER_DAY": "6",
           "TW_QUESTIONS_PER_VISITOR": "15", "TW_QUESTIONS_PER_DAY": "40",
           "TW_VOICE_PER_VISITOR": "5", "TW_VOICE_PER_DAY": "20"})
 )
