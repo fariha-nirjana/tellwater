@@ -12,6 +12,8 @@ Fariha Tasnim (Nirjana) · Meta Global AI Developer Hackathon (Oct 26 to Nov 4, 
 
 **Video (3 min):** https://youtu.be/AQAexZWCw-Q
 
+<p align="center"><a href="https://youtu.be/AQAexZWCw-Q"><img src="docs/readme/video.jpg" alt="Watch the 3-minute Tellwater video on YouTube" width="70%"></a></p>
+
 **Three cases to try**, in the live demo or on your own computer:
 - **Case B:** follow the handwritten logbook's claim (aerator serviced 11:40–13:20) against the power readings, the meter photo and the lab result.
 - **Case C:** one record is missing, so Tellwater asks for it. On the factory's page, send the tank log, then open case C again: the investigation that ran with it supports the claim.
@@ -35,6 +37,8 @@ The investigations and Muse Glimmer's second readings are saved runs. *Run it li
 - **Muse Glimmer 30B**, which I fine-tuned and serve on my own GPU, gave every test case and every demo case a second reading.
 - **Muse Spark Open** runs the same investigation on open weights.
 - **Muse Voice Transcribe** lets a factory reply in Bangla.
+
+**Every reader in their own language.** The passport reads in English or ten other languages (German, French, Spanish, Italian, Dutch, Polish, Portuguese, Swedish, Danish, Japanese), for the shopper as well as the buyer. The guide answers questions about any case in twelve (those, plus Bangla), and understands questions that mix languages, such as Bangla typed in English letters. The factory works in English or Bangla, and can reply by voice.
 
 **Can you trust it?** I tested it on 120 unseen simulated cases, with the system frozen before the test. When Muse Spark isn't sure, it asks for a record or a person instead of guessing. It was right, or asked, 112 times. It made 8 harmful mistakes: it cleared 6 cases too readily and made 2 accusations the evidence didn't support. Rules alone made 27, and 20 of those were accusations. A person still signs every result, but they start from a finished investigation, not from zero.
 
@@ -106,7 +110,7 @@ I'm not saying Tellwater will save every river in Bangladesh. But I want our kid
 3. **It answers, with its scope.** In this case the meters, the meter photo and the lab agree with each other and not with the page: aeration stayed cut until 16:45 and the treated water failed its BOD test. Every record its finding cites is checked to be one it actually looked at.
 4. **A person decides.** The buyer's reviewer approves, changes or sends back the finding, with a written reason.
 5. **The factory can answer.** On its own page, in English or Bangla, a factory sees exactly what a buyer asked for and why. When one record is missing, it is asked for that record, sends it, and the buyer's case runs again with it.
-6. **The shopper scans the label.** Each garment's QR code (a GS1 Digital Link, the format product passports use) opens the dye run's passport: a plain answer for the shopper, details for buyers, and for auditors the signed record, whose fingerprints are checked again every time it opens. Buyers can read it in ten languages.
+6. **The shopper scans the label.** Each garment's QR code (a GS1 Digital Link, the format product passports use) opens the dye run's passport: a plain answer for the shopper, details for buyers, and for auditors the signed record, whose fingerprints are checked again every time it opens. Shoppers and buyers can read it in English or ten other languages.
 
 <!-- Screenshot grid: the case file at the contradiction, the factory page sending the tank log, the passport's three tabs, the guide answering in Bangla. Captured from the deployed site before the README goes public. -->
 
@@ -243,7 +247,7 @@ Every model the project calls while it runs is a Meta model.
 
 | Model | What it does | Where it runs |
 |---|---|---|
-| **Muse Spark** (`muse-spark-1.3`)<br><sub>investigator · vision · guide · translator</sub> | **Investigates:** chooses each check, reads handwritten logbook photos, meter photos and lab reports itself (no transcription is given), and keeps the explanations ledger.<br><br>**Vision:** finds where each logbook line sits on the photo, so the case file can highlight it. Padding the photo to a square took lines placed right from 34% to 99.5% (60 pages, 442 lines).<br><br>**Guide:** answers only from a case's investigation, in the reader's language; citations it can't back are removed.<br><br>**Writes:** the passport's translations and the letter to a factory. | Meta Model API |
+| **Muse Spark** (`muse-spark-1.3`)<br><sub>investigator · vision · guide · translator</sub> | **Investigates:** chooses each check, reads handwritten logbook photos, meter photos and lab reports itself (no transcription is given), and keeps the explanations ledger.<br><br>**Vision:** finds where each logbook line sits on the photo, so the case file can highlight it. Padding the photo to a square took lines placed right from 34% to 99.5% (60 pages, 442 lines).<br><br>**Guide:** answers only from a case's investigation, in any of twelve languages, and understands mixed-language questions; citations it can't back are removed.<br><br>**Writes:** the passport's translations and the letter to a factory. | Meta Model API |
 | **Muse Spark Open** | The same investigation on open weights, for comparison: on the held-out test, right or asked on 110 of 120, with 10 harmful mistakes | Fireworks (serverless) |
 | **Muse Glimmer 30B**, fine-tuned | The second reader, distilled from Muse Spark's investigations; a LoRA adapter [published on Hugging Face](https://huggingface.co/boundlesssky1512/tellwater-glimmer-investigator), with [its training data](https://huggingface.co/datasets/boundlesssky1512/tellwater-glimmer-training) | Trained on one H200 on Modal; served with vLLM on Modal, the same way it could run on a factory's own GPU |
 | **Muse Voice Transcribe** (`muse-voice-transcribe-1.0`) | Lets a factory reply by voice in Bangla or English; the transcript fills the reply box to check and edit before sending. On three Bangla voice notes (scripted, recorded in a normal room, a woman's voice among them) it got all 23 times, numbers and facts we scored right, with "ETP" and three other plant terms given as keywords; without them it heard "ETP" as a Bangla word | Meta Model API |
